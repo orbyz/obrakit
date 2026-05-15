@@ -102,7 +102,7 @@ export async function loginAction(
 
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message, success: false };
+    return { error: parsed.error.issues[0].message, success: false };
   }
 
   const { email, password } = parsed.data;
