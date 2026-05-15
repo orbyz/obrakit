@@ -35,7 +35,7 @@ export async function registerAction(
 
   const parsed = registerSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message, success: false };
+    return { error: parsed.error.issues[0].message, success: false };
   }
 
   const { full_name, nombre_negocio, email, password } = parsed.data;
