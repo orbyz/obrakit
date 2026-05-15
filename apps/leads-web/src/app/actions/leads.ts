@@ -130,3 +130,93 @@ export async function updateLeadEstadoAction(
 
   revalidatePath("/leads");
 }
+
+// ── Obtener lead por ID ───────────────────────────────────────────
+
+export async function getLeadById(id: string): Promise<Lead | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) return null;
+  return data as Lead;
+}
+
+// ── Actualizar campos del lead ────────────────────────────────────
+
+export interface UpdateLeadState {
+  error: string | null;
+  success: boolean;
+}
+
+const updateLeadSchema = z.object({
+  nombre: z.string().min(2, "El nombre es obligatorio"),
+  telefono: z.string().optional(),
+  zona: z.string().optional(),
+  tipo_obra: z.enum(["bano", "cocina", "pintura", "integral", "otro"]),
+  origen: z.enum(["whatsapp", "instagram", "recomendacion", "web", "otro"]),
+  estado: z.enum([
+    "nuevo",
+    "contactado",
+    "visita",
+    "presupuesto",
+    "cerrado",
+    "perdido",
+  ]),
+  importe_ofertado: z.string().optional(),
+  importe_cerrado: z.string().optional(),
+  motivo_perdida: z.string().optional(),
+  notas: z.string().optional(),
+});
+
+export async function updateLeadAction(
+  id: string,
+  _prevState: UpdateLeadState,
+  formData: FormData,
+): Promise<UpdateLeadState> {
+  const raw = {
+    nombre: formData.get("nombre") as string,
+    telefono: formData.get("telefono") as string,
+    zona: formData.get("zona") as string,
+    tipo_obra: formData.get("tipo_obra") as string,
+    origen: formData.get("origen") as string,
+    estado: formData.get("estado") as string,
+    importe_ofertado: formData.get("importe_ofertado") as string,
+    importe_cerrado: formData.get("importe_cerrado") as string,
+    motivo_perdida: formData.get("motivo_perdida") as string,
+    notas: formData.get("notas") as string,
+  };
+
+  const parsed = updateLeadSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { error: parsed.error.errors[0].message, success: false };
+  }
+
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("leads")
+    .update({
+      ...parsed.data,
+      importe_ofertado: parsed.data.importe_ofertado
+        ? parseFloat(parsed.data.importe_ofertado)
+        : null,
+      importe_cerrado: parsed.data.importe_cerrado
+        ? parseFloat(parsed.data.importe_cerrado)
+        : null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    return { error: "Error al actualizar el lead", success: false };
+  }
+
+  revalidatePath(`/leads/${id}`);
+  revalidatePath("/leads");
+  return { error: null, success: true };
+}

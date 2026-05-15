@@ -2,6 +2,7 @@
 
 import { updateLeadEstadoAction } from "@/app/actions/leads";
 import type { EstadoLead, Lead } from "@/types";
+import Link from "next/link";
 
 const ESTADOS: { value: EstadoLead; label: string }[] = [
   { value: "nuevo", label: "📥 Nuevo" },
@@ -40,9 +41,11 @@ export default function LeadCard({ lead }: LeadCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
       {/* Nombre */}
-      <p className="font-medium text-gray-900 text-sm mb-2 truncate">
-        {lead.nombre}
-      </p>
+      <Link href={`/leads/${lead.id}`}>
+        <p className="font-medium text-gray-900 text-sm mb-2 truncate hover:text-orange-500 transition-colors cursor-pointer">
+          {lead.nombre}
+        </p>
+      </Link>
 
       {/* Badges */}
       <div className="flex flex-wrap gap-1 mb-2">
