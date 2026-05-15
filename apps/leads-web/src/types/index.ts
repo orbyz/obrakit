@@ -1,0 +1,69 @@
+export type TipoObra = "bano" | "cocina" | "pintura" | "integral" | "otro";
+export type OrigenLead =
+  | "whatsapp"
+  | "instagram"
+  | "recomendacion"
+  | "web"
+  | "otro";
+export type EstadoLead =
+  | "nuevo"
+  | "contactado"
+  | "visita"
+  | "presupuesto"
+  | "cerrado"
+  | "perdido";
+export type RolMiembro = "owner" | "admin" | "viewer";
+export type Plan = "free" | "pro";
+
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Tenant {
+  id: string;
+  nombre: string;
+  plan: Plan;
+  created_at: string;
+}
+
+export interface TenantMember {
+  id: string;
+  tenant_id: string;
+  user_id: string;
+  role: RolMiembro;
+  created_at: string;
+}
+
+export interface Lead {
+  id: string;
+  tenant_id: string;
+  created_by: string | null;
+  nombre: string;
+  telefono: string | null;
+  zona: string | null;
+  tipo_obra: TipoObra | null;
+  origen: OrigenLead | null;
+  estado: EstadoLead;
+  importe_ofertado: number | null;
+  importe_cerrado: number | null;
+  motivo_perdida: string | null;
+  notas: string | null;
+  fecha_visita: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Seguimiento {
+  id: string;
+  lead_id: string;
+  tenant_id: string;
+  created_by: string | null;
+  tipo: "llamada" | "whatsapp" | "visita" | "presupuesto" | "nota";
+  descripcion: string | null;
+  created_at: string;
+}

@@ -157,3 +157,29 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
 - [Configuration Options](https://turborepo.dev/docs/reference/configuration)
 - [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+
+src/
+├── app/
+│   ├── (auth)/
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── register/
+│   │       └── page.tsx
+│   ├── (dashboard)/
+│   │   ├── leads/
+│   │   │   └── page.tsx
+│   │   └── ajustes/
+│   │       └── page.tsx
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── leads/        ← componentes del kanban, tarjetas, etc.
+│   └── ui/           ← botones, inputs, badges reutilizables
+├── lib/
+│   ├── supabase/
+│   │   ├── client.ts     ← cliente browser
+│   │   ├── server.ts     ← cliente server components
+│   │   └── middleware.ts ← sesión
+│   └── utils.ts
+└── types/
+    └── index.ts          ← tipos compartidos (Lead, Tenant, etc.)
