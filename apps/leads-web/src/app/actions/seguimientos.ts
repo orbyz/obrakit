@@ -49,7 +49,7 @@ export async function createSeguimientoAction(
 
   const parsed = createSeguimientoSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message, success: false };
+    return { error: parsed.error.issues[0].message, success: false };
   }
 
   const supabase = await createClient();

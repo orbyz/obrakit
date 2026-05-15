@@ -86,7 +86,7 @@ export async function createLeadAction(
 
   const parsed = createLeadSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message, success: false };
+    return { error: parsed.error.issues[0].message, success: false };
   }
 
   const tenantId = await getMyTenantId();
@@ -193,7 +193,7 @@ export async function updateLeadAction(
 
   const parsed = updateLeadSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message, success: false };
+    return { error: parsed.error.issues[0].message, success: false };
   }
 
   const admin = createAdminClient();
