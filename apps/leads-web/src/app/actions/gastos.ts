@@ -119,7 +119,10 @@ export async function getResumenGastos(): Promise<{
   );
 
   const porObra = Object.entries(obraMap)
-    .map(([nombre, total]) => ({ nombre, total }))
+    .map(([nombre, total]): { nombre: string; total: number } => ({
+      nombre,
+      total: total as number,
+    }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 5);
 
