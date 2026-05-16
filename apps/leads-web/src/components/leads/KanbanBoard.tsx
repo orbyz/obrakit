@@ -54,8 +54,8 @@ export default function KanbanBoard({ leads }: KanbanBoardProps) {
       </div>
 
       {/* Kanban */}
-      <div className="overflow-x-auto pb-4">
-        <div className="grid grid-cols-6 gap-4 min-w-[900px]">
+      <div className="overflow-x-auto pb-4 -mx-4 px-4">
+        <div className="grid grid-cols-6 gap-4 min-w-[1200px]">
           {ESTADOS.map((estado) => (
             <KanbanColumn key={estado} estado={estado} leads={leads[estado]} />
           ))}
