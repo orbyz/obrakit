@@ -33,6 +33,12 @@ export default async function DashboardLayout({
             >
               🧱 Materiales
             </Link>
+            <Link
+              href="/rentabilidad"
+              className="text-sm text-gray-600 hover:text-orange-500 transition-colors"
+            >
+              📊 Rentabilidad
+            </Link>
           </div>
         </div>
         <div className="flex items-center gap-4">
