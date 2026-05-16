@@ -67,3 +67,37 @@ export interface Seguimiento {
   descripcion: string | null;
   created_at: string;
 }
+
+export type CategoriaGasto =
+  | "ceramica"
+  | "fontaneria"
+  | "electricidad"
+  | "pintura"
+  | "herramientas"
+  | "otro";
+
+export type UnidadGasto =
+  | "m2"
+  | "ml"
+  | "kg"
+  | "ud"
+  | "sacos"
+  | "litros"
+  | "otro";
+
+export interface Gasto {
+  id: string;
+  tenant_id: string;
+  created_by: string | null;
+  lead_id: string | null;
+  obra_nombre: string | null;
+  proveedor: string | null;
+  material: string;
+  importe: number;
+  cantidad: number | null;
+  unidad: UnidadGasto | null;
+  categoria: CategoriaGasto | null;
+  notas: string | null;
+  fecha: string;
+  created_at: string;
+}

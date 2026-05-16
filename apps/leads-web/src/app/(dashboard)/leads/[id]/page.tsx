@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getLeadById } from "@/app/actions/leads";
 import { getSeguimientos } from "@/app/actions/seguimientos";
-import LeadInfo from "@/components/leads/LeadInfo";
-import SeguimientoForm from "@/components/leads/SeguimientoForm";
-import SeguimientoList from "@/components/leads/SeguimientoList";
+import { getGastosByLead } from "@/app/actions/gastos";
+import LeadDetailClient from "@/components/leads/LeadDetailClient";
 
 const ESTADO_CONFIG: Record<string, { label: string; color: string }> = {
   nuevo: { label: "📥 Nuevo", color: "bg-gray-100 text-gray-700" },
@@ -24,14 +23,16 @@ interface LeadDetailPageProps {
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const { id } = await params;
-  const [lead, seguimientos] = await Promise.all([
+  const [lead, seguimientos, gastos] = await Promise.all([
     getLeadById(id),
     getSeguimientos(id),
+    getGastosByLead(id),
   ]);
 
   if (!lead) notFound();
 
   const estadoConfig = ESTADO_CONFIG[lead.estado];
+  const totalGastos = gastos.reduce((acc, g) => acc + Number(g.importe), 0);
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -61,33 +62,28 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
         </p>
       </div>
 
-      {/* Layout 2 columnas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Columna izquierda — Info del lead */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-            Información del lead
-          </h2>
-          <LeadInfo lead={lead} />
-        </div>
-
-        {/* Columna derecha — Seguimientos */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-6">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-              Añadir seguimiento
-            </h2>
-            <SeguimientoForm leadId={lead.id} />
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-              Historial ({seguimientos.length})
-            </h2>
-            <SeguimientoList seguimientos={seguimientos} />
+      {/* Stats rápidas */}
+      {totalGastos > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-orange-700">
+              🧱 Total gastado en materiales
+            </span>
+            <span className="text-lg font-bold text-orange-900">
+              {totalGastos.toLocaleString("es-ES", {
+                minimumFractionDigits: 2,
+              })}{" "}
+              €
+            </span>
           </div>
         </div>
-      </div>
+      )}
+
+      <LeadDetailClient
+        lead={lead}
+        seguimientos={seguimientos}
+        gastos={gastos}
+      />
     </div>
   );
 }
