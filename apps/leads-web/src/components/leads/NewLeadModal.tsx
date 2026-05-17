@@ -29,6 +29,7 @@ interface NewLeadModalProps {
 export default function NewLeadModal({ onClose }: NewLeadModalProps) {
   const [state, formAction] = useActionState(createLeadAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  const direccionRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (state.success) {
@@ -37,11 +38,19 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
     }
   }, [state.success, onClose]);
 
+  function handleOpenMaps() {
+    const direccion = direccionRef.current?.value;
+    if (direccion) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+      window.open(url, "_blank");
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
           <h2 className="text-lg font-semibold text-gray-900">Nueva obra</h2>
           <button
             onClick={onClose}
@@ -76,7 +85,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
           {/* Teléfono */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono
+              Teléfono de contacto
             </label>
             <input
               name="telefono"
@@ -84,6 +93,43 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               placeholder="600 000 000"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              name="email"
+              type="email"
+              placeholder="cliente@email.com"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Dirección con botón Maps */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Dirección de la obra
+            </label>
+            <div className="flex gap-2">
+              <input
+                ref={direccionRef}
+                name="direccion"
+                type="text"
+                placeholder="Calle ejemplo 123, Valencia"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={handleOpenMaps}
+                className="px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors shrink-0"
+                title="Abrir en Google Maps"
+              >
+                🗺️
+              </button>
+            </div>
           </div>
 
           {/* Zona */}
@@ -99,17 +145,17 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
             />
           </div>
 
-          {/* Tipo de obra */}
+          {/* Tipo de obra (opcional) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de obra <span className="text-red-500">*</span>
+              Tipo de obra{" "}
+              <span className="text-xs text-gray-400">(opcional)</span>
             </label>
             <select
               name="tipo_obra"
-              required
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
             >
-              <option value="">Selecciona...</option>
+              <option value="">No especificado</option>
               <option value="bano">🚿 Baño</option>
               <option value="cocina">🍳 Cocina</option>
               <option value="pintura">🎨 Pintura</option>
@@ -118,24 +164,25 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
             </select>
           </div>
 
-          {/* Origen */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ¿Cómo llegó? <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="origen"
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-            >
-              <option value="">Selecciona...</option>
-              <option value="whatsapp">💬 WhatsApp</option>
-              <option value="instagram">📸 Instagram</option>
-              <option value="recomendacion">👥 Recomendación</option>
-              <option value="web">🌐 Web</option>
-              <option value="otro">📌 Otro</option>
-            </select>
-          </div>
+          {/* Origen (opcional, colapsable) */}
+          <details className="border border-gray-200 rounded-lg">
+            <summary className="px-3 py-2 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50">
+              📊 ¿Cómo llegó? (opcional, para análisis)
+            </summary>
+            <div className="p-3 pt-0">
+              <select
+                name="origen"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
+              >
+                <option value="">No especificado</option>
+                <option value="whatsapp">💬 WhatsApp</option>
+                <option value="instagram">📸 Instagram</option>
+                <option value="recomendacion">👥 Recomendación</option>
+                <option value="web">🌐 Web</option>
+                <option value="otro">📌 Otro</option>
+              </select>
+            </div>
+          </details>
 
           <SubmitButton />
         </form>

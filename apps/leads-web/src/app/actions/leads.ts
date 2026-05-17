@@ -11,9 +11,17 @@ import type { EstadoLead, Lead } from "@/types";
 const createLeadSchema = z.object({
   nombre: z.string().min(2, "El nombre es obligatorio"),
   telefono: z.string().optional(),
+  email: z.string().optional(),
+  direccion: z.string().optional(),
   zona: z.string().optional(),
-  tipo_obra: z.enum(["bano", "cocina", "pintura", "integral", "otro"]),
-  origen: z.enum(["whatsapp", "instagram", "recomendacion", "web", "otro"]),
+  tipo_obra: z
+    .enum(["bano", "cocina", "pintura", "integral", "otro"])
+    .optional()
+    .or(z.literal("")),
+  origen: z
+    .enum(["whatsapp", "instagram", "recomendacion", "web", "otro"])
+    .optional()
+    .or(z.literal("")),
 });
 
 // ── Tipos ──────────────────────────────────────────────────────────
@@ -76,6 +84,8 @@ export async function createLeadAction(
   const raw = {
     nombre: formData.get("nombre") as string,
     telefono: formData.get("telefono") as string,
+    email: formData.get("email") as string,
+    direccion: formData.get("direccion") as string,
     zona: formData.get("zona") as string,
     tipo_obra: formData.get("tipo_obra") as string,
     origen: formData.get("origen") as string,
@@ -98,7 +108,13 @@ export async function createLeadAction(
   const admin = createAdminClient();
 
   const { error } = await admin.from("leads").insert({
-    ...parsed.data,
+    nombre: parsed.data.nombre,
+    telefono: parsed.data.telefono || null,
+    email: parsed.data.email || null,
+    direccion: parsed.data.direccion || null,
+    zona: parsed.data.zona || null,
+    tipo_obra: parsed.data.tipo_obra || null,
+    origen: parsed.data.origen || null,
     tenant_id: tenantId,
     created_by: user!.id,
     estado: "nuevo",
@@ -153,9 +169,17 @@ export interface UpdateLeadState {
 const updateLeadSchema = z.object({
   nombre: z.string().min(2, "El nombre es obligatorio"),
   telefono: z.string().optional(),
+  email: z.string().optional(),
+  direccion: z.string().optional(),
   zona: z.string().optional(),
-  tipo_obra: z.enum(["bano", "cocina", "pintura", "integral", "otro"]),
-  origen: z.enum(["whatsapp", "instagram", "recomendacion", "web", "otro"]),
+  tipo_obra: z
+    .enum(["bano", "cocina", "pintura", "integral", "otro"])
+    .optional()
+    .or(z.literal("")),
+  origen: z
+    .enum(["whatsapp", "instagram", "recomendacion", "web", "otro"])
+    .optional()
+    .or(z.literal("")),
   estado: z.enum(["nuevo", "en_curso", "cerrado"]),
   importe_ofertado: z.string().optional(),
   importe_cerrado: z.string().optional(),
@@ -171,6 +195,8 @@ export async function updateLeadAction(
   const raw = {
     nombre: formData.get("nombre") as string,
     telefono: formData.get("telefono") as string,
+    email: formData.get("email") as string,
+    direccion: formData.get("direccion") as string,
     zona: formData.get("zona") as string,
     tipo_obra: formData.get("tipo_obra") as string,
     origen: formData.get("origen") as string,
@@ -191,13 +217,22 @@ export async function updateLeadAction(
   const { error } = await admin
     .from("leads")
     .update({
-      ...parsed.data,
+      nombre: parsed.data.nombre,
+      telefono: parsed.data.telefono || null,
+      email: parsed.data.email || null,
+      direccion: parsed.data.direccion || null,
+      zona: parsed.data.zona || null,
+      tipo_obra: parsed.data.tipo_obra || null,
+      origen: parsed.data.origen || null,
+      estado: parsed.data.estado,
       importe_ofertado: parsed.data.importe_ofertado
         ? parseFloat(parsed.data.importe_ofertado)
         : null,
       importe_cerrado: parsed.data.importe_cerrado
         ? parseFloat(parsed.data.importe_cerrado)
         : null,
+      motivo_perdida: parsed.data.motivo_perdida || null,
+      notas: parsed.data.notas || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);

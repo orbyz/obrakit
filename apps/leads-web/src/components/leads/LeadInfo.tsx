@@ -68,6 +68,31 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
         />
       </div>
 
+      {/* Email */}
+      <div>
+        <label className="block text-xs font-medium text-gray-500 mb-1">
+          Email
+        </label>
+        <input
+          name="email"
+          type="email"
+          defaultValue={lead.email ?? ""}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+      </div>
+
+      {/* Dirección */}
+      <div>
+        <label className="block text-xs font-medium text-gray-500 mb-1">
+          Dirección
+        </label>
+        <input
+          name="direccion"
+          defaultValue={lead.direccion ?? ""}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+      </div>
+
       {/* Zona */}
       <div>
         <label className="block text-xs font-medium text-gray-500 mb-1">
