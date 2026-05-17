@@ -32,7 +32,7 @@ export default function KanbanColumn({ estado, leads }: KanbanColumnProps) {
       <div className="flex flex-col gap-2 min-h-[100px]">
         {leads.length === 0 ? (
           <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
-            <p className="text-xs text-gray-400">Sin leads</p>
+            <p className="text-xs text-gray-400">Sin obras</p>
           </div>
         ) : (
           leads.map((lead) => <LeadCard key={lead.id} lead={lead} />)
