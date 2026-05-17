@@ -49,11 +49,8 @@ export async function getLeads(): Promise<Record<EstadoLead, Lead[]>> {
 
   const empty: Record<EstadoLead, Lead[]> = {
     nuevo: [],
-    contactado: [],
-    visita: [],
-    presupuesto: [],
+    en_curso: [],
     cerrado: [],
-    perdido: [],
   };
 
   const { data, error } = await supabase
@@ -159,14 +156,7 @@ const updateLeadSchema = z.object({
   zona: z.string().optional(),
   tipo_obra: z.enum(["bano", "cocina", "pintura", "integral", "otro"]),
   origen: z.enum(["whatsapp", "instagram", "recomendacion", "web", "otro"]),
-  estado: z.enum([
-    "nuevo",
-    "contactado",
-    "visita",
-    "presupuesto",
-    "cerrado",
-    "perdido",
-  ]),
+  estado: z.enum(["nuevo", "en_curso", "cerrado"]),
   importe_ofertado: z.string().optional(),
   importe_cerrado: z.string().optional(),
   motivo_perdida: z.string().optional(),

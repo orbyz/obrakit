@@ -91,11 +91,8 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
         >
           <option value="nuevo">📥 Nuevo</option>
-          <option value="contactado">📞 Contactado</option>
-          <option value="visita">🏠 Visita</option>
-          <option value="presupuesto">📄 Presupuesto</option>
-          <option value="cerrado">🤝 Cerrado</option>
-          <option value="perdido">❌ Perdido</option>
+          <option value="en_curso">⚙️ En Curso</option>
+          <option value="cerrado">✅ Cerrado</option>
         </select>
       </div>
 

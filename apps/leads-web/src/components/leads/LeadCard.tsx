@@ -6,11 +6,8 @@ import Link from "next/link";
 
 const ESTADOS: { value: EstadoLead; label: string }[] = [
   { value: "nuevo", label: "📥 Nuevo" },
-  { value: "contactado", label: "📞 Contactado" },
-  { value: "visita", label: "🏠 Visita" },
-  { value: "presupuesto", label: "📄 Presupuesto" },
-  { value: "cerrado", label: "🤝 Cerrado" },
-  { value: "perdido", label: "❌ Perdido" },
+  { value: "en_curso", label: "⚙️ En Curso" },
+  { value: "cerrado", label: "✅ Cerrado" },
 ];
 
 const TIPO_OBRA_LABEL: Record<string, string> = {

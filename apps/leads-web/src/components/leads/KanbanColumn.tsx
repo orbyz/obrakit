@@ -3,11 +3,8 @@ import LeadCard from "./LeadCard";
 
 const COLUMN_CONFIG: Record<EstadoLead, { label: string; color: string }> = {
   nuevo: { label: "📥 Nuevo", color: "bg-gray-400" },
-  contactado: { label: "📞 Contactado", color: "bg-blue-400" },
-  visita: { label: "🏠 Visita", color: "bg-teal-400" },
-  presupuesto: { label: "📄 Presupuesto", color: "bg-amber-400" },
-  cerrado: { label: "🤝 Cerrado", color: "bg-green-500" },
-  perdido: { label: "❌ Perdido", color: "bg-red-400" },
+  en_curso: { label: "⚙️ En Curso", color: "bg-blue-400" },
+  cerrado: { label: "✅ Cerrado", color: "bg-green-500" },
 };
 
 interface KanbanColumnProps {

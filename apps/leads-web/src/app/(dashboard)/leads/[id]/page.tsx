@@ -7,14 +7,8 @@ import LeadDetailClient from "@/components/leads/LeadDetailClient";
 
 const ESTADO_CONFIG: Record<string, { label: string; color: string }> = {
   nuevo: { label: "📥 Nuevo", color: "bg-gray-100 text-gray-700" },
-  contactado: { label: "📞 Contactado", color: "bg-blue-100 text-blue-700" },
-  visita: { label: "🏠 Visita", color: "bg-purple-100 text-purple-700" },
-  presupuesto: {
-    label: "📄 Presupuesto",
-    color: "bg-amber-100 text-amber-700",
-  },
-  cerrado: { label: "🤝 Cerrado", color: "bg-green-100 text-green-700" },
-  perdido: { label: "❌ Perdido", color: "bg-red-100 text-red-700" },
+  en_curso: { label: "⚙️ En Curso", color: "bg-blue-100 text-blue-700" },
+  cerrado: { label: "✅ Cerrado", color: "bg-green-100 text-green-700" },
 };
 
 interface LeadDetailPageProps {

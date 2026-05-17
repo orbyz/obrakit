@@ -5,13 +5,7 @@ export type OrigenLead =
   | "recomendacion"
   | "web"
   | "otro";
-export type EstadoLead =
-  | "nuevo"
-  | "contactado"
-  | "visita"
-  | "presupuesto"
-  | "cerrado"
-  | "perdido";
+export type EstadoLead = "nuevo" | "en_curso" | "cerrado";
 export type RolMiembro = "owner" | "admin" | "viewer";
 export type Plan = "free" | "pro";
 
