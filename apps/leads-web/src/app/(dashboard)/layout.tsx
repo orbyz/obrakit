@@ -35,7 +35,7 @@ export default async function DashboardLayout({
               href="/leads"
               className="text-xs md:text-sm text-gray-600 hover:text-orange-500 whitespace-nowrap"
             >
-              📋 Leads
+              🏗️ Obras
             </Link>
             <Link
               href="/materiales"

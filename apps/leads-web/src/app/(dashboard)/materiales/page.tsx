@@ -23,7 +23,7 @@ export default async function MaterialesPage() {
             🧱 Gastos de Materiales
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Controla lo que gastas en cada obra
+            Controla lo que gastas en cada proyecto
           </p>
         </div>
       </div>

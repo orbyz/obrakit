@@ -26,7 +26,7 @@ export default function LeadDetailClient({
       {/* Columna izquierda — Info del lead */}
       <div className="bg-white border border-gray-200 rounded-xl p-6">
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-          Información del lead
+          Información de la obra
         </h2>
         <LeadInfo lead={lead} />
       </div>

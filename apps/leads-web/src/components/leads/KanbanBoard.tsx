@@ -30,7 +30,7 @@ export default function KanbanBoard({ leads }: KanbanBoardProps) {
       {/* Stats rápidas */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Leads activos</p>
+          <p className="text-xs text-gray-500 mb-1">Obras activas</p>
           <p className="text-2xl font-bold text-gray-900">{totalLeads}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -49,7 +49,7 @@ export default function KanbanBoard({ leads }: KanbanBoardProps) {
           onClick={() => setShowModal(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
         >
-          + Nuevo lead
+          + Nueva obra
         </button>
       </div>
 

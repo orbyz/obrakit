@@ -187,7 +187,7 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
           name="notas"
           defaultValue={lead.notas ?? ""}
           rows={3}
-          placeholder="Notas generales del lead..."
+          placeholder="Notas generales de la obra..."
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
         />
       </div>

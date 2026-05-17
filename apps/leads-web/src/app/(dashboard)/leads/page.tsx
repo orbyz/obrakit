@@ -9,11 +9,9 @@ export default async function LeadsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Pipeline de Leads
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Mis Obras</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Gestiona tus obras de un vistazo
+            Gestiona tus proyectos de un vistazo
           </p>
         </div>
       </div>

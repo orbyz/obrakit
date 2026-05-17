@@ -17,7 +17,7 @@ function SubmitButton() {
       disabled={pending}
       className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm"
     >
-      {pending ? "Guardando..." : "Crear lead"}
+      {pending ? "Guardando..." : "Crear obra"}
     </button>
   );
 }
@@ -42,7 +42,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Nuevo lead</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Nueva obra</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
