@@ -3,6 +3,7 @@
 import { updateLeadEstadoAction } from "@/app/actions/leads";
 import type { EstadoLead, Lead } from "@/types";
 import Link from "next/link";
+import TiempoAlerta from "./TiempoAlerta";
 
 const ESTADOS: { value: EstadoLead; label: string }[] = [
   { value: "nuevo", label: "📥 Nuevo" },
@@ -72,6 +73,17 @@ export default function LeadCard({ lead }: LeadCardProps) {
           💰 {lead.importe_ofertado.toLocaleString("es-ES")} €
         </p>
       )}
+
+      {/* Alerta de tiempo */}
+      {lead.fecha_fin_estimada &&
+        lead.estado !== "cerrado" &&
+        lead.dias_estimados && (
+          <TiempoAlerta
+            leadId={lead.id}
+            fechaFinEstimada={lead.fecha_fin_estimada}
+            diasEstimados={lead.dias_estimados}
+          />
+        )}
 
       {/* Cambiar estado */}
       <select

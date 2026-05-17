@@ -39,8 +39,8 @@ export interface Lead {
   created_by: string | null;
   nombre: string;
   telefono: string | null;
-  email: string | null; // ← nuevo
-  direccion: string | null; // ← nuevo
+  email: string | null;
+  direccion: string | null;
   zona: string | null;
   tipo_obra: TipoObra | null;
   origen: OrigenLead | null;
@@ -50,6 +50,9 @@ export interface Lead {
   motivo_perdida: string | null;
   notas: string | null;
   fecha_visita: string | null;
+  fecha_inicio: string | null;
+  dias_estimados: number | null;
+  fecha_fin_estimada: string | null;
   created_at: string;
   updated_at: string;
 }

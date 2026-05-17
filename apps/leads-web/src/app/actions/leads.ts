@@ -185,6 +185,8 @@ const updateLeadSchema = z.object({
   importe_cerrado: z.string().optional(),
   motivo_perdida: z.string().optional(),
   notas: z.string().optional(),
+  fecha_inicio: z.string().optional(),
+  dias_estimados: z.string().optional(),
 });
 
 export async function updateLeadAction(
@@ -205,6 +207,8 @@ export async function updateLeadAction(
     importe_cerrado: formData.get("importe_cerrado") as string,
     motivo_perdida: formData.get("motivo_perdida") as string,
     notas: formData.get("notas") as string,
+    fecha_inicio: formData.get("fecha_inicio") as string,
+    dias_estimados: formData.get("dias_estimados") as string,
   };
 
   const parsed = updateLeadSchema.safeParse(raw);
@@ -233,6 +237,10 @@ export async function updateLeadAction(
         : null,
       motivo_perdida: parsed.data.motivo_perdida || null,
       notas: parsed.data.notas || null,
+      fecha_inicio: parsed.data.fecha_inicio || null,
+      dias_estimados: parsed.data.dias_estimados
+        ? parseInt(parsed.data.dias_estimados)
+        : null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
@@ -244,4 +252,34 @@ export async function updateLeadAction(
   revalidatePath(`/leads/${id}`);
   revalidatePath("/leads");
   return { error: null, success: true };
+}
+
+// ── Extender plazo de obra ────────────────────────────────────────
+
+export async function extenderPlazoAction(
+  leadId: string,
+  diasExtra: number,
+): Promise<void> {
+  const admin = createAdminClient();
+
+  const { data: lead } = await admin
+    .from("leads")
+    .select("dias_estimados")
+    .eq("id", leadId)
+    .single();
+
+  if (!lead) return;
+
+  const nuevosDias = (lead.dias_estimados ?? 0) + diasExtra;
+
+  await admin
+    .from("leads")
+    .update({
+      dias_estimados: nuevosDias,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", leadId);
+
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
 }

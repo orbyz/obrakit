@@ -121,6 +121,44 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
         </select>
       </div>
 
+      {/* Fecha de inicio */}
+      <div>
+        <label className="block text-xs font-medium text-gray-500 mb-1">
+          Fecha de inicio
+        </label>
+        <input
+          name="fecha_inicio"
+          type="date"
+          defaultValue={lead.fecha_inicio ?? ""}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+      </div>
+
+      {/* Días estimados */}
+      <div>
+        <label className="block text-xs font-medium text-gray-500 mb-1">
+          Días estimados de obra
+        </label>
+        <input
+          name="dias_estimados"
+          type="number"
+          min="1"
+          defaultValue={lead.dias_estimados ?? ""}
+          placeholder="15"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+        {lead.fecha_fin_estimada && (
+          <p className="text-xs text-gray-500 mt-1">
+            Finalización estimada:{" "}
+            {new Date(lead.fecha_fin_estimada).toLocaleDateString("es-ES", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        )}
+      </div>
+
       {/* Tipo de obra */}
       <div>
         <label className="block text-xs font-medium text-gray-500 mb-1">
