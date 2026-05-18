@@ -53,7 +53,7 @@ export default async function DashboardLayout({
           <div className="hidden md:flex items-center gap-4">
             <span className="text-sm text-gray-500">{user.email}</span>
             <form action={logoutAction}>
-              <button className="text-sm text-gray-500 hover:text-red-500">
+              <button className="text-sm text-gray-100 rounded-md bg-red-400 px-2 py-2 hover:bg-red-500">
                 Cerrar sesión
               </button>
             </form>

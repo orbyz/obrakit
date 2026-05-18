@@ -58,6 +58,22 @@ export default function RegisterPage() {
 
         <div>
           <label
+            htmlFor="phone"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Teléfono
+          </label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="600 000 000"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          />
+        </div>
+
+        <div>
+          <label
             htmlFor="nombre_negocio"
             className="block text-sm font-medium text-gray-700 mb-1"
           >

@@ -7,6 +7,7 @@ import { z } from "zod";
 
 const registerSchema = z.object({
   full_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  phone: z.string().optional(),
   nombre_negocio: z.string().min(2, "El nombre del negocio es obligatorio"),
   email: z.string().email("Email no válido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
@@ -28,6 +29,7 @@ export async function registerAction(
 ): Promise<ActionState> {
   const raw = {
     full_name: formData.get("full_name") as string,
+    phone: formData.get("phone") as string,
     nombre_negocio: formData.get("nombre_negocio") as string,
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -38,7 +40,7 @@ export async function registerAction(
     return { error: parsed.error.issues[0].message, success: false };
   }
 
-  const { full_name, nombre_negocio, email, password } = parsed.data;
+  const { full_name, phone, nombre_negocio, email, password } = parsed.data;
 
   // Cliente normal para auth
   const supabase = await createClient();
@@ -50,7 +52,7 @@ export async function registerAction(
     email,
     password,
     options: {
-      data: { full_name },
+      data: { full_name, phone },
     },
   });
 
