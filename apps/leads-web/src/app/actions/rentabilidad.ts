@@ -172,3 +172,49 @@ export async function getRentabilidadPorOrigen(): Promise<
 
   return result.sort((a, b) => b.tasaCierre - a.tasaCierre);
 }
+
+// ── Rentabilidad por obra ────────────────────────────────────────
+export interface RentabilidadPorObra {
+  id: string;
+  nombre: string;
+  facturado: number;
+  gastado: number;
+  margen: number;
+  margenPorcentaje: number;
+}
+
+export async function getRentabilidadPorObra(): Promise<RentabilidadPorObra[]> {
+  const supabase = await createClient();
+
+  const { data: leads } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("estado", "cerrado");
+
+  if (!leads || leads.length === 0) return [];
+
+  const { data: gastos } = await supabase.from("gastos").select("*");
+
+  const result: RentabilidadPorObra[] = leads.map((lead) => {
+    const facturado = Number(lead.importe_cerrado || 0);
+    const gastado = gastos
+      ? gastos
+          .filter((g) => g.lead_id === lead.id)
+          .reduce((acc, g) => acc + Number(g.importe), 0)
+      : 0;
+    const margen = facturado - gastado;
+    const margenPorcentaje =
+      facturado > 0 ? Math.round((margen / facturado) * 100) : 0;
+
+    return {
+      id: lead.id,
+      nombre: lead.nombre,
+      facturado,
+      gastado,
+      margen,
+      margenPorcentaje,
+    };
+  });
+
+  return result.sort((a, b) => b.margen - a.margen);
+}
