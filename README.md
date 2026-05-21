@@ -111,14 +111,15 @@ Abre [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Estructura del Proyecto
 
+```
 obrakit/
 ├── apps/
-│   └── leads-web/          # App principal Next.js
+│   └── leads-web/              # App principal Next.js
 │       ├── src/
 │       │   ├── app/
-│       │   │   ├── (auth)/           # Login y registro
-│       │   │   ├── (dashboard)/      # Obras, materiales, rentabilidad
-│       │   │   └── actions/          # Server Actions
+│       │   │   ├── (auth)/     # Login y registro
+│       │   │   ├── (dashboard)/ # Obras, materiales, rentabilidad
+│       │   │   └── actions/    # Server Actions
 │       │   ├── components/
 │       │   │   ├── leads/
 │       │   │   ├── gastos/
@@ -127,8 +128,9 @@ obrakit/
 │       │   │   └── supabase/
 │       │   └── types/
 │       └── public/
-├── packages/               # Shared code (futuro)
-└── supabase/              # Migraciones y seed
+├── packages/                   # Shared code (futuro)
+└── supabase/                   # Migraciones y seed
+```
 
 ---
 
