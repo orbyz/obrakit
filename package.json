@@ -1,6 +1,7 @@
 {
   "name": "obrakit",
   "private": true,
+  "packageManager": "pnpm@11.6.0",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -12,9 +13,5 @@
     "prettier": "^3.7.4",
     "turbo": "^2.9.12",
     "typescript": "5.9.2"
-  },
-  "packageManager": "pnpm@10.0.0",
-  "engines": {
-    "node": "20.x"
   }
 }
