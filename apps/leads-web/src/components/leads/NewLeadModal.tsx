@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { createLeadAction, type LeadActionState } from "@/app/actions/leads";
+import { X, MapPinned } from "lucide-react";
+import { Button } from "@/components/ui/button/Button";
 
 const initialState: LeadActionState = {
   error: null,
@@ -12,13 +14,14 @@ const initialState: LeadActionState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button
+    <Button
       type="submit"
+      variant="secondary"
       disabled={pending}
-      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm"
+      className="w-full"
     >
       {pending ? "Guardando..." : "Crear obra"}
-    </button>
+    </Button>
   );
 }
 
@@ -46,24 +49,75 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
     }
   }
 
+  const inputClass = `
+  w-full
+  rounded-xl
+  border
+  border-border
+  bg-surface
+  px-3
+  py-2.5
+  text-sm
+  text-text
+  placeholder:text-muted
+  focus:outline-none
+  focus:ring-2
+  focus:ring-primary/20
+  `;
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/20 backdrop-blur-sm p-4">
+      <div
+        className="
+        w-full
+        max-w-lg
+        max-h-[90vh]
+        overflow-y-auto
+        rounded-2xl
+        border
+        border-border
+        bg-surface
+        shadow-elevated
+      "
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
-          <h2 className="text-lg font-semibold text-gray-900">Nueva obra</h2>
+        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-border bg-surface px-6 py-5">
+          <div>
+            <h2 className="text-xl font-bold text-text">Crear nueva obra</h2>
+
+            <p className="mt-1 text-sm text-muted">
+              Registra un nuevo cliente o proyecto.
+            </p>
+          </div>
+
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+            className="
+              rounded-xl
+              p-2
+              text-muted
+              hover:bg-background
+              hover:text-text
+              transition-all
+            "
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
         {/* Form */}
-        <form ref={formRef} action={formAction} className="p-6 space-y-4">
+        <form ref={formRef} action={formAction} className="space-y-5 p-6">
           {state.error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+            <div
+              className="
+            rounded-xl
+            border
+            border-danger/20
+            bg-danger/10
+            p-3
+            text-sm
+            text-danger
+            "
+            >
               {state.error}
             </div>
           )}
@@ -78,7 +132,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               type="text"
               placeholder="Carmen López"
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
@@ -91,7 +145,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               name="telefono"
               type="tel"
               placeholder="600 000 000"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
@@ -104,7 +158,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               name="email"
               type="email"
               placeholder="cliente@email.com"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
@@ -124,10 +178,17 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               <button
                 type="button"
                 onClick={handleOpenMaps}
-                className="px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors shrink-0"
-                title="Abrir en Google Maps"
+                className="
+                  shrink-0
+                  rounded-xl
+                  bg-primary
+                  px-3
+                  text-white
+                  hover:bg-primary-light
+                  transition-all
+                "
               >
-                🗺️
+                <MapPinned size={18} />
               </button>
             </div>
           </div>
@@ -141,7 +202,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               name="zona"
               type="text"
               placeholder="Valencia, Bétera..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={inputClass}
             />
           </div>
 
@@ -151,10 +212,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               Tipo de obra{" "}
               <span className="text-xs text-gray-400">(opcional)</span>
             </label>
-            <select
-              name="tipo_obra"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-            >
+            <select name="tipo_obra" className={inputClass}>
               <option value="">No especificado</option>
               <option value="bano">🚿 Baño</option>
               <option value="cocina">🍳 Cocina</option>
@@ -170,10 +228,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               📊 ¿Cómo llegó? (opcional, para análisis)
             </summary>
             <div className="p-3 pt-0">
-              <select
-                name="origen"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-              >
+              <select name="origen" className={inputClass}>
                 <option value="">No especificado</option>
                 <option value="whatsapp">💬 WhatsApp</option>
                 <option value="instagram">📸 Instagram</option>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { EstadoLead, Lead } from "@/types";
 import KanbanColumn from "./KanbanColumn";
 import NewLeadModal from "./NewLeadModal";
+import { Button } from "@/components/ui/button/Button";
 
 const ESTADOS: EstadoLead[] = ["nuevo", "en_curso", "cerrado"];
 
@@ -20,30 +21,11 @@ export default function KanbanBoard({ leads }: KanbanBoardProps) {
 
   return (
     <>
-      {/* Stats rápidas */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Obras activas</p>
-          <p className="text-2xl font-bold text-gray-900">{totalLeads}</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">En curso</p>
-          <p className="text-2xl font-bold text-blue-500">{enCurso}</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Cerradas</p>
-          <p className="text-2xl font-bold text-green-500">{cerrados}</p>
-        </div>
-      </div>
-
       {/* Botón nuevo lead */}
       <div className="flex justify-end mb-4">
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
-        >
+        <Button variant="secondary" onClick={() => setShowModal(true)}>
           + Nueva obra
-        </button>
+        </Button>
       </div>
 
       {/* Kanban */}

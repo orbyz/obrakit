@@ -4,6 +4,7 @@ import { updateLeadEstadoAction } from "@/app/actions/leads";
 import type { EstadoLead, Lead } from "@/types";
 import Link from "next/link";
 import TiempoAlerta from "./TiempoAlerta";
+import { MapPin, Phone, Euro } from "lucide-react";
 
 const ESTADOS: { value: EstadoLead; label: string }[] = [
   { value: "nuevo", label: "📥 Nuevo" },
@@ -37,23 +38,42 @@ export default function LeadCard({ lead }: LeadCardProps) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+    <div
+      className="
+      bg-surface
+      border
+      border-border
+      rounded-2xl
+      p-4
+      shadow-card
+      hover:shadow-elevated
+      transition-all
+    "
+    >
       {/* Nombre */}
       <Link href={`/leads/${lead.id}`}>
-        <p className="font-medium text-gray-900 text-sm mb-2 truncate hover:text-orange-500 transition-colors cursor-pointer">
+        <h3 className="text-base font-semibold text-text mb-3 truncate hover:text-orange-500 transition-colors cursor-pointer">
           {lead.nombre}
-        </p>
+        </h3>
       </Link>
+
+      {/* Importe */}
+      {lead.importe_ofertado && (
+        <div className="flex items-center gap-2 text-sm font-semibold text-primary mb-3">
+          <Euro size={14} />
+          {lead.importe_ofertado?.toLocaleString("es-ES")} €
+        </div>
+      )}
 
       {/* Badges */}
       <div className="flex flex-wrap gap-1 mb-2">
         {lead.tipo_obra && (
-          <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
             {TIPO_OBRA_LABEL[lead.tipo_obra]}
           </span>
         )}
         {lead.origen && (
-          <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
+          <span className="text-xs bg-accent/10 text-primary px-2 py-0.5 rounded-full">
             {ORIGEN_LABEL[lead.origen]}
           </span>
         )}
@@ -61,17 +81,16 @@ export default function LeadCard({ lead }: LeadCardProps) {
 
       {/* Zona y teléfono */}
       {lead.zona && (
-        <p className="text-xs text-gray-500 mb-1">📍 {lead.zona}</p>
+        <div className="flex items-center gap-2 text-sm text-muted mb-1">
+          <MapPin size={14} />
+          {lead.zona}
+        </div>
       )}
       {lead.telefono && (
-        <p className="text-xs text-gray-500 mb-2">📱 {lead.telefono}</p>
-      )}
-
-      {/* Importe */}
-      {lead.importe_ofertado && (
-        <p className="text-xs font-medium text-gray-700 mb-2">
-          💰 {lead.importe_ofertado.toLocaleString("es-ES")} €
-        </p>
+        <div className="flex items-center gap-2 text-sm text-muted mb-2">
+          <Phone size={14} />
+          {lead.telefono}
+        </div>
       )}
 
       {/* Alerta de tiempo */}
@@ -89,7 +108,20 @@ export default function LeadCard({ lead }: LeadCardProps) {
       <select
         defaultValue={lead.estado}
         onChange={handleEstadoChange}
-        className="w-full text-xs border border-gray-200 rounded px-2 py-1 text-gray-600 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1"
+        className="
+        w-full
+        rounded-xl
+        border
+        border-border
+        bg-surface
+        px-3
+        py-2
+        text-sm
+        text-text
+        focus:outline-none
+        focus:ring-2
+        focus:ring-primary/20
+        "
       >
         {ESTADOS.map((e) => (
           <option key={e.value} value={e.value}>

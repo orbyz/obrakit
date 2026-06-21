@@ -3,7 +3,7 @@ import {
   getRentabilidadPorTipo,
   getRentabilidadPorObra,
 } from "@/app/actions/rentabilidad";
-import StatCard from "@/components/rentabilidad/StatCard";
+import StatCard from "@/components/ui/stat-card/StatCard";
 import TipoObraTable from "@/components/rentabilidad/TipoObraTable";
 import ObraRentabilidadTable from "@/components/rentabilidad/ObraRentabilidadTable";
 
@@ -29,32 +29,32 @@ export default async function RentabilidadPage() {
         <StatCard
           icon="💰"
           label="Total facturado"
-          value={`${resumen.totalFacturado.toLocaleString("es-ES", { minimumFractionDigits: 0 })} €`}
-          color="blue"
+          value="..."
+          variant="primary"
         />
         <StatCard
           icon="🧱"
           label="Total gastado"
           value={`${resumen.totalGastado.toLocaleString("es-ES", { minimumFractionDigits: 0 })} €`}
-          color="orange"
+          variant="warning"
         />
         <StatCard
           icon="📈"
           label="Margen neto"
           value={`${resumen.margenNeto.toLocaleString("es-ES", { minimumFractionDigits: 0 })} €`}
-          color={resumen.margenNeto >= 0 ? "green" : "gray"}
+          variant={resumen.margenNeto >= 0 ? "success" : "neutral"}
         />
         <StatCard
           icon="🤝"
           label="Obras cerradas"
           value={resumen.leadsCerrados}
-          color="gray"
+          variant="neutral"
         />
         <StatCard
           icon="🎯"
           label="Tasa cierre"
           value={`${resumen.tasaCierreGlobal}%`}
-          color={resumen.tasaCierreGlobal >= 50 ? "green" : "gray"}
+          variant={resumen.tasaCierreGlobal >= 50 ? "success" : "neutral"}
         />
       </div>
 
