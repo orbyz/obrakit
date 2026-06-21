@@ -29,7 +29,7 @@ export default async function RentabilidadPage() {
         <StatCard
           icon="💰"
           label="Total facturado"
-          value="..."
+          value={`${resumen.totalFacturado.toLocaleString("es-ES")} €`}
           variant="primary"
         />
         <StatCard
