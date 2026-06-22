@@ -3,22 +3,40 @@
 import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { createGastoAction, type GastoActionState } from "@/app/actions/gastos";
+import { Button } from "@/components/ui/button/Button";
 
 const initialState: GastoActionState = {
   error: null,
   success: false,
 };
 
+const inputClass = `
+w-full
+rounded-xl
+border
+border-border
+bg-surface
+px-3
+py-2.5
+text-sm
+text-text
+placeholder:text-muted
+focus:outline-none
+focus:ring-2
+focus:ring-primary/20
+`;
+
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button
+    <Button
       type="submit"
+      variant="secondary"
       disabled={pending}
-      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm"
+      className="w-full"
     >
-      {pending ? "Guardando..." : "💾 Guardar gasto"}
-    </button>
+      {pending ? "Guardando..." : "Guardar gasto"}
+    </Button>
   );
 }
 
@@ -48,12 +66,12 @@ export default function GastoForm({
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
       {state.error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        <div className="p-3 border-danger/20 bg-danger/10 text-danger">
           {state.error}
         </div>
       )}
       {state.success && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
+        <div className="p-3 border-success/20 bg-success/10 text-success">
           ✅ Gasto guardado
         </div>
       )}
@@ -68,7 +86,7 @@ export default function GastoForm({
           type="text"
           placeholder="Azulejos baño, cemento cola..."
           required
-          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className={inputClass}
         />
       </div>
 
