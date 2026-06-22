@@ -27,9 +27,11 @@ export default function SeguimientoList({
   if (seguimientos.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-400 text-sm">Sin seguimientos aún</p>
+        <p className="text-gray-400 text-sm">
+          Todavía no hay actividad registrada.
+        </p>
         <p className="text-gray-300 text-xs mt-1">
-          Añade una nota para empezar el historial
+          Añade el primer seguimiento para comenzar el historial.
         </p>
       </div>
     );
@@ -40,13 +42,16 @@ export default function SeguimientoList({
       {seguimientos.map((s) => {
         const config = TIPO_CONFIG[s.tipo ?? "nota"];
         return (
-          <div key={s.id} className={`border rounded-lg p-3 ${config.color}`}>
+          <div
+            key={s.id}
+            className={`border border-border rounded-2xl p-3 ${config.color}`}
+          >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-text">
                 {config.icon} {s.tipo?.charAt(0).toUpperCase()}
                 {s.tipo?.slice(1)}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted">
                 {formatFecha(s.created_at)}
               </span>
             </div>

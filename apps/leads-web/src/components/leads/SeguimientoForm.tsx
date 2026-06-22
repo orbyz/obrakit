@@ -6,22 +6,36 @@ import {
   createSeguimientoAction,
   type SeguimientoActionState,
 } from "@/app/actions/seguimientos";
+import { Button } from "@/components/ui/button/Button";
 
 const initialState: SeguimientoActionState = {
   error: null,
   success: false,
 };
 
+const inputClass = `
+w-full
+rounded-xl
+border
+border-border
+bg-surface
+px-3
+py-2.5
+text-sm
+text-text
+placeholder:text-muted
+focus:outline-none
+focus:ring-2
+focus:ring-primary/20
+`;
+
 function SubmitButton() {
   const { pending } = useFormStatus();
+
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-    >
-      {pending ? "Guardando..." : "Añadir"}
-    </button>
+    <Button type="submit" variant="secondary" disabled={pending}>
+      {pending ? "Guardando..." : "Añadir seguimiento"}
+    </Button>
   );
 }
 
@@ -43,17 +57,13 @@ export default function SeguimientoForm({ leadId }: SeguimientoFormProps) {
   return (
     <form ref={formRef} action={formAction} className="space-y-3">
       {state.error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        <div className="p-3 border-danger/20 bg-danger/10 text-danger">
           {state.error}
         </div>
       )}
 
       {/* Tipo */}
-      <select
-        name="tipo"
-        required
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
-      >
+      <select name="tipo" required className={inputClass}>
         <option value="">Tipo de contacto...</option>
         <option value="llamada">📞 Llamada</option>
         <option value="whatsapp">💬 WhatsApp</option>
@@ -67,8 +77,8 @@ export default function SeguimientoForm({ leadId }: SeguimientoFormProps) {
         name="descripcion"
         required
         rows={3}
-        placeholder="¿Qué pasó? Ej: Llamé y quedamos en visitar el martes..."
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+        placeholder="Ej: Se realizó visita, presupuesto enviado por WhatsApp y pendiente de respuesta."
+        className={`${inputClass} resize-none`}
       />
 
       <div className="flex justify-end">
