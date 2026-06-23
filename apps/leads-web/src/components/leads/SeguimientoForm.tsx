@@ -7,33 +7,25 @@ import {
   type SeguimientoActionState,
 } from "@/app/actions/seguimientos";
 import { Button } from "@/components/ui/button/Button";
+import { Select } from "@/components/ui/forms/Select";
+import { Textarea } from "@/components/ui/forms/Textarea";
+import { Alert } from "@/components/ui/forms/Alert";
 
 const initialState: SeguimientoActionState = {
   error: null,
   success: false,
 };
 
-const inputClass = `
-w-full
-rounded-xl
-border
-border-border
-bg-surface
-px-3
-py-2.5
-text-sm
-text-text
-placeholder:text-muted
-focus:outline-none
-focus:ring-2
-focus:ring-primary/20
-`;
-
 function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" variant="secondary" disabled={pending}>
+    <Button
+      type="submit"
+      variant="secondary"
+      disabled={pending}
+      className="w-full"
+    >
       {pending ? "Guardando..." : "Añadir seguimiento"}
     </Button>
   );
@@ -56,34 +48,28 @@ export default function SeguimientoForm({ leadId }: SeguimientoFormProps) {
 
   return (
     <form ref={formRef} action={formAction} className="space-y-3">
-      {state.error && (
-        <div className="p-3 border-danger/20 bg-danger/10 text-danger">
-          {state.error}
-        </div>
-      )}
+      {state.error && <Alert variant="error">{state.error}</Alert>}
 
       {/* Tipo */}
-      <select name="tipo" required className={inputClass}>
+      <Select name="tipo" required>
         <option value="">Tipo de contacto...</option>
         <option value="llamada">📞 Llamada</option>
         <option value="whatsapp">💬 WhatsApp</option>
         <option value="visita">🏠 Visita</option>
         <option value="presupuesto">📄 Presupuesto enviado</option>
         <option value="nota">📝 Nota</option>
-      </select>
+      </Select>
 
       {/* Descripción */}
-      <textarea
+      <Textarea
         name="descripcion"
         required
         rows={3}
         placeholder="Ej: Se realizó visita, presupuesto enviado por WhatsApp y pendiente de respuesta."
-        className={`${inputClass} resize-none`}
+        className="resize-none"
       />
 
-      <div className="flex justify-end">
-        <SubmitButton />
-      </div>
+      <SubmitButton />
     </form>
   );
 }
