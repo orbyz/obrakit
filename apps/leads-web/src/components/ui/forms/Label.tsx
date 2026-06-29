@@ -1,3 +1,7 @@
-export function Label({ children }) {
-  return <label>{children}</label>;
+import type { ComponentPropsWithoutRef } from "react";
+
+type LabelProps = ComponentPropsWithoutRef<"label">;
+
+export function Label({ children, ...props }: LabelProps) {
+  return <label {...props}>{children}</label>;
 }

@@ -96,10 +96,7 @@ export default function SeguimientoList({
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="mb-3 flex items-center gap-3">
-                  <Badge
-                    variant={tipo.variant}
-                    className="flex items-center gap-1"
-                  >
+                  <Badge variant="neutral" className="flex items-center gap-1">
                     {tipo.icon}
                     {tipo.label}
                   </Badge>

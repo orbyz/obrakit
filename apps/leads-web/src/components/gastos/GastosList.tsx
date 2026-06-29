@@ -96,7 +96,7 @@ export default function GastosList({ gastos }: GastosListProps) {
                   </h3>
 
                   <div className="mt-2">
-                    <Badge variant={categoria.variant}>{categoria.label}</Badge>
+                    <Badge variant="neutral">{categoria.label}</Badge>
                   </div>
                 </div>
 
