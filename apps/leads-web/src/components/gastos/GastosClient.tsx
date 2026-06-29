@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Gasto } from "@/types";
+
+import { Button } from "@/components/ui/button/Button";
+import { FormSection } from "@/components/ui/forms/FormSection";
+
 import GastoForm from "./GastoForm";
 import GastosList from "./GastosList";
+import { Card } from "../ui/card/Card";
 
 interface GastosClientProps {
   gastos: Gasto[];
@@ -16,86 +21,125 @@ interface GastosClientProps {
   };
 }
 
+const TABS = [
+  {
+    key: "lista",
+    label: "📋 Lista",
+  },
+  {
+    key: "porObra",
+    label: "🏗️ Por obra",
+  },
+  {
+    key: "porCategoria",
+    label: "📦 Categorías",
+  },
+] as const;
+
 export default function GastosClient({
   gastos,
   leads,
   resumen,
 }: GastosClientProps) {
   const [showForm, setShowForm] = useState(false);
+
   const [vistaActiva, setVistaActiva] = useState<
     "lista" | "porObra" | "porCategoria"
   >("lista");
 
+  const totalCategorias = useMemo(
+    () =>
+      Object.values(resumen.porCategoria).reduce(
+        (total, actual) => total + actual,
+        0,
+      ),
+    [resumen.porCategoria],
+  );
+
   return (
     <>
-      {/* Botón nuevo gasto */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+      {/* Toolbar */}
+      <div className="mb-6 flex justify-end">
+        <Button
+          variant="secondary"
+          onClick={() => setShowForm((value) => !value)}
         >
-          {showForm ? "✕ Cerrar" : "+ Nuevo gasto"}
-        </button>
+          {showForm ? "Cerrar" : "+ Nuevo gasto"}
+        </Button>
       </div>
 
-      {/* Formulario inline */}
+      {/* Formulario */}
       {showForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-            Registrar gasto
-          </h2>
-          <GastoForm leads={leads} onSuccess={() => setShowForm(false)} />
-        </div>
+        <Card className="mb-8 rounded-2xl border border-border bg-surface p-6 shadow-card">
+          <FormSection title="Registrar gasto">
+            <GastoForm leads={leads} onSuccess={() => setShowForm(false)} />
+          </FormSection>
+        </Card>
       )}
 
-      {/* Tabs de vista */}
-      <div className="flex gap-2 mb-4 border-b border-gray-200">
-        {[
-          { key: "lista", label: "📋 Lista" },
-          { key: "porObra", label: "🏗️ Por obra" },
-          { key: "porCategoria", label: "📦 Por categoría" },
-        ].map((tab) => (
+      {/* Tabs */}
+      <div className="mb-6 flex gap-2 border-b border-border">
+        {TABS.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setVistaActiva(tab.key as typeof vistaActiva)}
-            className={`text-sm px-4 py-2 border-b-2 transition-colors ${
-              vistaActiva === tab.key
-                ? "border-orange-500 text-orange-600 font-medium"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+            onClick={() => setVistaActiva(tab.key)}
+            className={`
+              border-b-2
+              px-4
+              py-3
+              text-sm
+              font-medium
+              transition-all
+
+              ${
+                vistaActiva === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted hover:text-text"
+              }
+            `}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Vista Lista */}
+      {/* Lista */}
       {vistaActiva === "lista" && <GastosList gastos={gastos} />}
 
-      {/* Vista Por Obra */}
+      {/* Por obra */}
       {vistaActiva === "porObra" && (
         <div className="space-y-3">
           {resumen.porObra.length === 0 ? (
-            <p className="text-center text-gray-400 text-sm py-12">
-              Sin datos aún
-            </p>
+            <Card className="rounded-2xl border border-border bg-surface py-12 text-center text-muted shadow-card">
+              Sin datos todavía
+            </Card>
           ) : (
             resumen.porObra.map((obra) => (
               <div
                 key={obra.nombre}
-                className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between"
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  rounded-2xl
+                  border
+                  border-border
+                  bg-surface
+                  p-5
+                  shadow-card
+                "
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">🏗️</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {obra.nombre}
-                  </span>
+                  <span className="text-xl">🏗️</span>
+
+                  <span className="font-medium text-text">{obra.nombre}</span>
                 </div>
-                <span className="text-sm font-bold text-gray-900">
+
+                <span className="text-lg font-semibold text-primary">
                   {obra.total.toLocaleString("es-ES", {
                     minimumFractionDigits: 2,
-                  })}{" "}
-                  €
+                  })}
+                  {" €"}
                 </span>
               </div>
             ))
@@ -103,43 +147,53 @@ export default function GastosClient({
         </div>
       )}
 
-      {/* Vista Por Categoría */}
+      {/* Categorías */}
       {vistaActiva === "porCategoria" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Object.entries(resumen.porCategoria)
             .sort((a, b) => b[1] - a[1])
-            .map(([cat, total]) => {
-              const totalGeneral = Object.values(resumen.porCategoria).reduce(
-                (a, b) => a + b,
-                0,
-              );
+            .map(([categoria, total]) => {
               const porcentaje =
-                totalGeneral > 0 ? Math.round((total / totalGeneral) * 100) : 0;
+                totalCategorias === 0
+                  ? 0
+                  : Math.round((total / totalCategorias) * 100);
 
               return (
                 <div
-                  key={cat}
-                  className="bg-white border border-gray-200 rounded-lg p-4"
+                  key={categoria}
+                  className="
+                    rounded-2xl
+                    border
+                    border-border
+                    bg-surface
+                    p-5
+                    shadow-card
+                  "
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-900 capitalize">
-                      {cat}
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="font-medium capitalize text-text">
+                      {categoria}
                     </span>
-                    <span className="text-sm font-bold text-gray-900">
+
+                    <span className="font-semibold text-primary">
                       {total.toLocaleString("es-ES", {
                         minimumFractionDigits: 2,
-                      })}{" "}
-                      €
+                      })}
+                      {" €"}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-1.5">
+
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-background">
                     <div
-                      className="bg-orange-500 h-1.5 rounded-full transition-all"
-                      style={{ width: `${porcentaje}%` }}
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{
+                        width: `${porcentaje}%`,
+                      }}
                     />
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {porcentaje}% del total
+
+                  <p className="mt-2 text-xs text-muted">
+                    {porcentaje}% del gasto total
                   </p>
                 </div>
               );

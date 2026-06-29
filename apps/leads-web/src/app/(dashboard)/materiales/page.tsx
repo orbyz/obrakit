@@ -1,6 +1,8 @@
 import { getGastos, getResumenGastos } from "@/app/actions/gastos";
 import { getLeads } from "@/app/actions/leads";
 import GastosClient from "@/components/gastos/GastosClient";
+import { PageHeader } from "@/components/ui/page-header/PageHeader";
+import StatCard from "@/components/ui/stat-card/StatCard";
 
 export default async function MaterialesPage() {
   const [gastos, resumen, leadsPorEstado] = await Promise.all([
@@ -9,57 +11,53 @@ export default async function MaterialesPage() {
     getLeads(),
   ]);
 
-  // Aplanar leads de todos los estados para el selector
   const leads = Object.values(leadsPorEstado)
     .flat()
-    .map((l) => ({ id: l.id, nombre: l.nombre }));
+    .map((lead) => ({
+      id: lead.id,
+      nombre: lead.nombre,
+    }));
+
+  const categoriaPrincipal =
+    Object.entries(resumen.porCategoria).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+    "—";
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            🧱 Gastos de Materiales
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Controla lo que gastas en cada proyecto
-          </p>
-        </div>
-      </div>
+    <div className="max-w-6xl mx-auto">
+      <PageHeader
+        title="Materiales"
+        description="Controla compras y gastos asociados a cada proyecto."
+      />
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Este mes</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {resumen.totalMes.toLocaleString("es-ES", {
-              minimumFractionDigits: 0,
-            })}{" "}
-            €
-          </p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Este año</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {resumen.totalAnio.toLocaleString("es-ES", {
-              minimumFractionDigits: 0,
-            })}{" "}
-            €
-          </p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Total gastos</p>
-          <p className="text-2xl font-bold text-gray-900">{gastos.length}</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-xs text-gray-500 mb-1">Mayor categoría</p>
-          <p className="text-sm font-bold text-orange-500 mt-1 truncate">
-            {Object.entries(resumen.porCategoria).sort(
-              (a, b) => b[1] - a[1],
-            )[0]?.[0] ?? "—"}
-          </p>
-        </div>
+      {/* KPIs */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mb-8">
+        <StatCard
+          icon="📅"
+          label="Este mes"
+          value={`${resumen.totalMes.toLocaleString("es-ES")} €`}
+          variant="primary"
+        />
+
+        <StatCard
+          icon="🗓️"
+          label="Este año"
+          value={`${resumen.totalAnio.toLocaleString("es-ES")} €`}
+          variant="warning"
+        />
+
+        <StatCard
+          icon="🧱"
+          label="Gastos registrados"
+          value={gastos.length}
+          variant="neutral"
+        />
+
+        <StatCard
+          icon="📦"
+          label="Categoría principal"
+          value={categoriaPrincipal}
+          variant="success"
+        />
       </div>
 
       <GastosClient gastos={gastos} leads={leads} resumen={resumen} />

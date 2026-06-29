@@ -1,14 +1,67 @@
+"use client";
+
 import type { Seguimiento } from "@/types";
 
-const TIPO_CONFIG: Record<string, { icon: string; color: string }> = {
-  llamada: { icon: "📞", color: "bg-blue-50 border-blue-200" },
-  whatsapp: { icon: "💬", color: "bg-green-50 border-green-200" },
-  visita: { icon: "🏠", color: "bg-purple-50 border-purple-200" },
-  presupuesto: { icon: "📄", color: "bg-amber-50 border-amber-200" },
-  nota: { icon: "📝", color: "bg-gray-50 border-gray-200" },
+import { Card } from "@/components/ui/card/Card";
+import { Badge } from "@/components/ui/badge/Badge";
+import { EmptyState } from "@/components/ui/empty-state/EmptyState";
+
+import {
+  CalendarDays,
+  Phone,
+  MessageCircle,
+  House,
+  FileText,
+  NotebookPen,
+} from "lucide-react";
+
+const TIPO_CONFIG: Record<
+  string,
+  {
+    label: string;
+    icon: React.ReactNode;
+    variant:
+      | "primary"
+      | "secondary"
+      | "success"
+      | "warning"
+      | "danger"
+      | "neutral"
+      | "outline";
+  }
+> = {
+  llamada: {
+    label: "Llamada",
+    icon: <Phone size={14} />,
+    variant: "primary",
+  },
+
+  whatsapp: {
+    label: "WhatsApp",
+    icon: <MessageCircle size={14} />,
+    variant: "success",
+  },
+
+  visita: {
+    label: "Visita",
+    icon: <House size={14} />,
+    variant: "secondary",
+  },
+
+  presupuesto: {
+    label: "Presupuesto",
+    icon: <FileText size={14} />,
+    variant: "warning",
+  },
+
+  nota: {
+    label: "Nota",
+    icon: <NotebookPen size={14} />,
+    variant: "neutral",
+  },
 };
 
-function formatFecha(dateStr: string): string {
+function formatFecha(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("es-ES", {
     day: "numeric",
     month: "short",
@@ -26,37 +79,43 @@ export default function SeguimientoList({
 }: SeguimientoListProps) {
   if (seguimientos.length === 0) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-400 text-sm">
-          Todavía no hay actividad registrada.
-        </p>
-        <p className="text-gray-300 text-xs mt-1">
-          Añade el primer seguimiento para comenzar el historial.
-        </p>
-      </div>
+      <EmptyState
+        title="Sin seguimientos"
+        description="Añade el primer seguimiento para comenzar el historial."
+      />
     );
   }
 
   return (
-    <div className="space-y-3">
-      {seguimientos.map((s) => {
-        const config = TIPO_CONFIG[s.tipo ?? "nota"];
+    <div className="space-y-4">
+      {seguimientos.map((seguimiento) => {
+        const tipo = TIPO_CONFIG[seguimiento.tipo ?? "nota"];
+
         return (
-          <div
-            key={s.id}
-            className={`border border-border rounded-2xl p-3 ${config.color}`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-text">
-                {config.icon} {s.tipo?.charAt(0).toUpperCase()}
-                {s.tipo?.slice(1)}
-              </span>
-              <span className="text-xs text-muted">
-                {formatFecha(s.created_at)}
-              </span>
+          <Card key={seguimiento.id}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="mb-3 flex items-center gap-3">
+                  <Badge
+                    variant={tipo.variant}
+                    className="flex items-center gap-1"
+                  >
+                    {tipo.icon}
+                    {tipo.label}
+                  </Badge>
+                </div>
+
+                <p className="text-sm leading-relaxed text-text">
+                  {seguimiento.descripcion}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-muted shrink-0">
+                <CalendarDays size={14} />
+                {formatFecha(seguimiento.created_at)}
+              </div>
             </div>
-            <p className="text-sm text-gray-600">{s.descripcion}</p>
-          </div>
+          </Card>
         );
       })}
     </div>
