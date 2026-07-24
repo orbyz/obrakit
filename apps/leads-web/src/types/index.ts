@@ -100,3 +100,5 @@ export interface Gasto {
   fecha: string;
   created_at: string;
 }
+
+export * from "./employees";
