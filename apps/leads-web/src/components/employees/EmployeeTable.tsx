@@ -25,6 +25,10 @@ export function EmployeeTable({
             <th className="p-4 text-left">
               Estado
             </th>
+
+            <th className="p-4 text-left">
+              Acciones
+            </th>
           </tr>
         </thead>
 
@@ -32,7 +36,7 @@ export function EmployeeTable({
           {employees.length === 0 ? (
             <tr>
               <td
-                colSpan={3}
+                colSpan={4}
                 className="p-8 text-center text-muted-foreground"
               >
                 No hay empleados registrados.

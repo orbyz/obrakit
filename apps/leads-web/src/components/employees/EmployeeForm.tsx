@@ -3,12 +3,15 @@
 import { useActionState, useEffect } from "react";
 
 import { Alert } from "../ui/alert";
+import { Input } from "../ui/forms/Input";
 
 
 import {
   createEmployeeAction,
   type EmployeeActionState,
+  updateEmployeeAction,
 } from "@/app/actions/employees";
+import type { Employee } from "@/types";
 
 const initialState: EmployeeActionState = {
   error: null,
@@ -16,16 +19,22 @@ const initialState: EmployeeActionState = {
 };
 
 interface EmployeeFormProps {
+  mode?: "create" | "edit";
+  employee?: Employee;
   onSuccess?: () => void;
 }
 
 export function EmployeeForm({
+  mode = "create",
+  employee,
   onSuccess,
 }: EmployeeFormProps) {
-  const [state, formAction, pending] = useActionState(
-    createEmployeeAction,
-    initialState,
-  );
+  const action =
+    mode === "edit" && employee
+      ? updateEmployeeAction.bind(null, employee.id)
+      : createEmployeeAction;
+
+  const [state, formAction, pending] = useActionState(action, initialState);
 
   useEffect(() => {
     if (state.success) {
@@ -41,9 +50,9 @@ export function EmployeeForm({
           Nombre
         </label>
 
-        <input
+        <Input
           name="nombre"
-          className="w-full rounded-lg border px-3 py-2"
+          defaultValue={employee?.nombre ?? ""}
           required
         />
       </div>
@@ -53,9 +62,9 @@ export function EmployeeForm({
           Apellidos
         </label>
 
-        <input
+        <Input
           name="apellidos"
-          className="w-full rounded-lg border px-3 py-2"
+          defaultValue={employee?.apellidos ?? ""}
         />
       </div>
 
@@ -64,9 +73,9 @@ export function EmployeeForm({
           Especialidad
         </label>
 
-        <input
+        <Input
           name="especialidad"
-          className="w-full rounded-lg border px-3 py-2"
+          defaultValue={employee?.especialidad ?? ""}
         />
       </div>
 
@@ -78,7 +87,7 @@ export function EmployeeForm({
         <select
           name="tipo_contrato"
           className="w-full rounded-lg border px-3 py-2"
-          defaultValue="empleado"
+          defaultValue={employee?.tipo_contrato ?? "empleado"}
         >
           <option value="empleado">Empleado</option>
           <option value="autonomo">Autónomo</option>

@@ -1,5 +1,7 @@
 import type { Employee } from "@/types";
 
+import { EditEmployeeDialog } from "./EditEmployeeDialog";
+
 interface EmployeeRowProps {
   employee: Employee;
 }
@@ -19,6 +21,10 @@ export function EmployeeRow({
 
       <td className="p-4 capitalize">
         {employee.estado}
+      </td>
+
+      <td className="p-4">
+        <EditEmployeeDialog employee={employee} />
       </td>
     </tr>
   );

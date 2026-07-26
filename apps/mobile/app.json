@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "ObraKit",
+    "slug": "obrakit-mobile",
+    "scheme": "obrakit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "backgroundColor": "#283956",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.obrakit.mobile"
+    },
+    "android": {
+      "package": "dev.obrakit.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#283956"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#283956"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2cc82b8f-7e4e-4463-80dd-24e1537f0a88"
+      }
+    }
+  }
+}
