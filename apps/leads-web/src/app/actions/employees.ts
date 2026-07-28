@@ -232,6 +232,82 @@ export async function updateEmployeeAction(
   };
 }
 
+export async function deactivateEmployeeAction(
+  id: string,
+): Promise<EmployeeActionState> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("employees")
+    .update({
+      estado: "inactivo",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("tenant_id", tenantId);
+
+  if (error) {
+    return {
+      error: "Error al desactivar el empleado",
+      success: false,
+    };
+  }
+
+  revalidatePath("/empleados");
+
+  return {
+    error: null,
+    success: true,
+  };
+}
+
+export async function reactivateEmployeeAction(
+  id: string,
+): Promise<EmployeeActionState> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("employees")
+    .update({
+      estado: "activo",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("tenant_id", tenantId);
+
+  if (error) {
+    return {
+      error: "Error al reactivar el empleado",
+      success: false,
+    };
+  }
+
+  revalidatePath("/empleados");
+
+  return {
+    error: null,
+    success: true,
+  };
+}
+
 export async function updateEmployeeStatusAction(
   employeeId: string,
   estado: "activo" | "vacaciones" | "baja" | "inactivo",

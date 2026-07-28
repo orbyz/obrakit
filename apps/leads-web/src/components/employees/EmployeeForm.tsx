@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect } from "react";
 
-import { Alert } from "../ui/alert";
 import { Input } from "../ui/forms/Input";
 
 
@@ -12,6 +11,8 @@ import {
   updateEmployeeAction,
 } from "@/app/actions/employees";
 import type { Employee } from "@/types";
+
+import { useEmployeeFeedback } from "./EmployeeFeedback";
 
 const initialState: EmployeeActionState = {
   error: null,
@@ -29,6 +30,7 @@ export function EmployeeForm({
   employee,
   onSuccess,
 }: EmployeeFormProps) {
+  const { showError, showSuccess } = useEmployeeFeedback();
   const action =
     mode === "edit" && employee
       ? updateEmployeeAction.bind(null, employee.id)
@@ -38,9 +40,17 @@ export function EmployeeForm({
 
   useEffect(() => {
     if (state.success) {
+      showSuccess(
+        mode === "edit"
+          ? "Empleado actualizado correctamente."
+          : "Empleado creado correctamente.",
+      );
       onSuccess?.();
+      return;
     }
-  }, [state.success, onSuccess]);
+
+    if (state.error) showError(state.error);
+  }, [mode, onSuccess, showError, showSuccess, state.error, state.success]);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -96,11 +106,6 @@ export function EmployeeForm({
         </select>
       </div>
 
-      {state.error && (
-        <Alert variant="error">
-          {state.error}
-        </Alert>
-      )}
 
       <button
         type="submit"
