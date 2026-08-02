@@ -20,6 +20,19 @@ const assignmentStatuses = [
   "cancelled",
 ] as const;
 
+const assignmentStatusSchema = z.enum(assignmentStatuses);
+
+const allowedStatusTransitions: Record<
+  EmployeeAssignmentStatus,
+  EmployeeAssignmentStatus[]
+> = {
+  planned: ["active"],
+  active: ["paused", "finished"],
+  paused: ["active"],
+  finished: [],
+  cancelled: [],
+};
+
 const employeeAssignmentSchema = z
   .object({
     employee_id: z.string().uuid("El empleado no es válido"),
@@ -197,11 +210,16 @@ export async function createEmployeeAssignmentAction(
   return { error: null, success: true };
 }
 
-async function updateAssignmentStatus(
+export async function updateEmployeeAssignmentStatusAction(
   id: string,
   status: EmployeeAssignmentStatus,
-  fields: { end_date?: string } = {},
 ): Promise<EmployeeAssignmentActionState> {
+  const parsedStatus = assignmentStatusSchema.safeParse(status);
+
+  if (!parsedStatus.success) {
+    return { error: "El estado de asignación no es válido", success: false };
+  }
+
   const tenantId = await getMyTenantId();
 
   if (!tenantId) {
@@ -209,11 +227,27 @@ async function updateAssignmentStatus(
   }
 
   const admin = createAdminClient();
+  const { data, error: assignmentError } = await admin
+    .from("employee_assignments")
+    .select("employee_id, status")
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
+    .single();
+
+  if (assignmentError || !data) {
+    return { error: "No se encontró la asignación", success: false };
+  }
+
+  const assignment = data as Pick<EmployeeAssignment, "employee_id" | "status">;
+
+  if (!allowedStatusTransitions[assignment.status].includes(parsedStatus.data)) {
+    return { error: "La transición de estado no es válida", success: false };
+  }
+
   const { error } = await admin
     .from("employee_assignments")
     .update({
-      ...fields,
-      status,
+      status: parsedStatus.data,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
@@ -223,27 +257,7 @@ async function updateAssignmentStatus(
     return { error: "Error al actualizar la asignación", success: false };
   }
 
-  revalidatePath("/empleados");
+  revalidatePath(`/empleados/${assignment.employee_id}`);
 
   return { error: null, success: true };
-}
-
-export async function finishEmployeeAssignmentAction(
-  id: string,
-): Promise<EmployeeAssignmentActionState> {
-  return updateAssignmentStatus(id, "finished", {
-    end_date: new Date().toISOString().split("T")[0],
-  });
-}
-
-export async function pauseEmployeeAssignmentAction(
-  id: string,
-): Promise<EmployeeAssignmentActionState> {
-  return updateAssignmentStatus(id, "paused");
-}
-
-export async function resumeEmployeeAssignmentAction(
-  id: string,
-): Promise<EmployeeAssignmentActionState> {
-  return updateAssignmentStatus(id, "active");
 }

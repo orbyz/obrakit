@@ -103,3 +103,5 @@ export interface Gasto {
 
 export * from "./employees";
 export * from "./employee-assignments";
+export * from "./employee-worklogs";
+export * from "./labour-costs";

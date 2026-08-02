@@ -9,7 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { Employee } from "@/types";
+import type { Employee, EmployeePricingModel } from "@/types";
 
 
 
@@ -28,6 +28,35 @@ export interface EmployeeActionState {
 
 
 // Estado inicial siempre "activo"
+const optionalRateSchema = z
+  .union([
+    z.literal(""),
+    z.coerce
+      .number()
+      .finite("El importe debe ser un número válido")
+      .min(0, "El importe no puede ser negativo"),
+  ])
+  .transform((value) => (value === "" ? null : value));
+
+function getPricingValues(
+  pricingModel: EmployeePricingModel,
+  rates: {
+    hourly_rate: number | null;
+    daily_rate: number | null;
+    monthly_salary: number | null;
+    fixed_rate: number | null;
+  },
+) {
+  return {
+    pricing_model: pricingModel,
+    hourly_rate: pricingModel === "hourly" ? rates.hourly_rate : null,
+    daily_rate: pricingModel === "daily" ? rates.daily_rate : null,
+    monthly_salary:
+      pricingModel === "monthly" ? rates.monthly_salary : null,
+    fixed_rate: pricingModel === "fixed" ? rates.fixed_rate : null,
+  };
+}
+
 const createEmployeeSchema = z.object({
   nombre: z.string().min(2, "El nombre es obligatorio"),
   apellidos: z.string().optional(),
@@ -38,6 +67,11 @@ const createEmployeeSchema = z.object({
     "temporal",
     "subcontrata",
   ]),
+  pricing_model: z.enum(["hourly", "daily", "monthly", "fixed"]),
+  hourly_rate: optionalRateSchema,
+  daily_rate: optionalRateSchema,
+  monthly_salary: optionalRateSchema,
+  fixed_rate: optionalRateSchema,
 });
 
 
@@ -113,6 +147,11 @@ export async function createEmployeeAction(
     apellidos: getField("apellidos"),
     especialidad: getField("especialidad"),
     tipo_contrato: getField("tipo_contrato"),
+    pricing_model: getField("pricing_model"),
+    hourly_rate: getField("hourly_rate"),
+    daily_rate: getField("daily_rate"),
+    monthly_salary: getField("monthly_salary"),
+    fixed_rate: getField("fixed_rate"),
   };
 
   const parsed = createEmployeeSchema.safeParse(raw);
@@ -151,6 +190,7 @@ export async function createEmployeeAction(
       apellidos: parsed.data.apellidos || null,
       especialidad: parsed.data.especialidad || null,
       tipo_contrato: parsed.data.tipo_contrato,
+      ...getPricingValues(parsed.data.pricing_model, parsed.data),
 
       estado: "activo",
     });
@@ -183,6 +223,11 @@ export async function updateEmployeeAction(
     apellidos: getField("apellidos"),
     especialidad: getField("especialidad"),
     tipo_contrato: getField("tipo_contrato"),
+    pricing_model: getField("pricing_model"),
+    hourly_rate: getField("hourly_rate"),
+    daily_rate: getField("daily_rate"),
+    monthly_salary: getField("monthly_salary"),
+    fixed_rate: getField("fixed_rate"),
   };
 
   const parsed = createEmployeeSchema.safeParse(raw);
@@ -212,6 +257,7 @@ export async function updateEmployeeAction(
       apellidos: parsed.data.apellidos || null,
       especialidad: parsed.data.especialidad || null,
       tipo_contrato: parsed.data.tipo_contrato,
+      ...getPricingValues(parsed.data.pricing_model, parsed.data),
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

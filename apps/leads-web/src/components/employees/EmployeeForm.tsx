@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { Input } from "../ui/forms/Input";
 
@@ -10,7 +10,7 @@ import {
   type EmployeeActionState,
   updateEmployeeAction,
 } from "@/app/actions/employees";
-import type { Employee } from "@/types";
+import type { Employee, EmployeePricingModel } from "@/types";
 
 import { useEmployeeFeedback } from "./EmployeeFeedback";
 
@@ -37,6 +37,32 @@ export function EmployeeForm({
       : createEmployeeAction;
 
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [pricingModel, setPricingModel] = useState<EmployeePricingModel>(
+    employee?.pricing_model ?? "hourly",
+  );
+
+  const pricingField = {
+    hourly: {
+      defaultValue: employee?.hourly_rate ?? employee?.coste_hora ?? "",
+      label: "€/hora",
+      name: "hourly_rate",
+    },
+    daily: {
+      defaultValue: employee?.daily_rate ?? "",
+      label: "€/día",
+      name: "daily_rate",
+    },
+    monthly: {
+      defaultValue: employee?.monthly_salary ?? "",
+      label: "Salario mensual",
+      name: "monthly_salary",
+    },
+    fixed: {
+      defaultValue: employee?.fixed_rate ?? "",
+      label: "Precio fijo",
+      name: "fixed_rate",
+    },
+  }[pricingModel];
 
   useEffect(() => {
     if (state.success) {
@@ -106,6 +132,41 @@ export function EmployeeForm({
         </select>
       </div>
 
+
+      <div>
+        <label className="mb-1 block text-sm font-medium">
+          Modelo de tarificación
+        </label>
+
+        <select
+          name="pricing_model"
+          className="w-full rounded-lg border px-3 py-2"
+          value={pricingModel}
+          onChange={(event) =>
+            setPricingModel(event.target.value as EmployeePricingModel)
+          }
+        >
+          <option value="hourly">Por hora</option>
+          <option value="daily">Por día</option>
+          <option value="monthly">Mensual</option>
+          <option value="fixed">Precio fijo</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium">
+          {pricingField.label}
+        </label>
+
+        <Input
+          key={pricingField.name}
+          name={pricingField.name}
+          type="number"
+          min="0"
+          step="0.01"
+          defaultValue={pricingField.defaultValue}
+        />
+      </div>
 
       <button
         type="submit"

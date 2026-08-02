@@ -12,6 +12,8 @@ export type TipoContrato =
   | "temporal"
   | "subcontrata";
 
+export type EmployeePricingModel = "hourly" | "daily" | "monthly" | "fixed";
+
 // ── Modelo principal ──────────────────────────────────────────────
 
 export interface Employee {
@@ -41,7 +43,18 @@ export interface Employee {
 
   fecha_alta: string | null;
 
+  /** @deprecated Use hourly_rate with pricing_model instead. */
   coste_hora: number | null;
+
+  pricing_model: EmployeePricingModel;
+
+  hourly_rate: number | null;
+
+  daily_rate: number | null;
+
+  monthly_salary: number | null;
+
+  fixed_rate: number | null;
 
   salario_mensual: number | null;
 

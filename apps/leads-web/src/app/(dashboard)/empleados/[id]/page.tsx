@@ -6,8 +6,14 @@ import {
   getProjectsForSelect,
 } from "@/app/actions/employee-assignments";
 import { getEmployeeById } from "@/app/actions/employees";
+import { getEmployeeLabourCost } from "@/app/actions/labour-costs";
+import { getEmployeeWorkLogs } from "@/app/actions/employee-worklogs";
 import {
+  AssignmentStatusActions,
   EmployeeFeedbackProvider,
+  EmployeeLabourCost,
+  EmployeeWorkLogDialog,
+  EmployeeWorkLogsTable,
   NewEmployeeAssignmentDialog,
 } from "@/components/employees";
 import { Badge } from "@/components/ui/badge";
@@ -36,9 +42,11 @@ export default async function EmployeeDetailPage({
 
   if (!employee) notFound();
 
-  const [assignments, projects] = await Promise.all([
+  const [assignments, projects, workLogs, labourCost] = await Promise.all([
     getEmployeeAssignments(employee.id),
     getProjectsForSelect(),
+    getEmployeeWorkLogs(employee.id),
+    getEmployeeLabourCost(employee.id),
   ]);
 
   const fullName = [employee.nombre, employee.apellidos]
@@ -98,14 +106,15 @@ export default async function EmployeeDetailPage({
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[680px] w-full table-fixed">
+            <table className="min-w-[800px] w-full table-fixed">
               <thead>
                 <tr className="border-b border-border text-left text-sm text-muted">
-                  <th className="w-[30%] p-3 font-medium">Obra</th>
-                  <th className="w-[24%] p-3 font-medium">Rol</th>
-                  <th className="w-[16%] p-3 font-medium">Estado</th>
-                  <th className="w-[15%] p-3 font-medium">Fecha inicio</th>
-                  <th className="w-[15%] p-3 font-medium">Fecha fin</th>
+                  <th className="w-[24%] p-3 font-medium">Obra</th>
+                  <th className="w-[18%] p-3 font-medium">Rol</th>
+                  <th className="w-[14%] p-3 font-medium">Estado</th>
+                  <th className="w-[14%] p-3 font-medium">Fecha inicio</th>
+                  <th className="w-[14%] p-3 font-medium">Fecha fin</th>
+                  <th className="w-[16%] p-3 font-medium">Acciones</th>
                 </tr>
               </thead>
 
@@ -132,12 +141,34 @@ export default async function EmployeeDetailPage({
                     <td className="whitespace-nowrap p-3 text-sm">
                       {formatDate(assignment.end_date)}
                     </td>
+                    <td className="p-3">
+                      <AssignmentStatusActions
+                        assignmentId={assignment.id}
+                        status={assignment.status}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+        </Card>
+
+        {labourCost && (
+          <Card>
+            <h2 className="mb-6 text-xl font-semibold">Coste de mano de obra</h2>
+            <EmployeeLabourCost summary={labourCost} />
+          </Card>
+        )}
+
+        <Card>
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold">WorkLogs</h2>
+            <EmployeeWorkLogDialog assignments={assignments} />
+          </div>
+
+          <EmployeeWorkLogsTable workLogs={workLogs} />
         </Card>
       </div>
     </EmployeeFeedbackProvider>
