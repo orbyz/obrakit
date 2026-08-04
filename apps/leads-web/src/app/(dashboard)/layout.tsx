@@ -1,7 +1,8 @@
-import Link from "next/link";
+
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
+import { SessionManager } from "@/components/core/SessionManager";
 import { Sidebar } from "@/components/layout/sidebar/Sidebar";
 import { Button } from "@/components/ui/button/Button";
 
@@ -19,6 +20,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
+      <SessionManager />
       <Sidebar email={user.email} />
 
       <div className="flex flex-1 flex-col">

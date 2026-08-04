@@ -54,15 +54,23 @@ export async function getEmployeeLabourCost(
     .map<LabourCostWorkLog>((workLog) => {
       const horas = workLog.worked_minutes / 60;
       const pricingValue = workLog.pricing_value_snapshot;
-      const canCalculateCost =
-        workLog.pricing_model_snapshot === "hourly" &&
-        hasValidPricingValue(pricingValue);
+      let coste: number | null = null;
+
+      if (hasValidPricingValue(pricingValue)) {
+        if (workLog.pricing_model_snapshot === "hourly") {
+          coste = horas * pricingValue;
+        }
+
+        if (workLog.pricing_model_snapshot === "daily") {
+          coste = pricingValue;
+        }
+      }
 
       return {
         id: workLog.id,
         fecha: workLog.work_date,
         horas,
-        coste: canCalculateCost ? horas * pricingValue : null,
+        coste,
         pricing_model: workLog.pricing_model_snapshot,
         obra: workLog.obra,
       };

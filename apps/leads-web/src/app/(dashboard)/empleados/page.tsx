@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import { getEmployees } from "@/app/actions/employees";
 import {
@@ -6,6 +5,11 @@ import {
   EmployeeTable,
   NewEmployeeDialog,
 } from "@/components/employees";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state/EmptyState";
+import { PageHeader } from "@/components/ui/page-header/PageHeader";
+import { Tabs } from "@/components/ui/tabs/Tabs";
+import { Toolbar } from "@/components/ui/toolbar/Toolbar";
 
 type EmployeeStatusFilter = "activo" | "inactivo" | "todos";
 
@@ -55,59 +59,57 @@ export default async function EmployeesPage({
 
   return (
     <EmployeeFeedbackProvider>
-      <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Empleados
-          </h1>
-
-          <p className="text-muted-foreground">
-            Gestiona todos los empleados de tu empresa.
-          </p>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6">
+          <PageHeader
+            title="Empleados"
+            description="Gestiona todos los empleados de tu empresa."
+          />
         </div>
 
-        <NewEmployeeDialog />
-      </div>
+        <Toolbar>
+          <form
+            className="flex w-full gap-3 sm:w-auto sm:flex-1"
+            method="get"
+          >
+            {statusFilter !== "activo" && (
+              <input type="hidden" name="estado" value={statusFilter} />
+            )}
 
-      <form className="flex gap-3" method="get">
-        {statusFilter !== "activo" && (
-          <input type="hidden" name="estado" value={statusFilter} />
-        )}
+            <input
+              type="search"
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder="Buscar empleados"
+              className="w-full rounded-xl border border-border bg-surface px-3 py-2.5"
+            />
 
-        <input
-          type="search"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Buscar empleados"
-          className="w-full rounded-xl border border-border bg-surface px-3 py-2.5"
+            <button
+              type="submit"
+              className="rounded-xl bg-primary px-4 py-2 text-white"
+            >
+              Buscar
+            </button>
+          </form>
+
+          <NewEmployeeDialog />
+        </Toolbar>
+
+        <Tabs
+          value={statusFilter}
+          items={statusFilters.map((filter) => ({
+            ...filter,
+            href: getFilterHref(filter.value),
+          }))}
         />
 
-        <button
-          type="submit"
-          className="rounded-xl bg-primary px-4 py-2 text-white"
-        >
-          Buscar
-        </button>
-      </form>
-
-      <div className="flex gap-2 border-b border-border">
-        {statusFilters.map((filter) => (
-          <Link
-            key={filter.value}
-            href={getFilterHref(filter.value)}
-            className={`border-b-2 px-4 py-3 text-sm font-medium transition-all ${
-              statusFilter === filter.value
-                ? "border-primary text-primary"
-                : "border-transparent text-muted hover:text-text"
-            }`}
-          >
-            {filter.label}
-          </Link>
-        ))}
-      </div>
-
-        <EmployeeTable employees={filteredEmployees} />
+        <Card>
+          {filteredEmployees.length === 0 ? (
+            <EmptyState title="No existen empleados." />
+          ) : (
+            <EmployeeTable employees={filteredEmployees} />
+          )}
+        </Card>
       </div>
     </EmployeeFeedbackProvider>
   );

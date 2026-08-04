@@ -1,4 +1,14 @@
-import { Home, Building2, Package, BarChart3 } from "lucide-react";
+import {
+  BarChart3,
+  Building2,
+  ClipboardList,
+  ContactRound,
+  FileText,
+  Home,
+  Package,
+  Receipt,
+  Users,
+} from "lucide-react";
 
 import { SidebarLink } from "./SidebarLink";
 
@@ -15,26 +25,106 @@ export function Sidebar({ email }: SidebarProps) {
         <p className="mt-1 text-sm text-muted">Gestión de obras</p>
       </div>
 
-      <nav className="flex-1 space-y-2 p-4">
-        <SidebarLink href="/" label="Dashboard" icon={<Home size={18} />} />
+      <nav className="flex-1 overflow-y-auto p-4">
+        <section>
+          <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-muted">
+            🏠 INICIO
+          </p>
+          <SidebarLink href="/" label="Dashboard" icon={<Home size={18} />} />
+        </section>
 
-        <SidebarLink
-          href="/leads"
-          label="Obras"
-          icon={<Building2 size={18} />}
-        />
+        <div className="my-4 border-t border-border" />
 
-        <SidebarLink
-          href="/materiales"
-          label="Materiales"
-          icon={<Package size={18} />}
-        />
+        <section>
+          <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-muted">
+            📈 COMERCIAL
+          </p>
+          <div className="space-y-2">
+            <SidebarLink
+              href="/leads"
+              label="Clientes"
+              icon={<Users size={18} />}
+            />
+            <SidebarLink
+              href="/presupuestos"
+              label="Presupuestos"
+              icon={<FileText size={18} />}
+              disabled
+            />
+            <SidebarLink
+              href="/seguimientos"
+              label="Seguimientos"
+              icon={<ClipboardList size={18} />}
+              disabled
+            />
+          </div>
+        </section>
 
-        <SidebarLink
-          href="/rentabilidad"
-          label="Rentabilidad"
-          icon={<BarChart3 size={18} />}
-        />
+        <div className="my-4 border-t border-border" />
+
+        <section>
+          <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-muted">
+            🏗 PRODUCCIÓN
+          </p>
+          <div className="space-y-2">
+            <SidebarLink
+              href="/obras"
+              label="Obras"
+              icon={<Building2 size={18} />}
+              disabled
+            />
+            <SidebarLink
+              href="/empleados"
+              label="Empleados"
+              icon={<ContactRound size={18} />}
+            />
+            <SidebarLink
+              href="/materiales"
+              label="Materiales"
+              icon={<Package size={18} />}
+            />
+            <SidebarLink
+              href="/materiales"
+              label="Gastos"
+              icon={<Receipt size={18} />}
+            />
+          </div>
+        </section>
+
+        <div className="my-4 border-t border-border" />
+
+        <section>
+          <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-muted">
+            📊 FINANZAS
+          </p>
+          <SidebarLink
+            href="/rentabilidad"
+            label="Rentabilidad"
+            icon={<BarChart3 size={18} />}
+          />
+        </section>
+
+        <div className="my-4 border-t border-border" />
+
+        <section>
+          <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-muted">
+            ⚙ CONFIGURACIÓN
+          </p>
+          <div className="space-y-2">
+            <SidebarLink
+              href="/empresa"
+              label="Empresa"
+              icon={<Building2 size={18} />}
+              disabled
+            />
+            <SidebarLink
+              href="/usuarios"
+              label="Usuarios"
+              icon={<ContactRound size={18} />}
+              disabled
+            />
+          </div>
+        </section>
       </nav>
 
       <div className="border-t border-border p-4">
