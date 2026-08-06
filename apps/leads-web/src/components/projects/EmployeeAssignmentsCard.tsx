@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Card } from "@/components/ui/card";
 
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
@@ -46,15 +48,24 @@ export async function EmployeeAssignmentsCard({
               key={assignment.id}
               className="flex items-center justify-between"
             >
-              <div>
-                <p className="font-medium">
-                  {assignment.employee.nombre}{" "}
-                  {assignment.employee.apellidos ?? ""}
-                </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">
+                    {assignment.employee.nombre}{" "}
+                    {assignment.employee.apellidos ?? ""}
+                  </p>
 
-                <p className="text-sm text-muted">
-                  {assignment.employee.especialidad ?? "-"}
-                </p>
+                  <p className="text-sm text-muted">
+                    {assignment.employee.especialidad ?? "-"}
+                  </p>
+                </div>
+
+                <Link
+                  href={`/empleados/${assignment.employee.id}`}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Ver empleado
+                </Link>
               </div>
             </Card>
           ))}

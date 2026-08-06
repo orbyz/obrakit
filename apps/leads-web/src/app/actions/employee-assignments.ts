@@ -83,7 +83,7 @@ export async function getEmployeeAssignments(
 
   const { data, error } = await supabase
     .from("employee_assignments")
-    .select("*, lead:leads(nombre)")
+    .select("*, project:projects(name)")
     .eq("employee_id", employeeId)
     .order("start_date", { ascending: false });
 
@@ -95,17 +95,18 @@ export async function getEmployeeAssignments(
 }
 
 export async function getProjectsForSelect(): Promise<
-  Array<{ id: string; nombre: string }>
+  Array<{ id: string; name: string }>
 > {
   const supabase = await createClient();
+
   const { data, error } = await supabase
-    .from("leads")
-    .select("id, nombre")
-    .order("nombre", { ascending: true });
+    .from("projects")
+    .select("id, name")
+    .order("name", { ascending: true });
 
   if (error || !data) return [];
 
-  return data as Array<{ id: string; nombre: string }>;
+  return data as Array<{ id: string; name: string }>;
 }
 
 export async function getAssignmentById(
@@ -114,7 +115,7 @@ export async function getAssignmentById(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("employee_assignments")
-    .select("*, lead:leads!employee_assignments_project_id_fkey(nombre)")
+    .select("*, project:projects(name)")
     .eq("id", id)
     .single();
 

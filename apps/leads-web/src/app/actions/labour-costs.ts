@@ -14,7 +14,11 @@ interface LabourCostWorkLogRow {
   worked_minutes: number;
   pricing_model_snapshot: EmployeePricingModel | null;
   pricing_value_snapshot: number | null;
-  obra: LabourCostProject | null;
+
+  project: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 function hasValidWorkedMinutes(workedMinutes: unknown): workedMinutes is number {
@@ -40,7 +44,7 @@ export async function getEmployeeLabourCost(
   const { data: workLogData, error } = await supabase
     .from("employee_worklogs")
     .select(
-      "id, work_date, worked_minutes, pricing_model_snapshot, pricing_value_snapshot, obra:leads(id, nombre)",
+      "id, work_date, worked_minutes, pricing_model_snapshot, pricing_value_snapshot, project:projects(id, name)",
     )
     .eq("employee_id", employeeId)
     .order("work_date", { ascending: false });
@@ -72,7 +76,7 @@ export async function getEmployeeLabourCost(
         horas,
         coste,
         pricing_model: workLog.pricing_model_snapshot,
-        obra: workLog.obra,
+        obra: workLog.project,
       };
     });
   const totalMinutes = worklogs.reduce(

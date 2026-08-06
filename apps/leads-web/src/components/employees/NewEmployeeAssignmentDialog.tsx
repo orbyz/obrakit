@@ -23,7 +23,7 @@ import { useEmployeeFeedback } from "./EmployeeFeedback";
 
 interface NewEmployeeAssignmentDialogProps {
   employeeId: string;
-  projects: Array<{ id: string; nombre: string }>;
+  projects: Array<{ id: string; name: string }>;
 }
 
 const initialState: EmployeeAssignmentActionState = {
@@ -76,7 +76,7 @@ export function NewEmployeeAssignmentDialog({
               </option>
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
-                  {project.nombre}
+                  {project.name}
                 </option>
               ))}
             </Select>

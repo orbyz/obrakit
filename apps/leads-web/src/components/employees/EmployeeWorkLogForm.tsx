@@ -47,7 +47,6 @@ export function EmployeeWorkLogForm({
   const activeAssignments = assignments.filter(
     (assignment) => assignment.status === "active",
   );
-
   useEffect(() => {
     if (state.success) {
       showSuccess(
@@ -87,7 +86,7 @@ export function EmployeeWorkLogForm({
               </option>
               {activeAssignments.map((assignment) => (
                 <option key={assignment.id} value={assignment.id}>
-                  {assignment.lead?.nombre ?? "Obra sin nombre"} · {assignment.role}
+                  {assignment.project?.name ?? "Obra sin nombre"} · {assignment.role}
                 </option>
               ))}
             </Select>

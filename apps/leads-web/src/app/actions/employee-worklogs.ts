@@ -143,6 +143,7 @@ export async function createEmployeeWorkLogAction(
   formData: FormData,
 ): Promise<EmployeeWorkLogActionState> {
   const getField = (name: string) => String(formData.get(name) ?? "");
+
   const parsed = employeeWorkLogSchema.safeParse({
     assignment_id: getField("assignment_id"),
     work_date: getField("work_date"),
@@ -246,28 +247,36 @@ export async function createEmployeeWorkLogAction(
     };
   }
 
-  const { error } = await admin.from("employee_worklogs").insert({
-    tenant_id: tenantId,
-    assignment_id: parsed.data.assignment_id,
-    employee_id: assignment.employee_id,
-    project_id: assignment.project_id,
-    work_date: parsed.data.work_date,
-    start_time: parsed.data.start_time,
-    end_time: parsed.data.end_time,
-    break_minutes: parsed.data.break_minutes,
-    worked_minutes: workedMinutes,
-    pricing_model_snapshot: pricingSnapshot.model,
-    pricing_value_snapshot: pricingSnapshot.value,
-    notes: parsed.data.notes || null,
-  });
+  const { error } = await admin
+    .from("employee_worklogs")
+    .insert({
+      tenant_id: tenantId,
+      assignment_id: parsed.data.assignment_id,
+      employee_id: assignment.employee_id,
+      project_id: assignment.project_id,
+      work_date: parsed.data.work_date,
+      start_time: parsed.data.start_time,
+      end_time: parsed.data.end_time,
+      break_minutes: parsed.data.break_minutes,
+      worked_minutes: workedMinutes,
+      pricing_model_snapshot: pricingSnapshot.model,
+      pricing_value_snapshot: pricingSnapshot.value,
+      notes: parsed.data.notes || null,
+    });
 
   if (error) {
-    return { error: "Error al registrar la jornada", success: false };
+    return {
+      error: error.message,
+      success: false,
+    };
   }
 
   revalidatePath(`/empleados/${assignment.employee_id}`);
 
-  return { error: null, success: true };
+  return {
+    error: null,
+    success: true,
+  };
 }
 
 export async function updateEmployeeWorkLogAction(

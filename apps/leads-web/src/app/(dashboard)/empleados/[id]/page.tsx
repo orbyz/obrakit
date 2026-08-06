@@ -136,8 +136,8 @@ export default async function EmployeeDetailPage({
                       key={assignment.id}
                       className="border-b border-border transition-colors hover:bg-background last:border-0"
                     >
-                      <td className="max-w-0 truncate p-3 text-sm" title={assignment.lead?.nombre}>
-                        {assignment.lead?.nombre ?? "Obra no disponible"}
+                      <td className="max-w-0 truncate p-3 text-sm" title={assignment.project?.name}>
+                        {assignment.project?.name ?? "Obra no disponible"}
                       </td>
                       <td className="max-w-0 truncate p-3 text-sm" title={assignment.role}>
                         {assignment.role}

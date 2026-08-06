@@ -70,9 +70,9 @@ export function EmployeeLabourCost({ summary }: EmployeeLabourCostProps) {
                   </td>
                   <td
                     className="max-w-0 truncate p-3 text-sm"
-                    title={workLog.obra?.nombre}
+                    title={workLog.obra?.name}
                   >
-                    {workLog.obra?.nombre ?? "Obra no disponible"}
+                    {workLog.obra?.name ?? "Obra no disponible"}
                   </td>
                   <td className="whitespace-nowrap p-3 text-sm">
                     {formatHours(workLog.horas)}

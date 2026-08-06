@@ -5,8 +5,8 @@ export type EmployeeAssignmentStatus =
   | "finished"
   | "cancelled";
 
-export interface EmployeeAssignmentLead {
-  nombre: string;
+export interface EmployeeAssignmentProject {
+  name: string;
 }
 
 export interface EmployeeAssignment {
@@ -14,7 +14,7 @@ export interface EmployeeAssignment {
   tenant_id: string;
   employee_id: string;
   project_id: string;
-  lead: EmployeeAssignmentLead | null;
+  project: EmployeeAssignmentProject | null;
   role: string;
   status: EmployeeAssignmentStatus;
   start_date: string;
