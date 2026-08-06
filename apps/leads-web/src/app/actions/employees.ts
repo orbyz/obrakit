@@ -371,3 +371,91 @@ export async function updateEmployeeStatusAction(
   revalidatePath("/empleados");
   revalidatePath(`/empleados/${employeeId}`);
 }
+
+export async function getProjectAssignments(
+  projectId: string,
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("employee_assignments")
+    .select(`
+      *,
+      employee:employees (
+        id,
+        nombre,
+        apellidos,
+        especialidad,
+        estado
+      )
+    `)
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+export async function getAvailableEmployees() {
+  const supabase = await createClient();
+
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("employees")
+    .select("id, nombre, apellidos")
+    .eq("tenant_id", tenantId)
+    .eq("estado", "activo")
+    .order("nombre");
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+export async function assignEmployeeToProject(
+  projectId: string,
+  employeeId: string,
+) {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    throw new Error("No se encontró el tenant.");
+  }
+
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("employee_assignments")
+    .insert({
+      tenant_id: tenantId,
+      employee_id: employeeId,
+      project_id: projectId,
+
+      role: "Operario",
+      status: "active",
+
+      start_date: new Date()
+        .toISOString()
+        .slice(0, 10),
+
+      end_date: null,
+      hourly_rate_snapshot: null,
+      notes: null,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  revalidatePath(`/obras/${projectId}`);
+}

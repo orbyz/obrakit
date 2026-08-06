@@ -71,7 +71,6 @@ export function Sidebar({ email }: SidebarProps) {
               href="/obras"
               label="Obras"
               icon={<Building2 size={18} />}
-              disabled
             />
             <SidebarLink
               href="/empleados"
