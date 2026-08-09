@@ -13,8 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const INACTIVITY_TIMEOUT_MS = 60_000;
-const COUNTDOWN_SECONDS = 30;
+const INACTIVITY_TIMEOUT_MS = 300_000;
+const COUNTDOWN_SECONDS = 60;
 
 export function SessionManager() {
   const [isWarningOpen, setIsWarningOpen] = useState(false);

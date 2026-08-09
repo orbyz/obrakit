@@ -45,7 +45,11 @@ export function NewEmployeeAssignmentDialog({
   useEffect(() => {
     if (state.success) {
       showSuccess("Asignación creada correctamente.");
-      setOpen(false);
+
+      queueMicrotask(() => {
+        setOpen(false);
+      });
+
       return;
     }
 

@@ -106,3 +106,6 @@ export * from "./employee-assignments";
 export * from "./employee-worklogs";
 export * from "./labour-costs";
 export * from "./projects";
+export * from "./materials";
+export * from "./material-consumptions";
+export * from "./material-costs";

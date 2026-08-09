@@ -1,0 +1,103 @@
+"use client";
+
+import { useState, useTransition } from "react";
+
+import { deleteMaterialConsumptionAction } from "@/app/actions/material-consumptions";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import type { MaterialConsumption } from "@/types";
+
+import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+
+interface DeleteMaterialConsumptionDialogProps {
+  consumption: MaterialConsumption;
+}
+
+export function DeleteMaterialConsumptionDialog({
+  consumption,
+}: DeleteMaterialConsumptionDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  const { showError, showSuccess } = useEmployeeFeedback();
+
+  function handleDelete() {
+    startTransition(async () => {
+      const result = await deleteMaterialConsumptionAction(
+        consumption.id,
+      );
+
+      if (result.success) {
+        showSuccess(
+          "Consumo eliminado correctamente.",
+        );
+
+        setOpen(false);
+        return;
+      }
+
+      showError(
+        result.error ??
+          "No se pudo eliminar el consumo.",
+      );
+    });
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <DialogTrigger asChild>
+        <Button
+          variant="danger"
+          size="sm"
+        >
+          Eliminar
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            Eliminar consumo
+          </DialogTitle>
+        </DialogHeader>
+
+        <p className="text-sm text-muted-foreground">
+          ¿Seguro que deseas eliminar el consumo de{" "}
+          <strong>
+            {consumption.material_nombre_snapshot}
+          </strong>
+          ?
+        </p>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            variant="danger"
+            disabled={pending}
+            onClick={handleDelete}
+          >
+            {pending
+              ? "Eliminando..."
+              : "Eliminar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
   EmployeePricingModel,
-  LabourCostProject,
   LabourCostSummary,
   LabourCostWorkLog,
 } from "@/types";
@@ -76,7 +75,12 @@ export async function getEmployeeLabourCost(
         horas,
         coste,
         pricing_model: workLog.pricing_model_snapshot,
-        obra: workLog.project,
+        obra: workLog.project
+          ? {
+              id: workLog.project.id,
+              nombre: workLog.project.name,
+            }
+          : null,
       };
     });
   const totalMinutes = worklogs.reduce(

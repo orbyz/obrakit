@@ -11,6 +11,9 @@ import { EmployeeAssignmentsCard } from "@/components/projects/EmployeeAssignmen
 import { getAvailableEmployees } from "@/app/actions/employees";
 
 
+import { getMaterialConsumptions } from "@/app/actions/material-consumptions";
+import { getMaterials } from "@/app/actions/materials";
+import { MaterialConsumptionsCard } from "@/components/projects/MaterialConsumptionsCard";
 
 
 
@@ -33,7 +36,18 @@ export default async function ProjectDetailPage({
 
   const project = dashboard.project;
 
-  const employees = await getAvailableEmployees();
+  if (!project) {
+    notFound();
+  }
+
+  const [employees, materials, consumptions] = await Promise.all([
+    getAvailableEmployees(),
+    getMaterials(),
+    getMaterialConsumptions(project.id),
+  ]);
+
+  console.log("PROJECT ID:", project.id);
+  console.log("CONSUMPTIONS:", consumptions);
 
   if (!project) {
     notFound();
@@ -168,6 +182,12 @@ export default async function ProjectDetailPage({
       <EmployeeAssignmentsCard
         projectId={project.id}
         employees={employees}
+      />
+
+      <MaterialConsumptionsCard
+        projectId={project.id}
+        materials={materials}
+        consumptions={consumptions}
       />
 
 

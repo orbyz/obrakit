@@ -51,10 +51,12 @@ export default function GastoForm({
     if (state.success) {
       formRef.current?.reset();
 
-      setSelectedLead("");
-      setObraNombre("");
+      queueMicrotask(() => {
+        setSelectedLead("");
+        setObraNombre("");
 
-      onSuccess?.();
+        onSuccess?.();
+      });
     }
   }, [state.success, onSuccess]);
 
