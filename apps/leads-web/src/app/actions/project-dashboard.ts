@@ -1,6 +1,14 @@
 "use server";
 
+import { getGastosByProject } from "./gastos";
+import { getEmployeeAssignmentsByProject } from "./employee-assignments";
+import { getEmployeeWorkLogsByProject } from "./employee-worklogs";
+import { getMaterialConsumptions } from "./material-consumptions";
 import { getProjectById } from "./projects";
+
+import { calculateProjectProfitability } from "@/lib/profitability";
+import { buildProjectFinancialData } from "@/lib/profitability-mappers";
+import type { ProjectProfitability } from "@/types/profitability";
 
 export interface ProjectDashboard {
   project: Awaited<ReturnType<typeof getProjectById>>;
@@ -13,7 +21,7 @@ export interface ProjectDashboard {
 
   labourCost: number;
 
-  profitability: number;
+  profitability: ProjectProfitability;
 }
 
 export async function getProjectDashboard(
@@ -25,17 +33,43 @@ export async function getProjectDashboard(
     return null;
   }
 
+  const [
+    assignments,
+    materialConsumptions,
+    workLogs,
+    expenses,
+  ] = await Promise.all([
+    getEmployeeAssignmentsByProject(id),
+    getMaterialConsumptions(id),
+    getEmployeeWorkLogsByProject(id),
+    getGastosByProject(id),
+  ]);
+
+  const financialData = buildProjectFinancialData(
+    project,
+    materialConsumptions,
+    workLogs,
+    expenses,
+  );
+
+  const profitability =
+    calculateProjectProfitability(financialData);
+
+  const employeeIds = new Set(
+    assignments.map((assignment) => assignment.employee_id),
+  );
+
   return {
     project,
 
-    employeesCount: 0,
+    employeesCount: employeeIds.size,
 
-    materialsCost: 0,
+    materialsCost: profitability.materialCost,
 
-    expensesCost: 0,
+    expensesCost: profitability.expenseCost,
 
-    labourCost: 0,
+    labourCost: profitability.laborCost,
 
-    profitability: 0,
+    profitability,
   };
 }

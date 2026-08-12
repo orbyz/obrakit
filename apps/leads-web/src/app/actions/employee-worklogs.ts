@@ -138,6 +138,27 @@ export async function getEmployeeWorkLogs(
   return (data ?? []) as EmployeeWorkLog[];
 }
 
+export async function getEmployeeWorkLogsByProject(
+  projectId: string,
+): Promise<EmployeeWorkLog[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("employee_worklogs")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("work_date", { ascending: false })
+    .order("start_time", { ascending: false });
+
+  if (error) {
+    throw new Error(
+      `Error al obtener jornadas de la obra: ${error.message}`,
+    );
+  }
+
+  return (data ?? []) as EmployeeWorkLog[];
+}
+
 export async function createEmployeeWorkLogAction(
   _prevState: EmployeeWorkLogActionState,
   formData: FormData,

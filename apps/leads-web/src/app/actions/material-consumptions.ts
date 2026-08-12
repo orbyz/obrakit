@@ -9,7 +9,6 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   Material,
   MaterialConsumption,
-  MaterialUnit,
 } from "@/types";
 
 // ─────────────────────────────────────────────────────────────
@@ -24,6 +23,7 @@ export interface MaterialConsumptionActionState {
 // ─────────────────────────────────────────────────────────────
 // Schemas
 // ─────────────────────────────────────────────────────────────
+
 const optionalTextSchema = z
   .string()
   .trim()
@@ -31,11 +31,7 @@ const optionalTextSchema = z
   .nullable()
   .optional();
 
-const materialConsumptionSchema = z.object({
-  project_id: z.string().uuid("La obra no es válida"),
-
-  material_id: z.string().uuid("El material no es válido"),
-
+const materialConsumptionBaseSchema = z.object({
   cantidad: z.coerce
     .number()
     .positive("La cantidad debe ser mayor que cero"),
@@ -45,6 +41,15 @@ const materialConsumptionSchema = z.object({
   notas: optionalTextSchema,
 });
 
+const createMaterialConsumptionSchema =
+  materialConsumptionBaseSchema.extend({
+    project_id: z.string().uuid("La obra no es válida"),
+
+    material_id: z.string().uuid("El material no es válido"),
+  });
+
+const updateMaterialConsumptionSchema =
+  materialConsumptionBaseSchema;
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -57,7 +62,9 @@ async function getMyTenantId(): Promise<string | null> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const { data } = await supabase
     .from("tenant_members")
@@ -75,18 +82,32 @@ function calculateTotalAmount(
   return Number((quantity * unitPrice).toFixed(2));
 }
 
-function parseMaterialConsumptionForm(
+function getField(
+  formData: FormData,
+  name: string,
+): string {
+  return String(formData.get(name) ?? "");
+}
+
+function parseCreateMaterialConsumptionForm(
   formData: FormData,
 ) {
-  const getField = (name: string) =>
-    String(formData.get(name) ?? "");
+  return createMaterialConsumptionSchema.safeParse({
+    project_id: getField(formData, "project_id"),
+    material_id: getField(formData, "material_id"),
+    cantidad: getField(formData, "cantidad"),
+    fecha: getField(formData, "fecha"),
+    notas: getField(formData, "notas"),
+  });
+}
 
-  return materialConsumptionSchema.safeParse({
-    project_id: getField("project_id"),
-    material_id: getField("material_id"),
-    cantidad: getField("cantidad"),
-    fecha: getField("fecha"),
-    notas: getField("notas"),
+function parseUpdateMaterialConsumptionForm(
+  formData: FormData,
+) {
+  return updateMaterialConsumptionSchema.safeParse({
+    cantidad: getField(formData, "cantidad"),
+    fecha: getField(formData, "fecha"),
+    notas: getField(formData, "notas"),
   });
 }
 
@@ -112,6 +133,7 @@ async function buildMaterialSnapshot(
     ),
   };
 }
+
 // ─────────────────────────────────────────────────────────────
 // Queries
 // ─────────────────────────────────────────────────────────────
@@ -183,11 +205,16 @@ async function getMaterialSnapshot(
   };
 }
 
+// ─────────────────────────────────────────────────────────────
+// Create
+// ─────────────────────────────────────────────────────────────
+
 export async function createMaterialConsumptionAction(
   _prevState: MaterialConsumptionActionState,
   formData: FormData,
 ): Promise<MaterialConsumptionActionState> {
-  const parsed = parseMaterialConsumptionForm(formData);
+  const parsed =
+    parseCreateMaterialConsumptionForm(formData);
 
   if (!parsed.success) {
     return {
@@ -270,12 +297,17 @@ export async function createMaterialConsumptionAction(
   };
 }
 
+// ─────────────────────────────────────────────────────────────
+// Update
+// ─────────────────────────────────────────────────────────────
+
 export async function updateMaterialConsumptionAction(
   id: string,
   _prevState: MaterialConsumptionActionState,
   formData: FormData,
 ): Promise<MaterialConsumptionActionState> {
-  const parsed = parseMaterialConsumptionForm(formData);
+  const parsed =
+    parseUpdateMaterialConsumptionForm(formData);
 
   if (!parsed.success) {
     return {
@@ -293,61 +325,44 @@ export async function updateMaterialConsumptionAction(
     };
   }
 
-  const materialData = await buildMaterialSnapshot(
-      parsed.data.material_id,
-      tenantId,
-      parsed.data.cantidad,
-  );
-
-  if (!materialData) {
-    return {
-      error: "No se encontró el material",
-      success: false,
-    };
-  }
-
-
   const admin = createAdminClient();
 
-  const { data, error: currentError } = await admin
+  const {
+    data: currentConsumption,
+    error: currentError,
+  } = await admin
     .from("material_consumptions")
-    .select("project_id")
+    .select(
+      "project_id, material_id, precio_snapshot, unidad_snapshot",
+    )
     .eq("id", id)
     .eq("tenant_id", tenantId)
     .single();
 
-  if (currentError || !data) {
+  if (currentError || !currentConsumption) {
     return {
       error: "No se encontró el consumo de material",
       success: false,
     };
   }
 
+  const importeTotal = calculateTotalAmount(
+    parsed.data.cantidad,
+    Number(currentConsumption.precio_snapshot),
+  );
+
   const { error } = await admin
     .from("material_consumptions")
     .update({
-        material_id:
-            materialData.snapshot.material.id,
+      cantidad: parsed.data.cantidad,
 
-        material_nombre_snapshot:
-            materialData.snapshot.material.nombre,
+      fecha: parsed.data.fecha,
 
-        cantidad: parsed.data.cantidad,
+      notas: parsed.data.notas,
 
-        unidad_snapshot:
-            materialData.snapshot.material.unidad_base,
+      importe_total: importeTotal,
 
-        precio_snapshot:
-            materialData.snapshot.precio_snapshot,
-
-        importe_total:
-            materialData.importeTotal,
-
-        fecha: parsed.data.fecha,
-
-        notas: parsed.data.notas,
-
-        updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     })
     .eq("id", id)
     .eq("tenant_id", tenantId);
@@ -359,13 +374,19 @@ export async function updateMaterialConsumptionAction(
     };
   }
 
-  revalidatePath(`/obras/${data.project_id}`);
+  revalidatePath(
+    `/obras/${currentConsumption.project_id}`,
+  );
 
   return {
     error: null,
     success: true,
   };
 }
+
+// ─────────────────────────────────────────────────────────────
+// Delete
+// ─────────────────────────────────────────────────────────────
 
 export async function deleteMaterialConsumptionAction(
   id: string,
@@ -381,14 +402,17 @@ export async function deleteMaterialConsumptionAction(
 
   const admin = createAdminClient();
 
-  const { data, error: currentError } = await admin
+  const {
+    data: currentConsumption,
+    error: currentError,
+  } = await admin
     .from("material_consumptions")
     .select("project_id")
     .eq("id", id)
     .eq("tenant_id", tenantId)
     .single();
 
-  if (currentError || !data) {
+  if (currentError || !currentConsumption) {
     return {
       error: "No se encontró el consumo de material",
       success: false,
@@ -408,7 +432,9 @@ export async function deleteMaterialConsumptionAction(
     };
   }
 
-  revalidatePath(`/obras/${data.project_id}`);
+  revalidatePath(
+    `/obras/${currentConsumption.project_id}`,
+  );
 
   return {
     error: null,

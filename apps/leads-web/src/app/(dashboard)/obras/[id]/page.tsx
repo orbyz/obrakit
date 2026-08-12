@@ -1,21 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { getAvailableEmployees } from "@/app/actions/employees";
+import { getMaterialConsumptions } from "@/app/actions/material-consumptions";
+import { getMaterials } from "@/app/actions/materials";
+import { getProjectDashboard } from "@/app/actions/project-dashboard";
+
+import { EmployeeAssignmentsCard } from "@/components/projects/EmployeeAssignmentsCard";
+import { MaterialConsumptionsCard } from "@/components/projects/MaterialConsumptionsCard";
+import { ProjectProfitabilityCard } from "@/components/projects/ProjectProfitabilityCard";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header/PageHeader";
-
-import { getProjectById } from "@/app/actions/projects";
-import { getProjectDashboard } from "@/app/actions/project-dashboard";
-import { EmployeeAssignmentsCard } from "@/components/projects/EmployeeAssignmentsCard";
-import { getAvailableEmployees } from "@/app/actions/employees";
-
-
-import { getMaterialConsumptions } from "@/app/actions/material-consumptions";
-import { getMaterials } from "@/app/actions/materials";
-import { MaterialConsumptionsCard } from "@/components/projects/MaterialConsumptionsCard";
-
-
 
 type PageProps = {
   params: Promise<{
@@ -46,16 +44,8 @@ export default async function ProjectDetailPage({
     getMaterialConsumptions(project.id),
   ]);
 
-  console.log("PROJECT ID:", project.id);
-  console.log("CONSUMPTIONS:", consumptions);
-
-  if (!project) {
-    notFound();
-  }
-
   return (
     <div className="mx-auto max-w-7xl space-y-8">
-
       <Link href="/obras">
         <Button variant="outline">
           ← Volver a Obras
@@ -67,8 +57,8 @@ export default async function ProjectDetailPage({
         description={project.client_name ?? "Sin cliente"}
       />
 
+      {/* Resumen básico de la obra */}
       <div className="grid gap-4 md:grid-cols-4">
-
         <Card className="space-y-2">
           <p className="text-sm text-muted">
             Cliente
@@ -110,17 +100,20 @@ export default async function ProjectDetailPage({
             {project.status}
           </Badge>
         </Card>
-
       </div>
 
-      <Card className="space-y-6">
+      {/* Rentabilidad */}
+      <ProjectProfitabilityCard
+        profitability={dashboard.profitability}
+      />
 
+      {/* Información de la obra */}
+      <Card className="space-y-6">
         <h2 className="text-lg font-semibold">
           Información de la obra
         </h2>
 
         <div className="grid gap-6 md:grid-cols-2">
-
           <div>
             <p className="text-sm text-muted">
               Dirección
@@ -160,11 +153,9 @@ export default async function ProjectDetailPage({
               {project.reference ?? "-"}
             </p>
           </div>
-
         </div>
 
         <div>
-
           <p className="mb-2 text-sm text-muted">
             Observaciones
           </p>
@@ -172,25 +163,21 @@ export default async function ProjectDetailPage({
           <p>
             {project.notes ?? "Sin observaciones."}
           </p>
-
         </div>
-
       </Card>
 
-
-
+      {/* Empleados */}
       <EmployeeAssignmentsCard
         projectId={project.id}
         employees={employees}
       />
 
+      {/* Consumos de materiales */}
       <MaterialConsumptionsCard
         projectId={project.id}
         materials={materials}
         consumptions={consumptions}
       />
-
-
     </div>
   );
 }

@@ -94,6 +94,27 @@ export async function getEmployeeAssignments(
   return (data ?? []) as EmployeeAssignment[];
 }
 
+export async function getEmployeeAssignmentsByProject(
+  projectId: string,
+): Promise<EmployeeAssignment[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("employee_assignments")
+    .select("*, project:projects(name)")
+    .eq("project_id", projectId)
+    .neq("status", "cancelled")
+    .order("start_date", { ascending: false });
+
+  if (error) {
+    throw new Error(
+      `Error al obtener asignaciones de la obra: ${error.message}`,
+    );
+  }
+
+  return (data ?? []) as EmployeeAssignment[];
+}
+
 export async function getProjectsForSelect(): Promise<
   Array<{ id: string; name: string }>
 > {

@@ -84,22 +84,28 @@ export type UnidadGasto =
   | "litros"
   | "otro";
 
-export interface Gasto {
-  id: string;
-  tenant_id: string;
-  created_by: string | null;
-  lead_id: string | null;
-  obra_nombre: string | null;
-  proveedor: string | null;
-  material: string;
-  importe: number;
-  cantidad: number | null;
-  unidad: UnidadGasto | null;
-  categoria: CategoriaGasto | null;
-  notas: string | null;
-  fecha: string;
-  created_at: string;
-}
+  export interface Gasto {
+    id: string;
+    tenant_id: string;
+    created_by: string | null;
+
+    project_id: string | null;
+
+    // Legacy relation kept for historical data compatibility.
+    lead_id: string | null;
+    obra_nombre: string | null;
+
+    proveedor: string | null;
+    material: string;
+    importe: number;
+    cantidad: number | null;
+    unidad: UnidadGasto | null;
+    categoria: CategoriaGasto | null;
+    notas: string | null;
+    fecha: string;
+    created_at: string;
+  }
+
 
 export * from "./employees";
 export * from "./employee-assignments";
@@ -109,3 +115,4 @@ export * from "./projects";
 export * from "./materials";
 export * from "./material-consumptions";
 export * from "./material-costs";
+export * from "./profitability";
