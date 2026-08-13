@@ -42,7 +42,7 @@ export function Sidebar({ email }: SidebarProps) {
           <div className="space-y-2">
             <SidebarLink
               href="/leads"
-              label="Clientes"
+              label="CRM"
               icon={<Users size={18} />}
             />
             <SidebarLink
@@ -85,6 +85,7 @@ export function Sidebar({ email }: SidebarProps) {
             <SidebarLink
               href="/materiales"
               label="Gastos"
+              disabled
               icon={<Receipt size={18} />}
             />
           </div>

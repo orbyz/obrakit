@@ -1,22 +1,20 @@
-import { getLeads } from "@/app/actions/leads";
-import KanbanBoard from "@/components/leads/KanbanBoard";
+import { getCRMOpportunities } from "@/app/actions/leads";
+import CRMBoard from "@/components/leads/CRMBoard";
 import { PageHeader } from "@/components/ui/page-header/PageHeader";
 
 export default async function LeadsPage() {
-  const leads = await getLeads();
+  const opportunities = await getCRMOpportunities();
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-7xl">
+      <div className="mb-8">
         <PageHeader
-          title="Mis Obras"
-          description="Gestiona tus proyectos de un vistazo"
+          title="CRM"
+          description="Gestiona tus oportunidades comerciales"
         />
       </div>
 
-      {/* Kanban */}
-      <KanbanBoard leads={leads} />
+      <CRMBoard opportunities={opportunities} />
     </div>
   );
 }

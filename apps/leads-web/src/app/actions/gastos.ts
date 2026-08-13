@@ -1,18 +1,54 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+
 import type { Gasto } from "@/types";
 
-// ── Schema ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────
+
+export interface GastoActionState {
+  error: string | null;
+  success: boolean;
+}
+
+interface TenantContext {
+  tenantId: string;
+  userId: string;
+}
+
+interface ProjectContext {
+  id: string;
+  name: string;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Schema
+// ─────────────────────────────────────────────────────────────
 
 const gastoSchema = z.object({
-  material: z.string().min(1, "El concepto es obligatorio"),
-  importe: z.string().min(1, "El importe es obligatorio"),
-  proveedor: z.string().optional(),
+  material: z
+    .string()
+    .trim()
+    .min(1, "El concepto es obligatorio"),
+
+  importe: z
+    .string()
+    .trim()
+    .min(1, "El importe es obligatorio")
+    .refine(
+      (value) =>
+        Number.isFinite(Number(value)) &&
+        Number(value) >= 0,
+      "El importe no es válido",
+    ),
+
+  proveedor: z.string().trim().optional(),
 
   categoria: z.enum([
     "ceramica",
@@ -23,35 +59,143 @@ const gastoSchema = z.object({
     "otro",
   ]),
 
-  cantidad: z.string().optional(),
+  cantidad: z
+    .string()
+    .trim()
+    .optional()
+    .refine(
+      (value) =>
+        !value ||
+        (Number.isFinite(Number(value)) &&
+          Number(value) >= 0),
+      "La cantidad no es válida",
+    ),
 
   unidad: z
-    .enum(["m2", "ml", "kg", "ud", "sacos", "litros", "otro"])
+    .enum([
+      "m2",
+      "ml",
+      "kg",
+      "ud",
+      "sacos",
+      "litros",
+      "otro",
+    ])
     .optional(),
 
+  /**
+   * Optional because a gasto can now be:
+   *
+   * - associated with a project
+   * - general company expense
+   */
   project_id: z
     .string()
-    .uuid("La obra seleccionada no es válida"),
+    .trim()
+    .optional()
+    .or(z.literal("")),
 
-  notas: z.string().optional(),
+  notas: z.string().trim().optional(),
+
   fecha: z.string().optional(),
 });
 
-// ── Tipos ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
 
-export interface GastoActionState {
-  error: string | null;
-  success: boolean;
+function getField(
+  formData: FormData,
+  name: string,
+): string {
+  return String(formData.get(name) ?? "");
 }
 
-// ── Obtener todos los gastos ───────────────────────────────────────
+async function getTenantContext(): Promise<TenantContext | null> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data: membership, error } = await supabase
+    .from("tenant_members")
+    .select("tenant_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (error || !membership?.tenant_id) {
+    return null;
+  }
+
+  return {
+    tenantId: membership.tenant_id,
+    userId: user.id,
+  };
+}
+
+async function getProjectForTenant(
+  projectId: string,
+  tenantId: string,
+): Promise<ProjectContext | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("id, name")
+    .eq("id", projectId)
+    .eq("tenant_id", tenantId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+  };
+}
+
+function getDefaultDate(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+function parseGastoForm(formData: FormData) {
+  return gastoSchema.safeParse({
+    material: getField(formData, "material"),
+    importe: getField(formData, "importe"),
+    proveedor: getField(formData, "proveedor"),
+    categoria: getField(formData, "categoria"),
+    cantidad: getField(formData, "cantidad"),
+    unidad: getField(formData, "unidad"),
+    project_id: getField(formData, "project_id"),
+    notas: getField(formData, "notas"),
+    fecha: getField(formData, "fecha"),
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Queries
+// ─────────────────────────────────────────────────────────────
 
 export async function getGastos(): Promise<Gasto[]> {
+  const context = await getTenantContext();
+
+  if (!context) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("gastos")
     .select("*")
+    .eq("tenant_id", context.tenantId)
     .order("fecha", { ascending: false });
 
   if (error || !data) {
@@ -61,17 +205,21 @@ export async function getGastos(): Promise<Gasto[]> {
   return data as Gasto[];
 }
 
-
-// ── Obtener gastos de una obra ─────────────────────────────────────
-
 export async function getGastosByProject(
   projectId: string,
 ): Promise<Gasto[]> {
+  const context = await getTenantContext();
+
+  if (!context) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("gastos")
     .select("*")
+    .eq("tenant_id", context.tenantId)
     .eq("project_id", projectId)
     .order("fecha", { ascending: false });
 
@@ -82,17 +230,24 @@ export async function getGastosByProject(
   return data as Gasto[];
 }
 
-// ── Obtener gastos de un lead (legacy) ─────────────────────────────
+/**
+ * Returns company-wide expenses that are not associated
+ * with a project.
+ */
+export async function getGeneralGastos(): Promise<Gasto[]> {
+  const context = await getTenantContext();
 
-export async function getGastosByLead(
-  leadId: string,
-): Promise<Gasto[]> {
+  if (!context) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("gastos")
     .select("*")
-    .eq("lead_id", leadId)
+    .eq("tenant_id", context.tenantId)
+    .is("project_id", null)
     .order("fecha", { ascending: false });
 
   if (error || !data) {
@@ -102,79 +257,128 @@ export async function getGastosByLead(
   return data as Gasto[];
 }
 
-// ── Obtener resumen financiero ─────────────────────────────────────
+/**
+ * Legacy query.
+ *
+ * Kept while the lead-based expense flow is still
+ * supported by the application.
+ */
+
+// ─────────────────────────────────────────────────────────────
+// Financial summary
+// ─────────────────────────────────────────────────────────────
 
 export async function getResumenGastos(): Promise<{
   totalMes: number;
   totalAnio: number;
+  totalGeneral: number;
+  totalObras: number;
   porCategoria: Record<string, number>;
   porObra: { nombre: string; total: number }[];
 }> {
+  const context = await getTenantContext();
+
+  if (!context) {
+    return {
+      totalMes: 0,
+      totalAnio: 0,
+      totalGeneral: 0,
+      totalObras: 0,
+      porCategoria: {},
+      porObra: [],
+    };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("gastos")
-    .select("*");
+    .select("*")
+    .eq("tenant_id", context.tenantId);
 
   if (error || !data) {
     return {
       totalMes: 0,
       totalAnio: 0,
+      totalGeneral: 0,
+      totalObras: 0,
       porCategoria: {},
       porObra: [],
     };
   }
 
   const now = new Date();
-  const mesActual = now.getMonth();
-  const anioActual = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
   const totalMes = data
-    .filter((g) => {
-      const fecha = new Date(g.fecha);
+    .filter((gasto) => {
+      const fecha = new Date(gasto.fecha);
 
       return (
-        fecha.getMonth() === mesActual &&
-        fecha.getFullYear() === anioActual
+        fecha.getMonth() === currentMonth &&
+        fecha.getFullYear() === currentYear
       );
     })
     .reduce(
-      (acc, g) => acc + Number(g.importe),
+      (total, gasto) =>
+        total + Number(gasto.importe),
       0,
     );
 
   const totalAnio = data
     .filter(
-      (g) =>
-        new Date(g.fecha).getFullYear() ===
-        anioActual,
+      (gasto) =>
+        new Date(gasto.fecha).getFullYear() ===
+        currentYear,
     )
     .reduce(
-      (acc, g) => acc + Number(g.importe),
+      (total, gasto) =>
+        total + Number(gasto.importe),
       0,
     );
 
+  const generalExpenses = data.filter(
+    (gasto) => gasto.project_id === null,
+  );
+
+  const projectExpenses = data.filter(
+    (gasto) => gasto.project_id !== null,
+  );
+
+  const totalGeneral = generalExpenses.reduce(
+    (total, gasto) =>
+      total + Number(gasto.importe),
+    0,
+  );
+
+  const totalObras = projectExpenses.reduce(
+    (total, gasto) =>
+      total + Number(gasto.importe),
+    0,
+  );
+
   const porCategoria = data.reduce(
-    (acc, g) => {
-      const categoria = g.categoria ?? "otro";
+    (acc, gasto) => {
+      const categoria = gasto.categoria ?? "otro";
 
       acc[categoria] =
         (acc[categoria] ?? 0) +
-        Number(g.importe);
+        Number(gasto.importe);
 
       return acc;
     },
     {} as Record<string, number>,
   );
 
-  const obraMap = data.reduce(
-    (acc, g) => {
+  const obraMap = projectExpenses.reduce(
+    (acc, gasto) => {
       const nombre =
-        g.obra_nombre ?? "Sin obra";
+        gasto.obra_nombre ?? "Obra";
 
       acc[nombre] =
         (acc[nombre] ?? 0) +
-        Number(g.importe);
+        Number(gasto.importe);
 
       return acc;
     },
@@ -192,33 +396,22 @@ export async function getResumenGastos(): Promise<{
   return {
     totalMes,
     totalAnio,
+    totalGeneral,
+    totalObras,
     porCategoria,
     porObra,
   };
 }
 
-// ── Crear gasto ────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Create
+// ─────────────────────────────────────────────────────────────
 
 export async function createGastoAction(
   _prevState: GastoActionState,
   formData: FormData,
 ): Promise<GastoActionState> {
-  const getField = (name: string) =>
-    String(formData.get(name) ?? "");
-
-  const raw = {
-    material: getField("material"),
-    importe: getField("importe"),
-    proveedor: getField("proveedor"),
-    categoria: getField("categoria"),
-    cantidad: getField("cantidad"),
-    unidad: getField("unidad"),
-    project_id: getField("project_id"),
-    notas: getField("notas"),
-    fecha: getField("fecha"),
-  };
-
-  const parsed = gastoSchema.safeParse(raw);
+  const parsed = parseGastoForm(formData);
 
   if (!parsed.success) {
     return {
@@ -227,43 +420,100 @@ export async function createGastoAction(
     };
   }
 
-  const supabase = await createClient();
+  const context = await getTenantContext();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  if (!context) {
     return {
-      error: "No autenticado",
+      error: "No se encontró el negocio asociado",
       success: false,
     };
   }
 
-  const { data: member } = await supabase
-    .from("tenant_members")
-    .select("tenant_id")
-    .eq("user_id", user.id)
-    .single();
+  const projectId =
+    parsed.data.project_id || null;
 
-  if (!member) {
+  let project: ProjectContext | null = null;
+
+  if (projectId) {
+    project = await getProjectForTenant(
+      projectId,
+      context.tenantId,
+    );
+
+    if (!project) {
+      return {
+        error: "La obra seleccionada no es válida.",
+        success: false,
+      };
+    }
+  }
+
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("gastos")
+    .insert({
+      tenant_id: context.tenantId,
+      created_by: context.userId,
+
+      project_id: projectId,
+
+      // Legacy relation intentionally not used
+      // for newly created expenses.
+      lead_id: null,
+
+      obra_nombre: project?.name ?? null,
+
+      material: parsed.data.material,
+      importe: Number(parsed.data.importe),
+      cantidad: parsed.data.cantidad
+        ? Number(parsed.data.cantidad)
+        : null,
+
+      unidad: parsed.data.unidad || null,
+      categoria: parsed.data.categoria,
+
+      proveedor:
+        parsed.data.proveedor || null,
+
+      notas: parsed.data.notas || null,
+
+      fecha:
+        parsed.data.fecha ||
+        getDefaultDate(),
+    });
+
+  if (error) {
     return {
-      error: "No se encontró el negocio",
+      error: "No se pudo registrar el gasto.",
       success: false,
     };
   }
 
-  // Validate that the selected project belongs
-  // to the current tenant.
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id, name")
-    .eq("id", parsed.data.project_id)
-    .single();
+  revalidatePath("/gastos");
 
-  if (!project) {
+  if (projectId) {
+    revalidatePath(`/obras/${projectId}`);
+  }
+
+  return {
+    error: null,
+    success: true,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Delete
+// ─────────────────────────────────────────────────────────────
+
+export async function deleteGastoAction(
+  id: string,
+): Promise<GastoActionState> {
+  const context = await getTenantContext();
+
+  if (!context) {
     return {
-      error: "La obra seleccionada no existe",
+      error: "No se encontró el negocio asociado",
       success: false,
     };
   }
@@ -272,70 +522,21 @@ export async function createGastoAction(
 
   const { error } = await admin
     .from("gastos")
-    .insert({
-      tenant_id: member.tenant_id,
-      created_by: user.id,
-
-      project_id: parsed.data.project_id,
-
-      material: parsed.data.material,
-      importe: parseFloat(parsed.data.importe),
-      proveedor:
-        parsed.data.proveedor || null,
-
-      categoria: parsed.data.categoria,
-
-      cantidad: parsed.data.cantidad
-        ? parseFloat(parsed.data.cantidad)
-        : null,
-
-      unidad: parsed.data.unidad || null,
-
-      obra_nombre: project.name,
-
-      // Legacy field intentionally preserved
-      // while the migration period remains active.
-      lead_id: null,
-
-      notas: parsed.data.notas || null,
-
-      fecha:
-        parsed.data.fecha ||
-        new Date()
-          .toISOString()
-          .split("T")[0],
-    });
+    .delete()
+    .eq("id", id)
+    .eq("tenant_id", context.tenantId);
 
   if (error) {
     return {
-      error: "Error al guardar el gasto",
+      error: "No se pudo eliminar el gasto.",
       success: false,
     };
   }
 
-  revalidatePath("/materiales");
-  revalidatePath("/obras");
-  revalidatePath("/rentabilidad");
+  revalidatePath("/gastos");
 
   return {
     error: null,
     success: true,
   };
-}
-
-// ── Eliminar gasto ─────────────────────────────────────────────────
-
-export async function deleteGastoAction(
-  id: string,
-): Promise<void> {
-  const admin = createAdminClient();
-
-  await admin
-    .from("gastos")
-    .delete()
-    .eq("id", id);
-
-  revalidatePath("/materiales");
-  revalidatePath("/obras");
-  revalidatePath("/rentabilidad");
 }

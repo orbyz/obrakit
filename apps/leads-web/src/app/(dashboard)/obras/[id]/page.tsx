@@ -9,8 +9,8 @@ import { getProjectDashboard } from "@/app/actions/project-dashboard";
 import { EmployeeAssignmentsCard } from "@/components/projects/EmployeeAssignmentsCard";
 import { MaterialConsumptionsCard } from "@/components/projects/MaterialConsumptionsCard";
 import { ProjectProfitabilityCard } from "@/components/projects/ProjectProfitabilityCard";
+import { ProjectStatusActions } from "@/components/projects/ProjectStatusActions";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header/PageHeader";
@@ -96,9 +96,10 @@ export default async function ProjectDetailPage({
             Estado
           </p>
 
-          <Badge>
-            {project.status}
-          </Badge>
+          <ProjectStatusActions
+            projectId={project.id}
+            status={project.status}
+          />
         </Card>
       </div>
 

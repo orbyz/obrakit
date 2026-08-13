@@ -12,7 +12,7 @@ import { Card } from "../ui/card/Card";
 
 interface GastosClientProps {
   gastos: Gasto[];
-  leads: { id: string; nombre: string }[];
+  projects: { id: string; name: string }[];
   resumen: {
     totalMes: number;
     totalAnio: number;
@@ -38,7 +38,7 @@ const TABS = [
 
 export default function GastosClient({
   gastos,
-  leads,
+  projects,
   resumen,
 }: GastosClientProps) {
   const [showForm, setShowForm] = useState(false);
@@ -72,7 +72,10 @@ export default function GastosClient({
       {showForm && (
         <Card className="mb-8 rounded-2xl border border-border bg-surface p-6 shadow-card">
           <FormSection title="Registrar gasto">
-            <GastoForm leads={leads} onSuccess={() => setShowForm(false)} />
+            <GastoForm
+              projects={projects}
+              onSuccess={() => setShowForm(false)}
+            />
           </FormSection>
         </Card>
       )}

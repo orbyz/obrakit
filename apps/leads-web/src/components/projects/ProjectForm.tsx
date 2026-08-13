@@ -16,12 +16,8 @@ import {
   Textarea,
 } from "@/components/ui/forms";
 
-import type { Project } from "@/types";
-
 
 interface ProjectFormProps {
-  mode?: "create" | "edit";
-  project?: Project;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
@@ -32,8 +28,6 @@ const initialState: ProjectActionState = {
 };
 
 export function ProjectForm({
-  mode: _mode = "create",
-  project: _project,
   onSuccess,
   onCancel,
 }: ProjectFormProps) {

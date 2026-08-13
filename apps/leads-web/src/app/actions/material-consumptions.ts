@@ -6,10 +6,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-import type {
-  Material,
-  MaterialConsumption,
-} from "@/types";
+import type { Material, MaterialConsumption } from "@/types";
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -18,6 +15,11 @@ import type {
 export interface MaterialConsumptionActionState {
   error: string | null;
   success: boolean;
+}
+
+interface TenantContext {
+  tenantId: string;
+  userId: string;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -44,7 +46,6 @@ const materialConsumptionBaseSchema = z.object({
 const createMaterialConsumptionSchema =
   materialConsumptionBaseSchema.extend({
     project_id: z.string().uuid("La obra no es válida"),
-
     material_id: z.string().uuid("El material no es válido"),
   });
 
@@ -55,7 +56,11 @@ const updateMaterialConsumptionSchema =
 // Helpers
 // ─────────────────────────────────────────────────────────────
 
-async function getMyTenantId(): Promise<string | null> {
+function getField(formData: FormData, name: string): string {
+  return String(formData.get(name) ?? "");
+}
+
+async function getTenantContext(): Promise<TenantContext | null> {
   const supabase = await createClient();
 
   const {
@@ -66,13 +71,20 @@ async function getMyTenantId(): Promise<string | null> {
     return null;
   }
 
-  const { data } = await supabase
+  const { data: membership, error } = await supabase
     .from("tenant_members")
     .select("tenant_id")
     .eq("user_id", user.id)
     .single();
 
-  return data?.tenant_id ?? null;
+  if (error || !membership?.tenant_id) {
+    return null;
+  }
+
+  return {
+    tenantId: membership.tenant_id,
+    userId: user.id,
+  };
 }
 
 function calculateTotalAmount(
@@ -82,16 +94,7 @@ function calculateTotalAmount(
   return Number((quantity * unitPrice).toFixed(2));
 }
 
-function getField(
-  formData: FormData,
-  name: string,
-): string {
-  return String(formData.get(name) ?? "");
-}
-
-function parseCreateMaterialConsumptionForm(
-  formData: FormData,
-) {
+function parseCreateMaterialConsumptionForm(formData: FormData) {
   return createMaterialConsumptionSchema.safeParse({
     project_id: getField(formData, "project_id"),
     material_id: getField(formData, "material_id"),
@@ -101,9 +104,7 @@ function parseCreateMaterialConsumptionForm(
   });
 }
 
-function parseUpdateMaterialConsumptionForm(
-  formData: FormData,
-) {
+function parseUpdateMaterialConsumptionForm(formData: FormData) {
   return updateMaterialConsumptionSchema.safeParse({
     cantidad: getField(formData, "cantidad"),
     fecha: getField(formData, "fecha"),
@@ -111,69 +112,20 @@ function parseUpdateMaterialConsumptionForm(
   });
 }
 
-async function buildMaterialSnapshot(
-  materialId: string,
-  tenantId: string,
-  quantity: number,
-) {
-  const snapshot = await getMaterialSnapshot(
-    materialId,
-    tenantId,
-  );
-
-  if (!snapshot) {
-    return null;
-  }
-
-  return {
-    snapshot,
-    importeTotal: calculateTotalAmount(
-      quantity,
-      snapshot.precio_snapshot,
-    ),
-  };
-}
-
-// ─────────────────────────────────────────────────────────────
-// Queries
-// ─────────────────────────────────────────────────────────────
-
-export async function getMaterialConsumptions(
+async function getProjectForTenant(
   projectId: string,
-): Promise<MaterialConsumption[]> {
-  const supabase = await createClient();
+  tenantId: string,
+): Promise<boolean> {
+  const admin = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("material_consumptions")
-    .select("*")
-    .eq("project_id", projectId)
-    .order("fecha", { ascending: false });
-
-  if (error) {
-    throw new Error(
-      `Error al obtener consumos de materiales: ${error.message}`,
-    );
-  }
-
-  return (data ?? []) as MaterialConsumption[];
-}
-
-export async function getMaterialConsumptionById(
-  id: string,
-): Promise<MaterialConsumption | null> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("material_consumptions")
-    .select("*")
-    .eq("id", id)
+  const { data, error } = await admin
+    .from("projects")
+    .select("id")
+    .eq("id", projectId)
+    .eq("tenant_id", tenantId)
     .single();
 
-  if (error || !data) {
-    return null;
-  }
-
-  return data as MaterialConsumption;
+  return !error && Boolean(data);
 }
 
 async function getMaterialSnapshot(
@@ -205,6 +157,94 @@ async function getMaterialSnapshot(
   };
 }
 
+async function getMaterialConsumptionForTenant(
+  id: string,
+  tenantId: string,
+): Promise<{
+  project_id: string;
+  material_id: string;
+  precio_snapshot: number;
+  unidad_snapshot: string;
+} | null> {
+  const admin = createAdminClient();
+
+  const { data, error } = await admin
+    .from("material_consumptions")
+    .select(
+      "project_id, material_id, precio_snapshot, unidad_snapshot",
+    )
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    project_id: data.project_id,
+    material_id: data.material_id,
+    precio_snapshot: Number(data.precio_snapshot),
+    unidad_snapshot: data.unidad_snapshot,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Queries
+// ─────────────────────────────────────────────────────────────
+
+export async function getMaterialConsumptions(
+  projectId: string,
+): Promise<MaterialConsumption[]> {
+  const context = await getTenantContext();
+
+  if (!context) {
+    return [];
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("material_consumptions")
+    .select("*")
+    .eq("project_id", projectId)
+    .eq("tenant_id", context.tenantId)
+    .order("fecha", { ascending: false });
+
+  if (error) {
+    throw new Error(
+      `Error al obtener consumos de materiales: ${error.message}`,
+    );
+  }
+
+  return (data ?? []) as MaterialConsumption[];
+}
+
+export async function getMaterialConsumptionById(
+  id: string,
+): Promise<MaterialConsumption | null> {
+  const context = await getTenantContext();
+
+  if (!context) {
+    return null;
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("material_consumptions")
+    .select("*")
+    .eq("id", id)
+    .eq("tenant_id", context.tenantId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as MaterialConsumption;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Create
 // ─────────────────────────────────────────────────────────────
@@ -213,8 +253,7 @@ export async function createMaterialConsumptionAction(
   _prevState: MaterialConsumptionActionState,
   formData: FormData,
 ): Promise<MaterialConsumptionActionState> {
-  const parsed =
-    parseCreateMaterialConsumptionForm(formData);
+  const parsed = parseCreateMaterialConsumptionForm(formData);
 
   if (!parsed.success) {
     return {
@@ -223,63 +262,69 @@ export async function createMaterialConsumptionAction(
     };
   }
 
-  const tenantId = await getMyTenantId();
+  const context = await getTenantContext();
 
-  if (!tenantId) {
+  if (!context) {
     return {
       error: "No se encontró el negocio asociado",
       success: false,
     };
   }
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const materialData = await buildMaterialSnapshot(
-    parsed.data.material_id,
-    tenantId,
-    parsed.data.cantidad,
+  const projectExists = await getProjectForTenant(
+    parsed.data.project_id,
+    context.tenantId,
   );
 
-  if (!materialData) {
+  if (!projectExists) {
+    return {
+      error: "No se encontró la obra",
+      success: false,
+    };
+  }
+
+  const materialSnapshot = await getMaterialSnapshot(
+    parsed.data.material_id,
+    context.tenantId,
+  );
+
+  if (!materialSnapshot) {
     return {
       error: "No se encontró el material",
       success: false,
     };
   }
 
+  const importeTotal = calculateTotalAmount(
+    parsed.data.cantidad,
+    materialSnapshot.precio_snapshot,
+  );
+
   const admin = createAdminClient();
 
   const { error } = await admin
     .from("material_consumptions")
     .insert({
-      tenant_id: tenantId,
-
+      tenant_id: context.tenantId,
       project_id: parsed.data.project_id,
-
-      material_id: materialData.snapshot.material.id,
+      material_id: materialSnapshot.material.id,
 
       material_nombre_snapshot:
-        materialData.snapshot.material.nombre,
+        materialSnapshot.material.nombre,
 
       cantidad: parsed.data.cantidad,
 
       unidad_snapshot:
-        materialData.snapshot.material.unidad_base,
+        materialSnapshot.material.unidad_base,
 
       precio_snapshot:
-        materialData.snapshot.precio_snapshot,
+        materialSnapshot.precio_snapshot,
 
-      importe_total: materialData.importeTotal,
+      importe_total: importeTotal,
 
       fecha: parsed.data.fecha,
-
       notas: parsed.data.notas,
-
-      created_by: user?.id ?? null,
+      created_by: context.userId,
     });
 
   if (error) {
@@ -306,8 +351,7 @@ export async function updateMaterialConsumptionAction(
   _prevState: MaterialConsumptionActionState,
   formData: FormData,
 ): Promise<MaterialConsumptionActionState> {
-  const parsed =
-    parseUpdateMaterialConsumptionForm(formData);
+  const parsed = parseUpdateMaterialConsumptionForm(formData);
 
   if (!parsed.success) {
     return {
@@ -316,30 +360,22 @@ export async function updateMaterialConsumptionAction(
     };
   }
 
-  const tenantId = await getMyTenantId();
+  const context = await getTenantContext();
 
-  if (!tenantId) {
+  if (!context) {
     return {
       error: "No se encontró el negocio asociado",
       success: false,
     };
   }
 
-  const admin = createAdminClient();
+  const currentConsumption =
+    await getMaterialConsumptionForTenant(
+      id,
+      context.tenantId,
+    );
 
-  const {
-    data: currentConsumption,
-    error: currentError,
-  } = await admin
-    .from("material_consumptions")
-    .select(
-      "project_id, material_id, precio_snapshot, unidad_snapshot",
-    )
-    .eq("id", id)
-    .eq("tenant_id", tenantId)
-    .single();
-
-  if (currentError || !currentConsumption) {
+  if (!currentConsumption) {
     return {
       error: "No se encontró el consumo de material",
       success: false,
@@ -348,24 +384,22 @@ export async function updateMaterialConsumptionAction(
 
   const importeTotal = calculateTotalAmount(
     parsed.data.cantidad,
-    Number(currentConsumption.precio_snapshot),
+    currentConsumption.precio_snapshot,
   );
+
+  const admin = createAdminClient();
 
   const { error } = await admin
     .from("material_consumptions")
     .update({
       cantidad: parsed.data.cantidad,
-
       fecha: parsed.data.fecha,
-
       notas: parsed.data.notas,
-
       importe_total: importeTotal,
-
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("tenant_id", tenantId);
+    .eq("tenant_id", context.tenantId);
 
   if (error) {
     return {
@@ -391,43 +425,39 @@ export async function updateMaterialConsumptionAction(
 export async function deleteMaterialConsumptionAction(
   id: string,
 ): Promise<MaterialConsumptionActionState> {
-  const tenantId = await getMyTenantId();
+  const context = await getTenantContext();
 
-  if (!tenantId) {
+  if (!context) {
     return {
       error: "No se encontró el negocio asociado",
       success: false,
     };
   }
 
-  const admin = createAdminClient();
+  const currentConsumption =
+    await getMaterialConsumptionForTenant(
+      id,
+      context.tenantId,
+    );
 
-  const {
-    data: currentConsumption,
-    error: currentError,
-  } = await admin
-    .from("material_consumptions")
-    .select("project_id")
-    .eq("id", id)
-    .eq("tenant_id", tenantId)
-    .single();
-
-  if (currentError || !currentConsumption) {
+  if (!currentConsumption) {
     return {
       error: "No se encontró el consumo de material",
       success: false,
     };
   }
 
+  const admin = createAdminClient();
+
   const { error } = await admin
     .from("material_consumptions")
     .delete()
     .eq("id", id)
-    .eq("tenant_id", tenantId);
+    .eq("tenant_id", context.tenantId);
 
   if (error) {
     return {
-      error: error.message,
+      error: "Error al eliminar el consumo de material",
       success: false,
     };
   }

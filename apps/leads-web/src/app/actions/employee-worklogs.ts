@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+
 import type {
   Employee,
   EmployeeAssignment,
@@ -12,10 +13,18 @@ import type {
   EmployeeWorkLog,
 } from "@/types";
 
+// ─────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────
+
 export interface EmployeeWorkLogActionState {
   error: string | null;
   success: boolean;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Schemas
+// ─────────────────────────────────────────────────────────────
 
 const timeSchema = z
   .string()
@@ -36,7 +45,15 @@ const employeeWorkLogSchema = workLogTimeSchema.extend({
   work_date: z.string().date("La fecha no es válida"),
 });
 
-function timeToMinutes(time: string) {
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
+
+function getField(formData: FormData, name: string): string {
+  return String(formData.get(name) ?? "");
+}
+
+function timeToMinutes(time: string): number {
   const [hours, minutes] = time.split(":").map(Number);
 
   return hours * 60 + minutes;
@@ -54,6 +71,7 @@ function getPricingSnapshot(
   >,
 ): { model: EmployeePricingModel; value: number } | null {
   const model = employee.pricing_model ?? "hourly";
+
   const value =
     model === "hourly"
       ? employee.hourly_rate ?? employee.coste_hora
@@ -63,11 +81,18 @@ function getPricingSnapshot(
           ? employee.monthly_salary
           : employee.fixed_rate;
 
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value < 0
+  ) {
     return null;
   }
 
-  return { model, value };
+  return {
+    model,
+    value,
+  };
 }
 
 function calculateWorkedMinutes(
@@ -75,7 +100,8 @@ function calculateWorkedMinutes(
   endTime: string,
   breakMinutes: number,
 ): { error: string | null; workedMinutes: number | null } {
-  const durationMinutes = timeToMinutes(endTime) - timeToMinutes(startTime);
+  const durationMinutes =
+    timeToMinutes(endTime) - timeToMinutes(startTime);
 
   if (durationMinutes <= 0) {
     return {
@@ -100,16 +126,22 @@ function calculateWorkedMinutes(
     };
   }
 
-  return { error: null, workedMinutes };
+  return {
+    error: null,
+    workedMinutes,
+  };
 }
 
 async function getMyTenantId(): Promise<string | null> {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const { data } = await supabase
     .from("tenant_members")
@@ -120,14 +152,26 @@ async function getMyTenantId(): Promise<string | null> {
   return data?.tenant_id ?? null;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Queries
+// ─────────────────────────────────────────────────────────────
+
 export async function getEmployeeWorkLogs(
   employeeId: string,
 ): Promise<EmployeeWorkLog[]> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return [];
+  }
+
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("employee_worklogs")
     .select("*")
     .eq("employee_id", employeeId)
+    .eq("tenant_id", tenantId)
     .order("work_date", { ascending: false })
     .order("start_time", { ascending: false });
 
@@ -141,12 +185,19 @@ export async function getEmployeeWorkLogs(
 export async function getEmployeeWorkLogsByProject(
   projectId: string,
 ): Promise<EmployeeWorkLog[]> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("employee_worklogs")
     .select("*")
     .eq("project_id", projectId)
+    .eq("tenant_id", tenantId)
     .order("work_date", { ascending: false })
     .order("start_time", { ascending: false });
 
@@ -159,76 +210,98 @@ export async function getEmployeeWorkLogsByProject(
   return (data ?? []) as EmployeeWorkLog[];
 }
 
+// ─────────────────────────────────────────────────────────────
+// Create
+// ─────────────────────────────────────────────────────────────
+
 export async function createEmployeeWorkLogAction(
   _prevState: EmployeeWorkLogActionState,
   formData: FormData,
 ): Promise<EmployeeWorkLogActionState> {
-  const getField = (name: string) => String(formData.get(name) ?? "");
-
   const parsed = employeeWorkLogSchema.safeParse({
-    assignment_id: getField("assignment_id"),
-    work_date: getField("work_date"),
-    start_time: getField("start_time"),
-    end_time: getField("end_time"),
-    break_minutes: getField("break_minutes"),
-    notes: getField("notes"),
+    assignment_id: getField(formData, "assignment_id"),
+    work_date: getField(formData, "work_date"),
+    start_time: getField(formData, "start_time"),
+    end_time: getField(formData, "end_time"),
+    break_minutes: getField(formData, "break_minutes"),
+    notes: getField(formData, "notes"),
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message, success: false };
+    return {
+      error: parsed.error.issues[0].message,
+      success: false,
+    };
   }
 
-  const { error: durationError, workedMinutes } = calculateWorkedMinutes(
-    parsed.data.start_time,
-    parsed.data.end_time,
-    parsed.data.break_minutes,
-  );
+  const { error: durationError, workedMinutes } =
+    calculateWorkedMinutes(
+      parsed.data.start_time,
+      parsed.data.end_time,
+      parsed.data.break_minutes,
+    );
 
   if (durationError || workedMinutes === null) {
-    return { error: durationError, success: false };
+    return {
+      error: durationError,
+      success: false,
+    };
   }
 
   const tenantId = await getMyTenantId();
 
   if (!tenantId) {
-    return { error: "No se encontró el negocio asociado", success: false };
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
   }
 
   const admin = createAdminClient();
-  const { data, error: assignmentError } = await admin
-    .from("employee_assignments")
-    .select("employee_id, project_id, status")
-    .eq("id", parsed.data.assignment_id)
-    .eq("tenant_id", tenantId)
-    .single();
 
-  if (assignmentError || !data) {
-    return { error: "No se encontró la asignación", success: false };
+  const { data: assignmentData, error: assignmentError } =
+    await admin
+      .from("employee_assignments")
+      .select("employee_id, project_id, status")
+      .eq("id", parsed.data.assignment_id)
+      .eq("tenant_id", tenantId)
+      .single();
+
+  if (assignmentError || !assignmentData) {
+    return {
+      error: "No se encontró la asignación",
+      success: false,
+    };
   }
 
-  const assignment = data as Pick<
+  const assignment = assignmentData as Pick<
     EmployeeAssignment,
     "employee_id" | "project_id" | "status"
   >;
 
   if (assignment.status !== "active") {
     return {
-      error: "Solo se pueden registrar jornadas en asignaciones activas.",
+      error:
+        "Solo se pueden registrar jornadas en asignaciones activas.",
       success: false,
     };
   }
 
-  const { data: employeeData, error: employeeError } = await admin
-    .from("employees")
-    .select(
-      "coste_hora, pricing_model, hourly_rate, daily_rate, monthly_salary, fixed_rate",
-    )
-    .eq("id", assignment.employee_id)
-    .eq("tenant_id", tenantId)
-    .single();
+  const { data: employeeData, error: employeeError } =
+    await admin
+      .from("employees")
+      .select(
+        "coste_hora, pricing_model, hourly_rate, daily_rate, monthly_salary, fixed_rate",
+      )
+      .eq("id", assignment.employee_id)
+      .eq("tenant_id", tenantId)
+      .single();
 
   if (employeeError || !employeeData) {
-    return { error: "No se encontró el empleado", success: false };
+    return {
+      error: "No se encontró el empleado",
+      success: false,
+    };
   }
 
   const pricingSnapshot = getPricingSnapshot(
@@ -250,20 +323,26 @@ export async function createEmployeeWorkLogAction(
     };
   }
 
-  const { data: duplicateWorkLogs, error: duplicateError } = await admin
-    .from("employee_worklogs")
-    .select("id")
-    .eq("assignment_id", parsed.data.assignment_id)
-    .eq("work_date", parsed.data.work_date)
-    .limit(1);
+  const { data: duplicateWorkLogs, error: duplicateError } =
+    await admin
+      .from("employee_worklogs")
+      .select("id")
+      .eq("assignment_id", parsed.data.assignment_id)
+      .eq("tenant_id", tenantId)
+      .eq("work_date", parsed.data.work_date)
+      .limit(1);
 
   if (duplicateError) {
-    return { error: "Error al comprobar jornadas duplicadas", success: false };
+    return {
+      error: "Error al comprobar jornadas duplicadas",
+      success: false,
+    };
   }
 
   if (duplicateWorkLogs && duplicateWorkLogs.length > 0) {
     return {
-      error: "Ya existe una jornada para esta asignación en la fecha indicada.",
+      error:
+        "Ya existe una jornada para esta asignación en la fecha indicada.",
       success: false,
     };
   }
@@ -293,6 +372,7 @@ export async function createEmployeeWorkLogAction(
   }
 
   revalidatePath(`/empleados/${assignment.employee_id}`);
+  revalidatePath(`/obras/${assignment.project_id}`);
 
   return {
     error: null,
@@ -300,52 +380,73 @@ export async function createEmployeeWorkLogAction(
   };
 }
 
+// ─────────────────────────────────────────────────────────────
+// Update
+// ─────────────────────────────────────────────────────────────
+
 export async function updateEmployeeWorkLogAction(
   id: string,
   _prevState: EmployeeWorkLogActionState,
   formData: FormData,
 ): Promise<EmployeeWorkLogActionState> {
-  const getField = (name: string) => String(formData.get(name) ?? "");
   const parsed = workLogTimeSchema.safeParse({
-    start_time: getField("start_time"),
-    end_time: getField("end_time"),
-    break_minutes: getField("break_minutes"),
-    notes: getField("notes"),
+    start_time: getField(formData, "start_time"),
+    end_time: getField(formData, "end_time"),
+    break_minutes: getField(formData, "break_minutes"),
+    notes: getField(formData, "notes"),
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message, success: false };
+    return {
+      error: parsed.error.issues[0].message,
+      success: false,
+    };
   }
 
-  const { error: durationError, workedMinutes } = calculateWorkedMinutes(
-    parsed.data.start_time,
-    parsed.data.end_time,
-    parsed.data.break_minutes,
-  );
+  const { error: durationError, workedMinutes } =
+    calculateWorkedMinutes(
+      parsed.data.start_time,
+      parsed.data.end_time,
+      parsed.data.break_minutes,
+    );
 
   if (durationError || workedMinutes === null) {
-    return { error: durationError, success: false };
+    return {
+      error: durationError,
+      success: false,
+    };
   }
 
   const tenantId = await getMyTenantId();
 
   if (!tenantId) {
-    return { error: "No se encontró el negocio asociado", success: false };
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
   }
 
   const admin = createAdminClient();
+
   const { data, error: workLogError } = await admin
     .from("employee_worklogs")
-    .select("employee_id")
+    .select("employee_id, project_id")
     .eq("id", id)
     .eq("tenant_id", tenantId)
     .single();
 
   if (workLogError || !data) {
-    return { error: "No se encontró la jornada", success: false };
+    return {
+      error: "No se encontró la jornada",
+      success: false,
+    };
   }
 
-  const workLog = data as Pick<EmployeeWorkLog, "employee_id">;
+  const workLog = data as Pick<
+    EmployeeWorkLog,
+    "employee_id" | "project_id"
+  >;
+
   const { error } = await admin
     .from("employee_worklogs")
     .update({
@@ -360,13 +461,23 @@ export async function updateEmployeeWorkLogAction(
     .eq("tenant_id", tenantId);
 
   if (error) {
-    return { error: "Error al actualizar la jornada", success: false };
+    return {
+      error: "Error al actualizar la jornada",
+      success: false,
+    };
   }
 
   revalidatePath(`/empleados/${workLog.employee_id}`);
-
-  return { error: null, success: true };
+  revalidatePath(`/obras/${workLog.project_id}`);
+  return {
+    error: null,
+    success: true,
+  };
 }
+
+// ─────────────────────────────────────────────────────────────
+// Delete
+// ─────────────────────────────────────────────────────────────
 
 export async function deleteEmployeeWorkLogAction(
   id: string,
@@ -374,22 +485,33 @@ export async function deleteEmployeeWorkLogAction(
   const tenantId = await getMyTenantId();
 
   if (!tenantId) {
-    return { error: "No se encontró el negocio asociado", success: false };
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
   }
 
   const admin = createAdminClient();
+
   const { data, error: workLogError } = await admin
     .from("employee_worklogs")
-    .select("employee_id")
+    .select("employee_id, project_id")
     .eq("id", id)
     .eq("tenant_id", tenantId)
     .single();
 
   if (workLogError || !data) {
-    return { error: "No se encontró la jornada", success: false };
+    return {
+      error: "No se encontró la jornada",
+      success: false,
+    };
   }
 
-  const workLog = data as Pick<EmployeeWorkLog, "employee_id">;
+  const workLog = data as Pick<
+    EmployeeWorkLog,
+    "employee_id" | "project_id"
+  >;
+
   const { error } = await admin
     .from("employee_worklogs")
     .delete()
@@ -397,10 +519,17 @@ export async function deleteEmployeeWorkLogAction(
     .eq("tenant_id", tenantId);
 
   if (error) {
-    return { error: "Error al eliminar la jornada", success: false };
+    return {
+      error: "Error al eliminar la jornada",
+      success: false,
+    };
   }
 
   revalidatePath(`/empleados/${workLog.employee_id}`);
+  revalidatePath(`/obras/${workLog.project_id}`);
 
-  return { error: null, success: true };
+  return {
+    error: null,
+    success: true,
+  };
 }

@@ -4,15 +4,20 @@
 // Imports
 // ─────────────────────────────────────────────────────────────
 
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { Material, MaterialCategory, MaterialUnit } from "@/types";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+
+import type {
+  Material,
+  MaterialCategory,
+  MaterialUnit,
+} from "@/types";
 
 // ─────────────────────────────────────────────────────────────
-// Tipos
+// Types
 // ─────────────────────────────────────────────────────────────
 
 export interface MaterialActionState {
@@ -24,7 +29,10 @@ export interface MaterialActionState {
 // Schemas
 // ─────────────────────────────────────────────────────────────
 
-const materialCategories: [MaterialCategory, ...MaterialCategory[]] = [
+const materialCategories: [
+  MaterialCategory,
+  ...MaterialCategory[],
+] = [
   "albanileria",
   "ceramica",
   "fontaneria",
@@ -52,23 +60,59 @@ const materialUnits: [MaterialUnit, ...MaterialUnit[]] = [
   "palets",
 ];
 
-const createMaterialSchema = z.object({
-  nombre: z.string().min(2, "El nombre es obligatorio"),
-  descripcion: z.string().optional(),
+const materialSchema = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(2, "El nombre es obligatorio"),
+
+  descripcion: z
+    .string()
+    .trim()
+    .optional(),
+
   categoria: z.enum(materialCategories),
+
   unidad_base: z.enum(materialUnits),
+
   precio_habitual: z.coerce
     .number()
     .finite("El precio debe ser un número válido")
     .min(0, "El precio no puede ser negativo"),
-  marca: z.string().optional(),
-  referencia: z.string().optional(),
+
+  marca: z
+    .string()
+    .trim()
+    .optional(),
+
+  referencia: z
+    .string()
+    .trim()
+    .optional(),
 });
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────
-//
+
+function getField(
+  formData: FormData,
+  name: string,
+): string {
+  return String(formData.get(name) ?? "");
+}
+
+function parseMaterialForm(formData: FormData) {
+  return materialSchema.safeParse({
+    nombre: getField(formData, "nombre"),
+    descripcion: getField(formData, "descripcion"),
+    categoria: getField(formData, "categoria"),
+    unidad_base: getField(formData, "unidad_base"),
+    precio_habitual: getField(formData, "precio_habitual"),
+    marca: getField(formData, "marca"),
+    referencia: getField(formData, "referencia"),
+  });
+}
 
 async function getMyTenantId(): Promise<string | null> {
   const supabase = await createClient();
@@ -77,7 +121,9 @@ async function getMyTenantId(): Promise<string | null> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const { data } = await supabase
     .from("tenant_members")
@@ -100,13 +146,13 @@ export async function getMaterials(): Promise<Material[]> {
     .select("*")
     .order("nombre", { ascending: true });
 
-
   if (error) {
     throw error;
   }
 
   return (data ?? []) as Material[];
 }
+
 export async function getMaterialById(
   id: string,
 ): Promise<Material | null> {
@@ -125,24 +171,15 @@ export async function getMaterialById(
   return data as Material;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Create
+// ─────────────────────────────────────────────────────────────
+
 export async function createMaterialAction(
   _prevState: MaterialActionState,
   formData: FormData,
 ): Promise<MaterialActionState> {
-  const getField = (name: string) =>
-    String(formData.get(name) ?? "");
-
-  const raw = {
-    nombre: getField("nombre"),
-    descripcion: getField("descripcion"),
-    categoria: getField("categoria"),
-    unidad_base: getField("unidad_base"),
-    precio_habitual: getField("precio_habitual"),
-    marca: getField("marca"),
-    referencia: getField("referencia"),
-  };
-
-  const parsed = createMaterialSchema.safeParse(raw);
+  const parsed = parseMaterialForm(formData);
 
   if (!parsed.success) {
     return {
@@ -160,19 +197,12 @@ export async function createMaterialAction(
     };
   }
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const admin = createAdminClient();
 
   const { error } = await admin
     .from("materials")
     .insert({
       tenant_id: tenantId,
-
       nombre: parsed.data.nombre,
       descripcion: parsed.data.descripcion || null,
       categoria: parsed.data.categoria,
@@ -180,7 +210,6 @@ export async function createMaterialAction(
       precio_habitual: parsed.data.precio_habitual,
       marca: parsed.data.marca || null,
       referencia: parsed.data.referencia || null,
-
       activo: true,
     });
 
@@ -199,25 +228,16 @@ export async function createMaterialAction(
   };
 }
 
+// ─────────────────────────────────────────────────────────────
+// Update
+// ─────────────────────────────────────────────────────────────
+
 export async function updateMaterialAction(
   id: string,
   _prevState: MaterialActionState,
   formData: FormData,
 ): Promise<MaterialActionState> {
-  const getField = (name: string) =>
-    String(formData.get(name) ?? "");
-
-  const raw = {
-    nombre: getField("nombre"),
-    descripcion: getField("descripcion"),
-    categoria: getField("categoria"),
-    unidad_base: getField("unidad_base"),
-    precio_habitual: getField("precio_habitual"),
-    marca: getField("marca"),
-    referencia: getField("referencia"),
-  };
-
-  const parsed = createMaterialSchema.safeParse(raw);
+  const parsed = parseMaterialForm(formData);
 
   if (!parsed.success) {
     return {
@@ -237,7 +257,7 @@ export async function updateMaterialAction(
 
   const admin = createAdminClient();
 
-  const { error } = await admin
+  const { data, error } = await admin
     .from("materials")
     .update({
       nombre: parsed.data.nombre,
@@ -250,11 +270,20 @@ export async function updateMaterialAction(
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("tenant_id", tenantId);
+    .eq("tenant_id", tenantId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return {
       error: "Error al actualizar el material",
+      success: false,
+    };
+  }
+
+  if (!data) {
+    return {
+      error: "No se encontró el material",
       success: false,
     };
   }
@@ -266,6 +295,10 @@ export async function updateMaterialAction(
     success: true,
   };
 }
+
+// ─────────────────────────────────────────────────────────────
+// Deactivate
+// ─────────────────────────────────────────────────────────────
 
 export async function deactivateMaterialAction(
   id: string,
@@ -281,18 +314,27 @@ export async function deactivateMaterialAction(
 
   const admin = createAdminClient();
 
-  const { error } = await admin
+  const { data, error } = await admin
     .from("materials")
     .update({
       activo: false,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("tenant_id", tenantId);
+    .eq("tenant_id", tenantId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return {
       error: "Error al desactivar el material",
+      success: false,
+    };
+  }
+
+  if (!data) {
+    return {
+      error: "No se encontró el material",
       success: false,
     };
   }
@@ -304,6 +346,10 @@ export async function deactivateMaterialAction(
     success: true,
   };
 }
+
+// ─────────────────────────────────────────────────────────────
+// Reactivate
+// ─────────────────────────────────────────────────────────────
 
 export async function reactivateMaterialAction(
   id: string,
@@ -319,18 +365,27 @@ export async function reactivateMaterialAction(
 
   const admin = createAdminClient();
 
-  const { error } = await admin
+  const { data, error } = await admin
     .from("materials")
     .update({
       activo: true,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("tenant_id", tenantId);
+    .eq("tenant_id", tenantId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return {
       error: "Error al reactivar el material",
+      success: false,
+    };
+  }
+
+  if (!data) {
+    return {
+      error: "No se encontró el material",
       success: false,
     };
   }

@@ -31,17 +31,17 @@ function SubmitButton() {
 }
 
 interface GastoFormProps {
-  leads?: { id: string; nombre: string }[];
-  leadIdFijo?: string;
+  projects?: { id: string; name: string }[];
+  projectIdFijo?: string;
   onSuccess?: () => void;
 }
 
 export default function GastoForm({
-  leads = [],
-  leadIdFijo,
+  projects = [],
+  projectIdFijo,
   onSuccess,
 }: GastoFormProps) {
-  const [selectedLead, setSelectedLead] = useState("");
+  const [selectedProject, setSelectedProject] = useState("");
   const [obraNombre, setObraNombre] = useState("");
 
   const [state, formAction] = useActionState(createGastoAction, initialState);
@@ -52,7 +52,7 @@ export default function GastoForm({
       formRef.current?.reset();
 
       queueMicrotask(() => {
-        setSelectedLead("");
+        setSelectedProject("");
         setObraNombre("");
 
         onSuccess?.();
@@ -172,17 +172,21 @@ export default function GastoForm({
       </FormSection>
 
       <FormSection title="Obra">
-        {leadIdFijo ? (
-          <Input type="hidden" name="lead_id" value={leadIdFijo} />
+        {projectIdFijo ? (
+          <Input
+            type="hidden"
+            name="project_id"
+            value={projectIdFijo}
+          />
         ) : (
           <>
-            {leads.length > 0 ? (
+            {projects && projects.length > 0 ? (
               <>
                 <Select
-                  name="lead_id"
-                  value={selectedLead}
+                  name="project_id"
+                  value={selectedProject}
                   onChange={(e) => {
-                    setSelectedLead(e.target.value);
+                    setSelectedProject(e.target.value);
 
                     if (e.target.value) {
                       setObraNombre("");
@@ -191,25 +195,27 @@ export default function GastoForm({
                 >
                   <option value="">Selecciona una obra...</option>
 
-                  {leads.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.nombre}
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
                     </option>
                   ))}
                 </Select>
 
-                <p className="text-xs text-center text-muted py-2">— o —</p>
+                <p className="py-2 text-center text-xs text-muted">
+                  — o —
+                </p>
 
                 <Input
                   name="obra_nombre"
                   placeholder="Escribe el nombre de la obra..."
                   value={obraNombre}
-                  disabled={!!selectedLead}
+                  disabled={!!selectedProject}
                   onChange={(e) => {
                     setObraNombre(e.target.value);
 
                     if (e.target.value) {
-                      setSelectedLead("");
+                      setSelectedProject("");
                     }
                   }}
                 />

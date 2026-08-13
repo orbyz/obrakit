@@ -9,7 +9,10 @@ function normalizeAmount(value: number): number {
 }
 
 function calculateCostTotal(cost: ProjectCost): number {
-  if (Number.isFinite(cost.totalCost)) {
+  if (
+    Number.isFinite(cost.totalCost) &&
+    cost.totalCost >= 0
+  ) {
     return cost.totalCost;
   }
 

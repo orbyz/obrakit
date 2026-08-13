@@ -1,24 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { getMaterials } from "@/app/actions/materials";
 import type { Material } from "@/types";
 
+import { EmployeeFeedbackProvider } from "../employees/EmployeeFeedback";
 import { MaterialTable } from "./MaterialTable";
 import { NewMaterialDialog } from "./NewMaterialDialog";
 
-import { EmployeeFeedbackProvider } from "../employees/EmployeeFeedback";
-
-  interface MaterialsClientProps {
-    materials: Material[];
-  }
+interface MaterialsClientProps {
+  materials: Material[];
+}
 
 function MaterialsContent({
   materials,
 }: MaterialsClientProps) {
-
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -43,7 +37,6 @@ function MaterialsContent({
 export function MaterialsClient({
   materials,
 }: MaterialsClientProps) {
-
   return (
     <EmployeeFeedbackProvider>
       <MaterialsContent materials={materials} />

@@ -43,3 +43,15 @@ export const PROJECT_STATUS: Record<
     variant: "danger",
   },
 };
+
+export const PROJECT_STATUS_TRANSITIONS: Record<
+  ProjectStatus,
+  ProjectStatus[]
+> = {
+  draft: ["planned", "cancelled"],
+  planned: ["in_progress", "cancelled"],
+  in_progress: ["paused", "completed", "cancelled"],
+  paused: ["in_progress", "cancelled"],
+  completed: [],
+  cancelled: [],
+};

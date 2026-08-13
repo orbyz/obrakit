@@ -2,14 +2,16 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getLeadById } from "@/app/actions/leads";
 import { getSeguimientos } from "@/app/actions/seguimientos";
-import { getGastosByLead } from "@/app/actions/gastos";
-import LeadDetailClient from "@/components/leads/LeadDetailClient";
+import { getProjectByLeadId } from "@/app/actions/projects";
 
-const ESTADO_CONFIG: Record<string, { label: string; color: string }> = {
-  nuevo: { label: "📥 Nuevo", color: "bg-gray-100 text-gray-700" },
-  en_curso: { label: "⚙️ En Curso", color: "bg-blue-100 text-blue-700" },
-  cerrado: { label: "✅ Cerrado", color: "bg-green-100 text-green-700" },
-};
+import LeadDetailClient from "@/components/leads/LeadDetailClient";
+import { Badge } from "@/components/ui/badge/Badge";
+
+const ESTADO_CONFIG = {
+  nuevo: { label: "Nuevo", variant: "neutral" },
+  en_curso: { label: "En curso", variant: "primary" },
+  cerrado: { label: "Cerrado", variant: "success" },
+} as const;
 
 interface LeadDetailPageProps {
   params: Promise<{ id: string }>;
@@ -17,66 +19,56 @@ interface LeadDetailPageProps {
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const { id } = await params;
-  const [lead, seguimientos, gastos] = await Promise.all([
+  const [lead, seguimientos, project] = await Promise.all([
     getLeadById(id),
     getSeguimientos(id),
-    getGastosByLead(id),
+    getProjectByLeadId(id),
   ]);
 
   if (!lead) notFound();
 
   const estadoConfig = ESTADO_CONFIG[lead.estado];
-  const totalGastos = gastos.reduce((acc, g) => acc + Number(g.importe), 0);
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+    <div className="mx-auto max-w-6xl">
+      <header className="mb-8">
         <Link
           href="/leads"
-          className="text-gray-400 hover:text-gray-600 transition-colors text-sm flex items-center gap-1"
+          className="inline-flex text-sm text-muted transition-colors hover:text-text"
         >
-          ← Volver
+          ← Volver al CRM
         </Link>
-        <div className="flex items-center gap-3 flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{lead.nombre}</h1>
-          <span
-            className={`text-xs font-medium px-2.5 py-1 rounded-full ${estadoConfig.color}`}
-          >
-            {estadoConfig.label}
-          </span>
-        </div>
-        <p className="text-xs text-gray-400">
-          Creado{" "}
-          {new Date(lead.created_at).toLocaleDateString("es-ES", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          })}
-        </p>
-      </div>
 
-      {/* Stats rápidas */}
-      {totalGastos > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-orange-700">
-              🧱 Total gastado en materiales
-            </span>
-            <span className="text-lg font-bold text-orange-900">
-              {totalGastos.toLocaleString("es-ES", {
-                minimumFractionDigits: 2,
-              })}{" "}
-              €
-            </span>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold text-text">{lead.nombre}</h1>
+              <Badge variant={estadoConfig.variant}>
+                {estadoConfig.label}
+              </Badge>
+            </div>
+
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
+              <span>{lead.tipo_obra ?? "Tipo de obra pendiente"}</span>
+              <span>{lead.origen ?? "Origen pendiente"}</span>
+            </div>
           </div>
+
+          <p className="text-xs text-muted">
+            Creado{" "}
+            {new Date(lead.created_at).toLocaleDateString("es-ES", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
         </div>
-      )}
+      </header>
 
       <LeadDetailClient
         lead={lead}
         seguimientos={seguimientos}
-        gastos={gastos}
+        project={project}
       />
     </div>
   );

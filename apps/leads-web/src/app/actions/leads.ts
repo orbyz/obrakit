@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import type { EstadoLead, Lead } from "@/types";
+import type { EstadoLead, Lead, Project } from "@/types";
 
 // ── Schemas ────────────────────────────────────────────────────────
 
@@ -30,6 +30,10 @@ export interface LeadActionState {
   error: string | null;
   success: boolean;
 }
+
+export type CRMOpportunity = Lead & {
+  project: Project | null;
+};
 
 // ── Helper — obtener tenant del usuario actual ─────────────────────
 
@@ -73,6 +77,24 @@ export async function getLeads(): Promise<Record<EstadoLead, Lead[]>> {
     acc[estado] = [...(acc[estado] ?? []), lead];
     return acc;
   }, empty);
+}
+
+// ── Obtener oportunidades CRM con su obra asociada ────────────────
+
+export async function getCRMOpportunities(): Promise<CRMOpportunity[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("leads")
+    .select("*, project:projects(*)")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+
+  return data.map(({ project, ...lead }) => ({
+    ...lead,
+    project: Array.isArray(project) ? (project[0] ?? null) : (project ?? null),
+  })) as CRMOpportunity[];
 }
 
 // ── Crear lead ────────────────────────────────────────────────────
