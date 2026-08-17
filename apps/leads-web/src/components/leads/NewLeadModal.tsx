@@ -20,7 +20,7 @@ function SubmitButton() {
       disabled={pending}
       className="w-full"
     >
-      {pending ? "Guardando..." : "Crear obra"}
+      {pending ? "Guardando..." : "Crear Oportunidad"}
     </Button>
   );
 }
@@ -82,7 +82,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-start justify-between border-b border-border bg-surface px-6 py-5">
           <div>
-            <h2 className="text-xl font-bold text-text">Crear nueva obra</h2>
+            <h2 className="text-xl font-bold text-text">Crear nueva Oportunidad</h2>
 
             <p className="mt-1 text-sm text-muted">
               Registra un nuevo cliente o proyecto.

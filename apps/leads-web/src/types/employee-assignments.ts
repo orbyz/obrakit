@@ -19,6 +19,10 @@ export interface EmployeeAssignment {
   status: EmployeeAssignmentStatus;
   start_date: string;
   end_date: string | null;
+  work_days: number[];
+  default_start_time: string | null;
+  default_end_time: string | null;
+  default_break_minutes: number;
   hourly_rate_snapshot: number | null;
   notes: string | null;
   created_at: string;

@@ -45,6 +45,14 @@ const employeeWorkLogSchema = workLogTimeSchema.extend({
   work_date: z.string().date("La fecha no es válida"),
 });
 
+const employeeWorkWeekSchema = workLogTimeSchema.extend({
+  assignment_id: z.string().uuid("La asignación no es válida"),
+  week_start: z.string().date("La semana no es válida"),
+  work_dates: z
+    .array(z.string().date("Una fecha seleccionada no es válida"))
+    .min(1, "Selecciona al menos un día trabajado"),
+});
+
 // ─────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────
@@ -57,6 +65,21 @@ function timeToMinutes(time: string): number {
   const [hours, minutes] = time.split(":").map(Number);
 
   return hours * 60 + minutes;
+}
+
+function parseDate(date: string): Date {
+  return new Date(`${date}T00:00:00.000Z`);
+}
+
+function formatDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDays(date: string, days: number): string {
+  const nextDate = parseDate(date);
+  nextDate.setUTCDate(nextDate.getUTCDate() + days);
+
+  return formatDate(nextDate);
 }
 
 function getPricingSnapshot(
@@ -150,6 +173,49 @@ async function getMyTenantId(): Promise<string | null> {
     .single();
 
   return data?.tenant_id ?? null;
+}
+
+async function getEmployeePricingSnapshotForTenant(
+  tenantId: string,
+  employeeId: string,
+): Promise<{
+  error: string | null;
+  snapshot: { model: EmployeePricingModel; value: number } | null;
+}> {
+  const admin = createAdminClient();
+  const { data: employeeData, error: employeeError } = await admin
+    .from("employees")
+    .select(
+      "coste_hora, pricing_model, hourly_rate, daily_rate, monthly_salary, fixed_rate",
+    )
+    .eq("id", employeeId)
+    .eq("tenant_id", tenantId)
+    .single();
+
+  if (employeeError || !employeeData) {
+    return { error: "No se encontró el empleado", snapshot: null };
+  }
+
+  const snapshot = getPricingSnapshot(
+    employeeData as Pick<
+      Employee,
+      | "coste_hora"
+      | "daily_rate"
+      | "fixed_rate"
+      | "hourly_rate"
+      | "monthly_salary"
+      | "pricing_model"
+    >,
+  );
+
+  if (!snapshot) {
+    return {
+      error: "El empleado no tiene una tarifa válida configurada.",
+      snapshot: null,
+    };
+  }
+
+  return { error: null, snapshot };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -287,38 +353,12 @@ export async function createEmployeeWorkLogAction(
     };
   }
 
-  const { data: employeeData, error: employeeError } =
-    await admin
-      .from("employees")
-      .select(
-        "coste_hora, pricing_model, hourly_rate, daily_rate, monthly_salary, fixed_rate",
-      )
-      .eq("id", assignment.employee_id)
-      .eq("tenant_id", tenantId)
-      .single();
+  const { error: pricingError, snapshot: pricingSnapshot } =
+    await getEmployeePricingSnapshotForTenant(tenantId, assignment.employee_id);
 
-  if (employeeError || !employeeData) {
+  if (pricingError || !pricingSnapshot) {
     return {
-      error: "No se encontró el empleado",
-      success: false,
-    };
-  }
-
-  const pricingSnapshot = getPricingSnapshot(
-    employeeData as Pick<
-      Employee,
-      | "coste_hora"
-      | "daily_rate"
-      | "fixed_rate"
-      | "hourly_rate"
-      | "monthly_salary"
-      | "pricing_model"
-    >,
-  );
-
-  if (!pricingSnapshot) {
-    return {
-      error: "El empleado no tiene una tarifa válida configurada.",
+      error: pricingError,
       success: false,
     };
   }
@@ -363,6 +403,171 @@ export async function createEmployeeWorkLogAction(
       pricing_value_snapshot: pricingSnapshot.value,
       notes: parsed.data.notes || null,
     });
+
+  if (error) {
+    return {
+      error: error.message,
+      success: false,
+    };
+  }
+
+  revalidatePath(`/empleados/${assignment.employee_id}`);
+  revalidatePath(`/obras/${assignment.project_id}`);
+
+  return {
+    error: null,
+    success: true,
+  };
+}
+
+export async function createEmployeeWorkWeekAction(
+  _prevState: EmployeeWorkLogActionState,
+  formData: FormData,
+): Promise<EmployeeWorkLogActionState> {
+  const parsed = employeeWorkWeekSchema.safeParse({
+    assignment_id: getField(formData, "assignment_id"),
+    week_start: getField(formData, "week_start"),
+    work_dates: formData.getAll("work_dates"),
+    start_time: getField(formData, "start_time"),
+    end_time: getField(formData, "end_time"),
+    break_minutes: getField(formData, "break_minutes"),
+    notes: getField(formData, "notes"),
+  });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0].message,
+      success: false,
+    };
+  }
+
+  const { error: durationError, workedMinutes } = calculateWorkedMinutes(
+    parsed.data.start_time,
+    parsed.data.end_time,
+    parsed.data.break_minutes,
+  );
+
+  if (durationError || workedMinutes === null) {
+    return {
+      error: durationError,
+      success: false,
+    };
+  }
+
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const admin = createAdminClient();
+  const { data: assignmentData, error: assignmentError } = await admin
+    .from("employee_assignments")
+    .select("employee_id, project_id, status, start_date, end_date")
+    .eq("id", parsed.data.assignment_id)
+    .eq("tenant_id", tenantId)
+    .single();
+
+  if (assignmentError || !assignmentData) {
+    return {
+      error: "No se encontró la asignación",
+      success: false,
+    };
+  }
+
+  const assignment = assignmentData as Pick<
+    EmployeeAssignment,
+    "employee_id" | "project_id" | "status" | "start_date" | "end_date"
+  >;
+
+  if (assignment.status !== "active") {
+    return {
+      error: "Solo se pueden registrar jornadas en asignaciones activas.",
+      success: false,
+    };
+  }
+
+  const weekEnd = addDays(parsed.data.week_start, 6);
+  const selectedDates = Array.from(new Set(parsed.data.work_dates)).sort();
+  const assignmentEndDate = assignment.end_date ?? "9999-12-31";
+  const outsideWeek = selectedDates.some(
+    (date) => date < parsed.data.week_start || date > weekEnd,
+  );
+  const outsideAssignment = selectedDates.some(
+    (date) => date < assignment.start_date || date > assignmentEndDate,
+  );
+
+  if (outsideWeek) {
+    return {
+      error: "Solo puedes confirmar días dentro de la semana seleccionada.",
+      success: false,
+    };
+  }
+
+  if (outsideAssignment) {
+    return {
+      error: "Las jornadas deben estar dentro del periodo de la asignación.",
+      success: false,
+    };
+  }
+
+  const { error: pricingError, snapshot: pricingSnapshot } =
+    await getEmployeePricingSnapshotForTenant(tenantId, assignment.employee_id);
+
+  if (pricingError || !pricingSnapshot) {
+    return {
+      error: pricingError,
+      success: false,
+    };
+  }
+
+  const { data: duplicateWorkLogs, error: duplicateError } = await admin
+    .from("employee_worklogs")
+    .select("work_date")
+    .eq("assignment_id", parsed.data.assignment_id)
+    .eq("tenant_id", tenantId)
+    .in("work_date", selectedDates);
+
+  if (duplicateError) {
+    return {
+      error: "Error al comprobar jornadas duplicadas",
+      success: false,
+    };
+  }
+
+  const duplicateDates = new Set(
+    ((duplicateWorkLogs ?? []) as Pick<EmployeeWorkLog, "work_date">[]).map(
+      (workLog) => workLog.work_date,
+    ),
+  );
+  const datesToCreate = selectedDates.filter((date) => !duplicateDates.has(date));
+
+  if (datesToCreate.length === 0) {
+    return {
+      error: "La semana seleccionada ya tenía todas esas jornadas registradas.",
+      success: false,
+    };
+  }
+
+  const { error } = await admin.from("employee_worklogs").insert(
+    datesToCreate.map((workDate) => ({
+      tenant_id: tenantId,
+      assignment_id: parsed.data.assignment_id,
+      employee_id: assignment.employee_id,
+      project_id: assignment.project_id,
+      work_date: workDate,
+      start_time: parsed.data.start_time,
+      end_time: parsed.data.end_time,
+      break_minutes: parsed.data.break_minutes,
+      worked_minutes: workedMinutes,
+      pricing_model_snapshot: pricingSnapshot.model,
+      pricing_value_snapshot: pricingSnapshot.value,
+      notes: parsed.data.notes || null,
+    })),
+  );
 
   if (error) {
     return {

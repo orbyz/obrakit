@@ -33,6 +33,10 @@ const allowedStatusTransitions: Record<
   cancelled: [],
 };
 
+const timeSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "La hora no es válida");
+
 const employeeAssignmentSchema = z
   .object({
     employee_id: z.string().uuid("El empleado no es válido"),
@@ -41,6 +45,15 @@ const employeeAssignmentSchema = z
     status: z.enum(assignmentStatuses),
     start_date: z.string().date("La fecha de inicio no es válida"),
     end_date: z.string().date("La fecha de fin no es válida").or(z.literal("")),
+    work_days: z
+      .array(z.coerce.number().int().min(1).max(7))
+      .min(1, "Selecciona al menos un día laborable"),
+    default_start_time: timeSchema.or(z.literal("")),
+    default_end_time: timeSchema.or(z.literal("")),
+    default_break_minutes: z.coerce
+      .number()
+      .int("El descanso debe ser un número entero")
+      .min(0, "El descanso no puede ser negativo"),
     hourly_rate_snapshot: z
       .string()
       .refine(
@@ -56,6 +69,25 @@ const employeeAssignmentSchema = z
     {
       message: "La fecha de fin no puede ser anterior a la fecha de inicio",
       path: ["end_date"],
+    },
+  )
+  .refine(
+    (data) =>
+      (!data.default_start_time && !data.default_end_time) ||
+      (Boolean(data.default_start_time) && Boolean(data.default_end_time)),
+    {
+      message: "Indica inicio y fin del horario habitual, o deja ambos vacíos",
+      path: ["default_end_time"],
+    },
+  )
+  .refine(
+    (data) =>
+      !data.default_start_time ||
+      !data.default_end_time ||
+      data.default_end_time > data.default_start_time,
+    {
+      message: "La hora de fin debe ser posterior a la hora de inicio",
+      path: ["default_end_time"],
     },
   );
 
@@ -157,6 +189,10 @@ export async function createEmployeeAssignmentAction(
     status: getField("status") || "planned",
     start_date: getField("start_date"),
     end_date: getField("end_date"),
+    work_days: formData.getAll("work_days"),
+    default_start_time: getField("default_start_time"),
+    default_end_time: getField("default_end_time"),
+    default_break_minutes: getField("default_break_minutes") || "0",
     hourly_rate_snapshot: getField("hourly_rate_snapshot"),
     notes: getField("notes"),
   });
@@ -172,27 +208,39 @@ export async function createEmployeeAssignmentAction(
 
   const admin = createAdminClient();
   const endDate = parsed.data.end_date || null;
+  const defaultStartTime = parsed.data.default_start_time || null;
+  const defaultEndTime = parsed.data.default_end_time || null;
 
-  if (parsed.data.status === "active") {
+  const occupiesAssignment =
+    parsed.data.status === "planned" ||
+    parsed.data.status === "active" ||
+    parsed.data.status === "paused";
+
+  if (occupiesAssignment) {
     const { data, error } = await admin
       .from("employee_assignments")
       .select("start_date, end_date")
       .eq("tenant_id", tenantId)
       .eq("employee_id", parsed.data.employee_id)
       .eq("project_id", parsed.data.project_id)
-      .eq("status", "active");
+      .in("status", ["planned", "active", "paused"]);
 
     if (error) {
       return {
-        error: "Error al comprobar las asignaciones activas",
+        error: "Error al comprobar las asignaciones existentes",
         success: false,
       };
     }
 
-    const activeAssignments =
-      (data as Pick<EmployeeAssignment, "start_date" | "end_date">[] | null) ?? [];
+    const existingAssignments =
+      (data as Pick<
+        EmployeeAssignment,
+        "start_date" | "end_date"
+      >[] | null) ?? [];
+
     const assignmentEndDate = endDate ?? "9999-12-31";
-    const hasOverlap = activeAssignments.some(
+
+    const hasOverlap = existingAssignments.some(
       (assignment) =>
         assignment.start_date <= assignmentEndDate &&
         (assignment.end_date === null ||
@@ -202,7 +250,7 @@ export async function createEmployeeAssignmentAction(
     if (hasOverlap) {
       return {
         error:
-          "El empleado ya tiene una asignación activa en esta obra durante ese periodo",
+          "El empleado ya tiene una asignación en esta obra durante ese periodo",
         success: false,
       };
     }
@@ -216,6 +264,10 @@ export async function createEmployeeAssignmentAction(
     status: parsed.data.status,
     start_date: parsed.data.start_date,
     end_date: endDate,
+    work_days: parsed.data.work_days,
+    default_start_time: defaultStartTime,
+    default_end_time: defaultEndTime,
+    default_break_minutes: parsed.data.default_break_minutes,
     hourly_rate_snapshot: parsed.data.hourly_rate_snapshot
       ? Number(parsed.data.hourly_rate_snapshot)
       : null,
