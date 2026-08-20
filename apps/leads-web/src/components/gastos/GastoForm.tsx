@@ -70,16 +70,16 @@ export default function GastoForm({
         <Alert variant="success">Gasto guardado correctamente</Alert>
       )}
 
-      <FormSection title="Material">
+      <FormSection title="Gasto">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Material <span className="text-red-500">*</span>
+            Concepto <span className="text-red-500">*</span>
           </label>
 
           <Input
             name="material"
             type="text"
-            placeholder="Azulejos baño, cemento cola..."
+            placeholder="Gasolina, dieta, contenedor..."
             required
           />
         </div>
@@ -91,12 +91,14 @@ export default function GastoForm({
 
           <Select name="categoria" required>
             <option value="">Selecciona...</option>
-            <option value="ceramica">🪵 Cerámica</option>
-            <option value="fontaneria">🚿 Fontanería</option>
-            <option value="electricidad">⚡ Electricidad</option>
-            <option value="pintura">🎨 Pintura</option>
+            <option value="combustible">⛽ Combustible</option>
+            <option value="transporte">🚚 Transporte</option>
+            <option value="dietas">🍽️ Dietas</option>
+            <option value="contenedores">🗑️ Contenedores</option>
             <option value="herramientas">🔧 Herramientas</option>
-            <option value="otro">📦 Otro</option>
+            <option value="alquiler">🏗️ Alquiler</option>
+            <option value="peajes">🛣️ Peajes</option>
+            <option value="otros">📦 Otros</option>
           </Select>
         </div>
 
@@ -108,7 +110,7 @@ export default function GastoForm({
           <Input
             name="proveedor"
             type="text"
-            placeholder="Leroy Merlin, Ferretería X..."
+            placeholder="Repsol, empresa de contenedores..."
           />
         </div>
       </FormSection>

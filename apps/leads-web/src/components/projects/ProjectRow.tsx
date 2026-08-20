@@ -12,7 +12,7 @@ export function ProjectRow({ project }: Props) {
   const status = PROJECT_STATUS[project.status];
 
   return (
-    <tr className="border-b hover:bg-muted/40 transition-colors">
+    <tr className="border-b hover:bg-slate-100 transition-colors">
       <td className="px-4 py-3 font-medium">{project.name}</td>
 
       <td className="px-4 py-3">
@@ -41,7 +41,7 @@ export function ProjectRow({ project }: Props) {
       <td className="px-4 py-3 text-right">
         <Link
           href={`/obras/${project.id}`}
-          className="text-sm text-primary hover:underline"
+          className="text-sm text-primary hover:underline whitespace-nowrap"
         >
           Ver
         </Link>

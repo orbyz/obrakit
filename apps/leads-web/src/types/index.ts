@@ -68,13 +68,14 @@ export interface Seguimiento {
 }
 
 export type CategoriaGasto =
-  | "ceramica"
-  | "fontaneria"
-  | "electricidad"
-  | "pintura"
+  | "combustible"
+  | "transporte"
+  | "dietas"
+  | "contenedores"
   | "herramientas"
-  | "otro";
-
+  | "alquiler"
+  | "peajes"
+  | "otros";
 export type UnidadGasto =
   | "m2"
   | "ml"

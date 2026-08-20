@@ -51,12 +51,14 @@ const gastoSchema = z.object({
   proveedor: z.string().trim().optional(),
 
   categoria: z.enum([
-    "ceramica",
-    "fontaneria",
-    "electricidad",
-    "pintura",
+    "combustible",
+    "transporte",
+    "dietas",
+    "contenedores",
     "herramientas",
-    "otro",
+    "alquiler",
+    "peajes",
+    "otros",
   ]),
 
   cantidad: z
@@ -83,12 +85,6 @@ const gastoSchema = z.object({
     ])
     .optional(),
 
-  /**
-   * Optional because a gasto can now be:
-   *
-   * - associated with a project
-   * - general company expense
-   */
   project_id: z
     .string()
     .trim()
@@ -520,6 +516,20 @@ export async function deleteGastoAction(
 
   const admin = createAdminClient();
 
+  const { data: gasto, error: gastoError } = await admin
+    .from("gastos")
+    .select("project_id")
+    .eq("id", id)
+    .eq("tenant_id", context.tenantId)
+    .maybeSingle();
+
+  if (gastoError || !gasto) {
+    return {
+      error: "No se encontró el gasto.",
+      success: false,
+    };
+  }
+
   const { error } = await admin
     .from("gastos")
     .delete()
@@ -534,6 +544,10 @@ export async function deleteGastoAction(
   }
 
   revalidatePath("/gastos");
+
+  if (gasto.project_id) {
+    revalidatePath(`/obras/${gasto.project_id}`);
+  }
 
   return {
     error: null,

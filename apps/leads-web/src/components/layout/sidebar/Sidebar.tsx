@@ -18,7 +18,7 @@ interface SidebarProps {
 
 export function Sidebar({ email }: SidebarProps) {
   return (
-    <aside className="hidden md:flex w-72 flex-col border-r border-border bg-surface">
+    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-border bg-surface md:flex">
       <div className="border-b border-border p-6">
         <h1 className="text-2xl font-bold text-primary">ObraKit</h1>
 

@@ -10,48 +10,30 @@ import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 
 import { Building2, Package, Calendar, Store, Trash2 } from "lucide-react";
 
-const CATEGORIA_CONFIG: Record<
-  string,
-  {
-    label: string;
-    variant:
-      | "primary"
-      | "secondary"
-      | "success"
-      | "warning"
-      | "danger"
-      | "neutral"
-      | "outline";
-  }
-> = {
-  ceramica: {
-    label: "Cerámica",
-    variant: "warning",
+const CATEGORIA_CONFIG = {
+  combustible: {
+    label: "Combustible",
   },
-
-  fontaneria: {
-    label: "Fontanería",
-    variant: "primary",
+  transporte: {
+    label: "Transporte",
   },
-
-  electricidad: {
-    label: "Electricidad",
-    variant: "secondary",
+  dietas: {
+    label: "Dietas",
   },
-
-  pintura: {
-    label: "Pintura",
-    variant: "success",
+  contenedores: {
+    label: "Contenedores",
   },
-
   herramientas: {
     label: "Herramientas",
-    variant: "neutral",
   },
-
-  otro: {
-    label: "Otro",
-    variant: "outline",
+  alquiler: {
+    label: "Alquiler",
+  },
+  peajes: {
+    label: "Peajes",
+  },
+  otros: {
+    label: "Otros",
   },
 };
 
@@ -65,9 +47,13 @@ function formatFecha(fecha: string) {
 
 interface GastosListProps {
   gastos: Gasto[];
+  onDeleted?: () => void | Promise<void>;
 }
 
-export default function GastosList({ gastos }: GastosListProps) {
+export default function GastosList({
+  gastos,
+  onDeleted,
+}: GastosListProps) {
   if (gastos.length === 0) {
     return (
       <EmptyState
@@ -80,7 +66,15 @@ export default function GastosList({ gastos }: GastosListProps) {
   return (
     <div className="space-y-4">
       {gastos.map((gasto) => {
-        const categoria = CATEGORIA_CONFIG[gasto.categoria ?? "otro"];
+        const categoria =
+          CATEGORIA_CONFIG[gasto.categoria ?? "otros"];
+
+        const quantity =
+          typeof gasto.cantidad === "number" && gasto.cantidad > 0
+            ? gasto.cantidad
+            : 1;
+
+        const total = Number(gasto.importe) * quantity;
 
         return (
           <Card
@@ -102,6 +96,14 @@ export default function GastosList({ gastos }: GastosListProps) {
 
                 <div className="text-right shrink-0">
                   <p className="text-xl font-bold text-primary">
+                    {total.toLocaleString("es-ES", {
+                      minimumFractionDigits: 2,
+                    })}{" "}
+                    €
+                  </p>
+
+                  <p className="mt-1 text-xs text-muted">
+                    {quantity} {gasto.unidad ?? "ud"} ×{" "}
                     {Number(gasto.importe).toLocaleString("es-ES", {
                       minimumFractionDigits: 2,
                     })}{" "}
@@ -149,8 +151,14 @@ export default function GastosList({ gastos }: GastosListProps) {
                 size="sm"
                 variant="danger"
                 onClick={async () => {
-                  if (confirm("¿Eliminar este gasto?")) {
-                    await deleteGastoAction(gasto.id);
+                  if (!confirm("¿Eliminar este gasto?")) {
+                    return;
+                  }
+
+                  const result = await deleteGastoAction(gasto.id);
+
+                  if (result.success) {
+                    await onDeleted?.();
                   }
                 }}
               >

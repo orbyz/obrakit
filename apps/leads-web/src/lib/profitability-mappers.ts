@@ -106,20 +106,22 @@ export function mapEmployeeWorkLogToProjectCost(
 export function mapExpenseToProjectCost(
   expense: Gasto,
 ): ProjectCost {
-  const totalCost = isValidAmount(expense.importe)
+  const quantity =
+    isValidAmount(expense.cantidad) && expense.cantidad > 0
+      ? expense.cantidad
+      : 1;
+
+  const unitCost = isValidAmount(expense.importe)
     ? expense.importe
     : 0;
+
+  const totalCost = roundCurrency(quantity * unitCost);
 
   return {
     category: "expense",
     description: expense.material,
-    quantity: isValidAmount(expense.cantidad)
-      ? expense.cantidad
-      : 1,
-    unitCost:
-      isValidAmount(expense.cantidad) && expense.cantidad > 0
-        ? roundCurrency(totalCost / expense.cantidad)
-        : totalCost,
+    quantity,
+    unitCost,
     totalCost,
     sourceId: expense.id,
     expenseId: expense.id,

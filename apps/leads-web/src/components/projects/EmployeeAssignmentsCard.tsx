@@ -58,14 +58,13 @@ export async function EmployeeAssignmentsCard({
                   <p className="text-sm text-muted">
                     {assignment.employee.especialidad ?? "-"}
                   </p>
+                    <Link
+                      href={`/empleados/${assignment.employee.id}`}
+                      className="text-sm font-medium text-primary hover:underline justify-end"
+                    >
+                      Ver empleado
+                    </Link>
                 </div>
-
-                <Link
-                  href={`/empleados/${assignment.employee.id}`}
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  Ver empleado
-                </Link>
               </div>
             </Card>
           ))}

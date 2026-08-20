@@ -5,11 +5,13 @@ import { getAvailableEmployees } from "@/app/actions/employees";
 import { getMaterialConsumptions } from "@/app/actions/material-consumptions";
 import { getMaterials } from "@/app/actions/materials";
 import { getProjectDashboard } from "@/app/actions/project-dashboard";
+import { getGastosByProject } from "@/app/actions/gastos";
 
 import { EmployeeAssignmentsCard } from "@/components/projects/EmployeeAssignmentsCard";
 import { MaterialConsumptionsCard } from "@/components/projects/MaterialConsumptionsCard";
 import { ProjectProfitabilityCard } from "@/components/projects/ProjectProfitabilityCard";
 import { ProjectStatusActions } from "@/components/projects/ProjectStatusActions";
+import { ProjectExpensesCard } from "@/components/projects/ProjectExpensesCard";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -38,10 +40,11 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  const [employees, materials, consumptions] = await Promise.all([
+  const [employees, materials, consumptions, gastos] = await Promise.all([
     getAvailableEmployees(),
     getMaterials(),
     getMaterialConsumptions(project.id),
+    getGastosByProject(project.id),
   ]);
 
   return (
@@ -178,6 +181,12 @@ export default async function ProjectDetailPage({
         projectId={project.id}
         materials={materials}
         consumptions={consumptions}
+      />
+
+      {/* Gastos */}
+      <ProjectExpensesCard
+        projectId={project.id}
+        initialGastos={gastos}
       />
     </div>
   );
