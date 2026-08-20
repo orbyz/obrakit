@@ -12,6 +12,8 @@ import { MaterialConsumptionsCard } from "@/components/projects/MaterialConsumpt
 import { ProjectProfitabilityCard } from "@/components/projects/ProjectProfitabilityCard";
 import { ProjectStatusActions } from "@/components/projects/ProjectStatusActions";
 import { ProjectExpensesCard } from "@/components/projects/ProjectExpensesCard";
+import { EditProjectDialog } from "@/components/projects/EditProjectDialog";
+
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -58,10 +60,13 @@ export default async function ProjectDetailPage({
       <PageHeader
         title={project.name}
         description={project.client_name ?? "Sin cliente"}
+        actions={
+          <EditProjectDialog project={project} />
+        }
       />
 
       {/* Resumen básico de la obra */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card className="space-y-2">
           <p className="text-sm text-muted">
             Cliente
@@ -91,6 +96,16 @@ export default async function ProjectDetailPage({
 
           <p className="font-semibold">
             {project.planned_start_date ?? "-"}
+          </p>
+        </Card>
+
+        <Card className="space-y-2">
+          <p className="text-sm text-muted">
+            Fin previsto
+          </p>
+
+          <p className="font-semibold">
+            {project.planned_end_date ?? "-"}
           </p>
         </Card>
 

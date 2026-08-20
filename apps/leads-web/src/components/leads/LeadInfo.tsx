@@ -51,16 +51,31 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
         <Alert variant="success">Cambios guardados correctamente</Alert>
       )}
 
-      <input
-        type="hidden"
-        name="fecha_inicio"
-        defaultValue={lead.fecha_inicio ?? ""}
-      />
-      <input
-        type="hidden"
-        name="dias_estimados"
-        defaultValue={lead.dias_estimados ?? ""}
-      />
+      <div>
+        <label className="mb-1 block text-xs font-medium text-muted">
+          Fecha de inicio
+        </label>
+
+        <Input
+          name="fecha_inicio"
+          type="date"
+          defaultValue={lead.fecha_inicio ?? ""}
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-muted">
+          Días estimados
+        </label>
+
+        <Input
+          name="dias_estimados"
+          type="number"
+          min="1"
+          step="1"
+          defaultValue={lead.dias_estimados ?? ""}
+        />
+      </div>
 
       <FormSection title="Cliente">
         <div className="grid gap-4 sm:grid-cols-2">

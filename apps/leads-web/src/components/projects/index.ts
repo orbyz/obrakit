@@ -3,3 +3,4 @@ export * from "./ProjectsTable";
 export * from "./ProjectForm";
 export * from "./NewProjectDialog";
 export * from "./EmployeeAssignmentsCard";
+export * from "./EditProjectDialog";

@@ -5,6 +5,8 @@ import { useFormStatus } from "react-dom";
 import { createLeadAction, type LeadActionState } from "@/app/actions/leads";
 import { X, MapPinned } from "lucide-react";
 import { Button } from "@/components/ui/button/Button";
+import { Input } from "@/components/ui/forms/Input";
+
 
 const initialState: LeadActionState = {
   error: null,
@@ -127,7 +129,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nombre del cliente <span className="text-red-500">*</span>
             </label>
-            <input
+            <Input
               name="nombre"
               type="text"
               placeholder="Carmen López"
@@ -141,7 +143,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Teléfono de contacto
             </label>
-            <input
+            <Input
               name="telefono"
               type="tel"
               placeholder="600 000 000"
@@ -154,7 +156,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
-            <input
+            <Input
               name="email"
               type="email"
               placeholder="cliente@email.com"
@@ -168,7 +170,7 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
               Dirección de la obra
             </label>
             <div className="flex gap-2">
-              <input
+              <Input
                 ref={direccionRef}
                 name="direccion"
                 type="text"
@@ -198,11 +200,37 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Zona / Municipio
             </label>
-            <input
+            <Input
               name="zona"
               type="text"
               placeholder="Valencia, Bétera..."
               className={inputClass}
+            />
+          </div>
+
+          {/* Fecha de inicio y días estimados */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted">
+              Fecha de inicio
+            </label>
+
+            <Input
+              name="fecha_inicio"
+              type="date"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted">
+              Días estimados
+            </label>
+
+            <Input
+              name="dias_estimados"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="Ej. 30"
             />
           </div>
 

@@ -22,6 +22,8 @@ const createLeadSchema = z.object({
     .enum(["whatsapp", "instagram", "recomendacion", "web", "otro"])
     .optional()
     .or(z.literal("")),
+  fecha_inicio: z.string().optional(),
+  dias_estimados: z.coerce.number().int().positive().optional(),
 });
 
 // ── Tipos ──────────────────────────────────────────────────────────
@@ -111,6 +113,8 @@ export async function createLeadAction(
     zona: formData.get("zona") as string,
     tipo_obra: formData.get("tipo_obra") as string,
     origen: formData.get("origen") as string,
+    fecha_inicio: formData.get("fecha_inicio") as string,
+    dias_estimados: formData.get("dias_estimados") as string,
   };
 
   const parsed = createLeadSchema.safeParse(raw);
@@ -129,6 +133,17 @@ export async function createLeadAction(
   } = await supabase.auth.getUser();
   const admin = createAdminClient();
 
+  const fechaInicio = parsed.data.fecha_inicio || null;
+
+  const fechaFinEstimada =
+    fechaInicio && parsed.data.dias_estimados
+      ? (() => {
+          const date = new Date(`${fechaInicio}T00:00:00`);
+          date.setDate(date.getDate() + parsed.data.dias_estimados);
+          return date.toISOString().split("T")[0];
+        })()
+      : null;
+
   const { error } = await admin.from("leads").insert({
     nombre: parsed.data.nombre,
     telefono: parsed.data.telefono || null,
@@ -137,6 +152,11 @@ export async function createLeadAction(
     zona: parsed.data.zona || null,
     tipo_obra: parsed.data.tipo_obra || null,
     origen: parsed.data.origen || null,
+
+    fecha_inicio: fechaInicio,
+    dias_estimados: parsed.data.dias_estimados ?? null,
+    fecha_fin_estimada: fechaFinEstimada,
+
     tenant_id: tenantId,
     created_by: user!.id,
     estado: "nuevo",

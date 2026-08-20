@@ -520,3 +520,104 @@ export async function createProjectAction(
     message: "Obra creada correctamente.",
   };
 }
+
+
+// ─────────────────────────────────────────────────────────────
+// Update project
+// ─────────────────────────────────────────────────────────────
+
+export async function updateProjectAction(
+  projectId: string,
+  _prevState: ProjectActionState,
+  formData: FormData,
+): Promise<ProjectActionState> {
+  const raw = {
+    name: getFormField(formData, "name"),
+    reference: getFormField(formData, "reference"),
+    client_name: getFormField(formData, "client_name"),
+    client_phone: getFormField(formData, "client_phone"),
+    client_email: getFormField(formData, "client_email"),
+    address: getFormField(formData, "address"),
+    city: getFormField(formData, "city"),
+    postal_code: getFormField(formData, "postal_code"),
+    planned_start_date: getFormField(
+      formData,
+      "planned_start_date",
+    ),
+    planned_end_date: getFormField(
+      formData,
+      "planned_end_date",
+    ),
+    approved_budget: getFormField(
+      formData,
+      "approved_budget",
+    ),
+    notes: getFormField(formData, "notes"),
+  };
+
+  const parsed = projectSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message:
+        parsed.error.issues[0]?.message ??
+        "Los datos de la obra no son válidos.",
+    };
+  }
+
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return {
+      success: false,
+      message: "No se encontró el negocio asociado.",
+    };
+  }
+
+  const admin = createAdminClient();
+
+  const { data: project, error } = await admin
+    .from("projects")
+    .update({
+      name: parsed.data.name,
+      reference: parsed.data.reference || null,
+      client_name: parsed.data.client_name,
+      client_phone: parsed.data.client_phone || null,
+      client_email: parsed.data.client_email || null,
+      address: parsed.data.address || null,
+      city: parsed.data.city || null,
+      postal_code: parsed.data.postal_code || null,
+      planned_start_date:
+        parsed.data.planned_start_date || null,
+      planned_end_date:
+        parsed.data.planned_end_date || null,
+      approved_budget:
+        parsed.data.approved_budget === ""
+          ? null
+          : parsed.data.approved_budget,
+      notes: parsed.data.notes || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", projectId)
+    .eq("tenant_id", tenantId)
+    .select("id")
+    .single();
+
+  if (error || !project) {
+    return {
+      success: false,
+      message: "No se pudo actualizar la obra.",
+    };
+  }
+
+  revalidatePath("/obras");
+  revalidatePath(`/obras/${projectId}`);
+  revalidatePath("/");
+
+  return {
+    success: true,
+    message: "Obra actualizada correctamente.",
+    projectId: project.id,
+  };
+}
