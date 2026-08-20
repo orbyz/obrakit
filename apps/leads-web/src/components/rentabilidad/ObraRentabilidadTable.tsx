@@ -46,8 +46,8 @@ export default function ObraRentabilidadTable({
             >
               <td className="py-3 px-4">
                 <Link
-                  href={`/leads/${row.id}`}
-                  className="font-medium text-orange-600 hover:text-orange-700 hover:underline"
+                  href={`/obras/${row.id}`}
+                  className="font-medium text-primary hover:underline"
                 >
                   {row.nombre}
                 </Link>

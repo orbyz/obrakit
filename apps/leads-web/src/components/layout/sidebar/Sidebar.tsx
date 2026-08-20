@@ -30,7 +30,11 @@ export function Sidebar({ email }: SidebarProps) {
           <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-muted">
             🏠 INICIO
           </p>
-          <SidebarLink href="/" label="Dashboard" icon={<Home size={18} />} />
+          <SidebarLink
+            href="/dashboard"
+            label="Dashboard"
+            icon={<Home size={18} />}
+          />
         </section>
 
         <div className="my-4 border-t border-border" />
