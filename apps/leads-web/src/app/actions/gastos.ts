@@ -73,8 +73,9 @@ const gastoSchema = z.object({
       "La cantidad no es válida",
     ),
 
-  unidad: z
-    .enum([
+  unidad: z.preprocess(
+    (value) => value === "" ? undefined : value,
+    z.enum([
       "m2",
       "ml",
       "kg",
@@ -82,8 +83,8 @@ const gastoSchema = z.object({
       "sacos",
       "litros",
       "otro",
-    ])
-    .optional(),
+    ]).optional(),
+  ),
 
   project_id: z
     .string()
@@ -489,6 +490,109 @@ export async function createGastoAction(
   revalidatePath("/gastos");
 
   if (projectId) {
+    revalidatePath(`/obras/${projectId}`);
+  }
+
+  return {
+    error: null,
+    success: true,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Update
+// ─────────────────────────────────────────────────────────────
+
+export async function updateGastoAction(
+  id: string,
+  _prevState: GastoActionState,
+  formData: FormData,
+): Promise<GastoActionState> {
+  const parsed = parseGastoForm(formData);
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0].message,
+      success: false,
+    };
+  }
+
+  const context = await getTenantContext();
+
+  if (!context) {
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const projectId = parsed.data.project_id || null;
+
+  let project: ProjectContext | null = null;
+
+  if (projectId) {
+    project = await getProjectForTenant(
+      projectId,
+      context.tenantId,
+    );
+
+    if (!project) {
+      return {
+        error: "La obra seleccionada no es válida.",
+        success: false,
+      };
+    }
+  }
+
+  const admin = createAdminClient();
+
+  const { data: gasto, error: gastoError } = await admin
+    .from("gastos")
+    .select("id, project_id")
+    .eq("id", id)
+    .eq("tenant_id", context.tenantId)
+    .single();
+
+  if (gastoError || !gasto) {
+    return {
+      error: "El gasto no existe o no tienes permisos para editarlo.",
+      success: false,
+    };
+  }
+
+  const { error } = await admin
+    .from("gastos")
+    .update({
+      project_id: projectId,
+      obra_nombre: project?.name ?? null,
+      material: parsed.data.material,
+      importe: Number(parsed.data.importe),
+      cantidad: parsed.data.cantidad
+        ? Number(parsed.data.cantidad)
+        : null,
+      unidad: parsed.data.unidad || null,
+      categoria: parsed.data.categoria,
+      proveedor: parsed.data.proveedor || null,
+      notas: parsed.data.notas || null,
+      fecha: parsed.data.fecha || getDefaultDate(),
+    })
+    .eq("id", id)
+    .eq("tenant_id", context.tenantId);
+
+  if (error) {
+    return {
+      error: "No se pudo actualizar el gasto.",
+      success: false,
+    };
+  }
+
+  revalidatePath("/gastos");
+
+  if (gasto.project_id) {
+    revalidatePath(`/obras/${gasto.project_id}`);
+  }
+
+  if (projectId && projectId !== gasto.project_id) {
     revalidatePath(`/obras/${projectId}`);
   }
 
