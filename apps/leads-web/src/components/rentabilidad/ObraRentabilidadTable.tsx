@@ -51,6 +51,12 @@ export default function ObraRentabilidadTable({
                 >
                   {row.nombre}
                 </Link>
+
+                {row.hasUncalculatedLaborCost && (
+                  <p className="mt-1 text-xs text-muted">
+                    Coste laboral incompleto
+                  </p>
+                )}
               </td>
               <td className="py-3 px-4 text-right text-gray-900">
                 {row.facturado.toLocaleString("es-ES", {

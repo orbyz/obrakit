@@ -19,6 +19,7 @@ export interface ResumenGeneral {
   margenNeto: number;
   leadsCerrados: number;
   tasaCierreGlobal: number;
+  obrasConCostesIncompletos: number;
 }
 
 export interface RentabilidadPorObra {
@@ -28,6 +29,7 @@ export interface RentabilidadPorObra {
   gastado: number;
   margen: number;
   margenPorcentaje: number;
+  hasUncalculatedLaborCost: boolean;
 }
 
 interface ProjectProfitabilityContext {
@@ -38,10 +40,12 @@ interface ProjectProfitabilityContext {
   totalCost: number;
   grossProfit: number;
   margin: number;
+  hasUncalculatedLaborCost: boolean;
 }
 
 async function getCompletedProjects() {
   const projects = await getProjects();
+
 
   const completedProjects = projects.filter(
     (project) => project.status === "completed",
@@ -69,6 +73,8 @@ async function getCompletedProjects() {
         totalCost: dashboard.profitability.totalCost,
         grossProfit: dashboard.profitability.grossProfit,
         margin: dashboard.profitability.margin,
+        hasUncalculatedLaborCost:
+          dashboard.profitability.hasUncalculatedLaborCost,
       } satisfies ProjectProfitabilityContext;
     })
     .filter(
@@ -100,6 +106,10 @@ export async function getResumenGeneral(): Promise<ResumenGeneral> {
     0,
   );
 
+  const obrasConCostesIncompletos = projects.filter(
+    (project) => project.hasUncalculatedLaborCost,
+  ).length;
+
   return {
     totalFacturado,
     totalGastado,
@@ -109,6 +119,7 @@ export async function getResumenGeneral(): Promise<ResumenGeneral> {
       allProjects.length > 0
         ? Math.round((projects.length / allProjects.length) * 100)
         : 0,
+    obrasConCostesIncompletos,
   };
 }
 
@@ -192,6 +203,7 @@ export async function getRentabilidadPorObra(): Promise<
       gastado: project.totalCost,
       margen: project.grossProfit,
       margenPorcentaje: project.margin,
+      hasUncalculatedLaborCost: project.hasUncalculatedLaborCost,
     }))
     .sort((a, b) => b.margen - a.margen);
 }

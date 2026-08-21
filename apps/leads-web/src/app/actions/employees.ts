@@ -9,7 +9,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { Employee, EmployeePricingModel } from "@/types";
+import type {
+  Employee,
+  EmployeePricingModel,
+  EstadoEmpleado,
+} from "@/types";
 
 
 
@@ -356,20 +360,42 @@ export async function reactivateEmployeeAction(
 
 export async function updateEmployeeStatusAction(
   employeeId: string,
-  estado: "activo" | "vacaciones" | "baja" | "inactivo",
-): Promise<void> {
+  estado: EstadoEmpleado,
+): Promise<EmployeeActionState> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return {
+      error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
-  await admin
+  const { error } = await admin
     .from("employees")
     .update({
       estado,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", employeeId);
+    .eq("id", employeeId)
+    .eq("tenant_id", tenantId);
+
+  if (error) {
+    return {
+      error: "Error al actualizar el estado del empleado",
+      success: false,
+    };
+  }
 
   revalidatePath("/empleados");
   revalidatePath(`/empleados/${employeeId}`);
+
+  return {
+    error: null,
+    success: true,
+  };
 }
 
 export async function getProjectAssignments(
@@ -420,42 +446,4 @@ export async function getAvailableEmployees() {
   }
 
   return data;
-}
-
-export async function assignEmployeeToProject(
-  projectId: string,
-  employeeId: string,
-) {
-  const tenantId = await getMyTenantId();
-
-  if (!tenantId) {
-    throw new Error("No se encontró el tenant.");
-  }
-
-  const admin = createAdminClient();
-
-  const { error } = await admin
-    .from("employee_assignments")
-    .insert({
-      tenant_id: tenantId,
-      employee_id: employeeId,
-      project_id: projectId,
-
-      role: "Operario",
-      status: "active",
-
-      start_date: new Date()
-        .toISOString()
-        .slice(0, 10),
-
-      end_date: null,
-      hourly_rate_snapshot: null,
-      notes: null,
-    });
-
-  if (error) {
-    throw error;
-  }
-
-  revalidatePath(`/obras/${projectId}`);
 }

@@ -26,6 +26,21 @@ export default async function RentabilidadPage() {
         />
       </div>
 
+      {resumen.obrasConCostesIncompletos > 0 && (
+        <div className="mb-6 rounded-2xl border border-border bg-background px-5 py-4">
+          <p className="font-medium">
+            Algunas cifras de rentabilidad son provisionales.
+          </p>
+
+          <p className="mt-1 text-sm text-muted">
+            {resumen.obrasConCostesIncompletos === 1
+              ? "Hay 1 obra con costes laborales que todavía no pueden imputarse automáticamente."
+              : `Hay ${resumen.obrasConCostesIncompletos} obras con costes laborales que todavía no pueden imputarse automáticamente.`}
+          </p>
+        </div>
+      )}
+
+
       {/* Stats generales */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <StatCard

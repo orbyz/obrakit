@@ -1,10 +1,11 @@
 import Link from "next/link";
 
-import { Card } from "@/components/ui/card";
-
-import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 import { getProjectAssignments } from "@/app/actions/employees";
-import { AssignEmployeeForm } from "./AssignEmployeeForm";
+import { EmployeeFeedbackProvider } from "@/components/employees/EmployeeFeedback";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state/EmptyState";
+
+import { NewProjectAssignmentDialog } from "./NewProjectAssignmentDialog";
 
 interface EmployeeAssignmentsCardProps {
   projectId: string;
@@ -24,52 +25,55 @@ export async function EmployeeAssignmentsCard({
   const assignments = await getProjectAssignments(projectId);
 
   return (
-    <Card className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          Empleados asignados
-        </h2>
+    <EmployeeFeedbackProvider>
+      <Card className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">
+            Empleados asignados
+          </h2>
 
-        <AssignEmployeeForm
-          projectId={projectId}
-          employees={employees}
-        />
-      </div>
+          <NewProjectAssignmentDialog
+            projectId={projectId}
+            employees={employees}
+          />
+        </div>
 
-      {assignments.length === 0 ? (
-        <EmptyState
-          title="No hay empleados asignados."
-          description="Asigna empleados para comenzar el seguimiento de la obra."
-        />
-      ) : (
-        <div className="space-y-3">
-          {assignments.map((assignment) => (
-            <Card
-              key={assignment.id}
-              className="flex items-center justify-between"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">
-                    {assignment.employee.nombre}{" "}
-                    {assignment.employee.apellidos ?? ""}
-                  </p>
+        {assignments.length === 0 ? (
+          <EmptyState
+            title="No hay empleados asignados."
+            description="Asigna empleados para comenzar el seguimiento de la obra."
+          />
+        ) : (
+          <div className="space-y-3">
+            {assignments.map((assignment) => (
+              <Card
+                key={assignment.id}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">
+                      {assignment.employee.nombre}{" "}
+                      {assignment.employee.apellidos ?? ""}
+                    </p>
 
-                  <p className="text-sm text-muted">
-                    {assignment.employee.especialidad ?? "-"}
-                  </p>
+                    <p className="text-sm text-muted">
+                      {assignment.employee.especialidad ?? "-"}
+                    </p>
+
                     <Link
                       href={`/empleados/${assignment.employee.id}`}
                       className="text-sm font-medium text-primary hover:underline justify-end"
                     >
                       Ver empleado
                     </Link>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-    </Card>
+              </Card>
+            ))}
+          </div>
+        )}
+      </Card>
+    </EmployeeFeedbackProvider>
   );
 }

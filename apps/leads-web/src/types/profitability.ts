@@ -24,6 +24,7 @@ export interface ProjectCost {
 export interface ProjectFinancialData {
   revenue: ProjectRevenue;
   costs: ProjectCost[];
+  hasUncalculatedLaborCost: boolean;
 }
 
 export interface ProjectProfitability {
@@ -34,4 +35,5 @@ export interface ProjectProfitability {
   totalCost: number;
   grossProfit: number;
   margin: number;
+  hasUncalculatedLaborCost: boolean;
 }
