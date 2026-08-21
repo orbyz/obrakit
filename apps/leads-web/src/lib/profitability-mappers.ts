@@ -147,6 +147,12 @@ export function buildProjectFinancialData(
 
   const expenseCosts = expenses.map(mapExpenseToProjectCost);
 
+  const hasUncalculatedLaborCost = workLogs.some(
+    (workLog) =>
+      workLog.pricing_model_snapshot === "monthly" ||
+      workLog.pricing_model_snapshot === "fixed",
+  );
+
   return {
     revenue: mapProjectRevenue(project),
     costs: [
@@ -154,5 +160,6 @@ export function buildProjectFinancialData(
       ...laborCosts,
       ...expenseCosts,
     ],
+    hasUncalculatedLaborCost,
   };
 }

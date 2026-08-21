@@ -71,5 +71,7 @@ export function calculateProjectProfitability(
     totalCost: Number(totalCost.toFixed(2)),
     grossProfit: Number(grossProfit.toFixed(2)),
     margin: Number(margin.toFixed(2)),
+    hasUncalculatedLaborCost:
+      financialData.hasUncalculatedLaborCost,
   };
 }

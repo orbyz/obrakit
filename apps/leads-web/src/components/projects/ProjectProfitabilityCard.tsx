@@ -34,6 +34,19 @@ export function ProjectProfitabilityCard({
         <p className="text-sm text-muted">
           Resumen económico de la obra
         </p>
+        {profitability.hasUncalculatedLaborCost && (
+          <div className="rounded-lg border border-border bg-background px-4 py-3 text-sm">
+            <p className="font-medium">
+              Coste de mano de obra incompleto
+            </p>
+
+            <p className="mt-1 text-muted">
+              Existen jornadas con un modelo de tarificación mensual o
+              precio fijo que todavía no pueden imputarse automáticamente
+              a la obra.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
