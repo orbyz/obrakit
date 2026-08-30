@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import { APP_ROUTES } from "@/config/urls";
 import HeroProductPreview from "./HeroProductPreview";
 
 const Hero = () => {
@@ -46,7 +47,7 @@ const Hero = () => {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
-                render={<Link href="/#product" />}
+                render={<Link href={APP_ROUTES.register} />}
                 className="h-12 rounded-lg border border-primary bg-primary px-6 text-base font-semibold text-background hover:bg-primary/85"
               >
                 Solicitar demo

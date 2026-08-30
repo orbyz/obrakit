@@ -223,9 +223,6 @@ html {
   scroll-behavior: smooth;
 }
 
-section {
-  @apply bg-secondary;
-}
 
 .blog-details p,
 .blog-details hr {

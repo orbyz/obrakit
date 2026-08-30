@@ -1,57 +1,42 @@
-import React, { FC } from "react";
+import type { FC } from "react";
 import Link from "next/link";
+
+import { ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
 import { headerData } from "../Header/Navigation/menuData";
-import Image from "next/image";
-import { Icon } from "@iconify/react";
 import Logo from "../Header/Logo";
 import { Separator } from "@/components/ui/separator";
+import { APP_ROUTES } from "@/config/urls";
 
 const Footer: FC = () => {
   return (
-    <footer className="pt-16 bg-secondary">
-      <div className="container px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-11 lg:gap-20 md:gap-6 sm:gap-12 gap-6  pb-16">
-          <div className="lg:col-span-4 md:col-span-6 col-span-6 flex flex-col gap-6">
+    <footer className="bg-secondary pt-16">
+      <div className="container">
+        <div className="grid grid-cols-1 gap-10 pb-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1.2fr] lg:gap-16">
+          {/* Brand */}
+          <div className="flex flex-col gap-5">
             <Logo />
-            <p className="text-white/60">
-              ObraKit. Todo lo que necesitas para gestionar tu empresa de reformas,
-              en un solo lugar.
+
+            <p className="max-w-sm text-sm leading-6 text-white/60">
+              Todo lo que necesitas para gestionar tu empresa de reformas, en
+              un solo lugar.
             </p>
-            <div className="flex gap-6 items-center relative z-1">
-              <Link href="https://www.facebook.com/" className="group">
-                <Icon
-                  icon="fa6-brands:facebook-f"
-                  width="24"
-                  height="24"
-                  className="text-white group-hover:text-primary"
-                />
-              </Link>
-              <Link href="https://www.instagram.com/" className="group">
-                <Icon
-                  icon="fa6-brands:instagram"
-                  width="24"
-                  height="24"
-                  className="text-white group-hover:text-primary"
-                />
-              </Link>
-              <Link href="https://www.twitter.com/" className="group">
-                <Icon
-                  icon="fa6-brands:x-twitter"
-                  width="24"
-                  height="24"
-                  className="text-white group-hover:text-primary"
-                />
-              </Link>
-            </div>
           </div>
-          <div className="lg:col-span-2 md:col-span-3 col-span-6">
-            <h4 className="text-white mb-4 font-medium text-24">Links</h4>
-            <ul>
-              {headerData.map((item, index) => (
-                <li key={index} className="pb-4">
+
+          {/* Product */}
+          <div>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white">
+              Producto
+            </h3>
+
+            <ul className="space-y-3">
+              {headerData.map((item) => (
+                <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-white/60 hover:text-primary text-17"
+                    className="text-sm text-white/60 transition-colors hover:text-primary"
                   >
                     {item.label}
                   </Link>
@@ -59,63 +44,65 @@ const Footer: FC = () => {
               ))}
             </ul>
           </div>
-          <div className="lg:col-span-2 md:col-span-3 col-span-6">
-            <h4 className="text-white mb-4 font-medium text-24">Other Pages</h4>
-            <ul>
-              <li className="pb-4">
+
+          {/* Account */}
+          <div>
+            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.12em] text-white">
+              Cuenta
+            </h3>
+
+            <ul className="space-y-3">
+              <li>
                 <Link
-                  href="/privacy"
-                  className="text-white/60 hover:text-primary text-17"
+                  href={APP_ROUTES.login}
+                  className="text-sm text-white/60 transition-colors hover:text-primary"
                 >
-                  Privacidad
+                  Iniciar sesión
                 </Link>
               </li>
 
-              <li className="pb-4">
+              <li>
                 <Link
-                  href="/terms"
-                  className="text-white/60 hover:text-primary text-17"
+                  href={APP_ROUTES.register}
+                  className="text-sm text-white/60 transition-colors hover:text-primary"
                 >
-                  Términos
+                  Crear cuenta
                 </Link>
               </li>
             </ul>
           </div>
-          <div className="lg:col-span-3 md:col-span-4 col-span-6">
-            <h3 className="text-white text-24 font-medium mb-4">
-              Download app
+
+          {/* CTA */}
+          <div>
+            <h3 className="text-xl font-semibold tracking-tight text-white">
+              ¿Listo para tener más control?
             </h3>
-            <div className="flex flex-col gap-4">
-              <Link href={"https://www.google.com/"}>
-                <Image
-                  src={"/images/footer/app-store-bedge.svg"}
-                  alt="play-store-bedge"
-                  width={126}
-                  height={23}
-                />
-              </Link>
-              <Link href={"https://www.apple.com/"}>
-                <Image
-                  src={"/images/footer/app-store.svg"}
-                  alt="play-store-bedge"
-                  width={126}
-                  height={23}
-                />
-              </Link>
-            </div>
+
+            <p className="mt-3 text-sm leading-6 text-white/60">
+              Gestiona tu empresa de reformas desde un solo lugar.
+            </p>
+
+            <Button
+              render={<Link href={APP_ROUTES.register} />}
+              className="mt-5 h-10 rounded-lg bg-primary px-5 font-semibold text-background hover:bg-primary/85"
+            >
+              Solicitar una demo
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
           </div>
         </div>
+
         <Separator className="bg-white/10" />
-        <p className="text-white/40 text-center py-8">
-          Design & Develop by{" "}
-          <Link
-            className="hover:text-primary"
-            target="_blank"
-            href={"https://shadcnspace.com/"}
-          >
-            shadcnspace.com
-          </Link>
-        </p>
+
+        <div className="flex flex-col items-center justify-between gap-3 py-7 text-center sm:flex-row sm:text-left">
+          <p className="text-sm text-white/40">
+            © 2026 ObraKit. Todos los derechos reservados.
+          </p>
+
+          <p className="text-xs text-white/30">
+            Gestión inteligente para empresas de reformas.
+          </p>
+        </div>
       </div>
     </footer>
   );

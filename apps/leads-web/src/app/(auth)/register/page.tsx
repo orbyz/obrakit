@@ -3,7 +3,19 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
-import { registerAction, type ActionState } from "@/app/actions/auth";
+import {
+  ArrowRight,
+  Building2,
+  LockKeyhole,
+  Mail,
+  Phone,
+  User,
+} from "lucide-react";
+
+import {
+  registerAction,
+  type ActionState,
+} from "@/app/actions/auth";
 
 const initialState: ActionState = {
   error: null,
@@ -12,128 +24,203 @@ const initialState: ActionState = {
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+
   return (
     <button
       type="submit"
       disabled={pending}
-      className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-2.5 px-4 rounded-lg transition-colors"
+      className="group flex h-14 w-full items-center justify-center gap-3 rounded-lg bg-[#F19A06] px-6 text-base font-semibold text-[#1C2A43] transition-all duration-200 hover:bg-[#F19A06]/90 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? "Creando cuenta..." : "Crear cuenta"}
+
+      {!pending && (
+        <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+      )}
     </button>
   );
 }
 
+const inputClassName =
+  "h-14 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10";
+
+function Field({
+  id,
+  label,
+  type,
+  placeholder,
+  autoComplete,
+  icon: Icon,
+  required = false,
+}: {
+  id: string;
+  label: string;
+  type: string;
+  placeholder: string;
+  autoComplete?: string;
+  icon: typeof User;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="mb-2 block text-sm font-semibold text-white"
+      >
+        {label}
+      </label>
+
+      <div className="relative">
+        <Icon
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/45"
+        />
+
+        <input
+          id={id}
+          name={id}
+          type={type}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          required={required}
+          className={inputClassName}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function RegisterPage() {
-  const [state, formAction] = useActionState(registerAction, initialState);
+  const [state, formAction] = useActionState(
+    registerAction,
+    initialState,
+  );
 
   return (
     <>
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        Crea tu cuenta
-      </h2>
+      {/* Heading */}
+      <div className="mb-9 text-center">
+        <h1 className="text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+          Crea tu cuenta
+        </h1>
 
+        <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-white/60 sm:text-lg">
+          Empieza a gestionar tus obras de forma más sencilla y
+          organizada.
+        </p>
+      </div>
+
+      {/* Trial */}
+      <div className="mb-7 rounded-xl border border-[#F19A06]/20 bg-[#F19A06]/[0.06] px-5 py-4 text-center">
+        <p className="text-sm font-semibold text-[#F19A06]">
+          14 días de prueba gratis
+        </p>
+
+        <p className="mt-1 text-sm text-white/50">
+          Sin compromiso. Descubre ObraKit antes de elegir tu plan.
+        </p>
+      </div>
+
+      {/* Error */}
       {state.error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        <div className="mb-6 rounded-lg border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-300">
           {state.error}
         </div>
       )}
 
-      <form action={formAction} className="space-y-4">
-        <div>
-          <label
-            htmlFor="full_name"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Tu nombre
-          </label>
-          <input
-            id="full_name"
-            name="full_name"
-            type="text"
-            placeholder="Paco García"
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
+      {/* Form */}
+      <form action={formAction} className="space-y-5">
+        <Field
+          id="full_name"
+          label="Tu nombre"
+          type="text"
+          placeholder="Paco García"
+          autoComplete="name"
+          icon={User}
+          required
+        />
 
-        <div>
-          <label
-            htmlFor="phone"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Teléfono
-          </label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="600 000 000"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
+        <Field
+          id="phone"
+          label="Teléfono"
+          type="tel"
+          placeholder="600 000 000"
+          autoComplete="tel"
+          icon={Phone}
+        />
 
-        <div>
-          <label
-            htmlFor="nombre_negocio"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Nombre de tu negocio
-          </label>
-          <input
-            id="nombre_negocio"
-            name="nombre_negocio"
-            type="text"
-            placeholder="Reformas García"
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
+        <Field
+          id="nombre_negocio"
+          label="Nombre de tu negocio"
+          type="text"
+          placeholder="Reformas García"
+          autoComplete="organization"
+          icon={Building2}
+          required
+        />
 
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="paco@reformasgarcia.com"
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
+        <Field
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="paco@reformasgarcia.com"
+          autoComplete="email"
+          icon={Mail}
+          required
+        />
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Contraseña
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Mínimo 6 caracteres"
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          />
-        </div>
+        <Field
+          id="password"
+          label="Contraseña"
+          type="password"
+          placeholder="Mínimo 6 caracteres"
+          autoComplete="new-password"
+          icon={LockKeyhole}
+          required
+        />
 
-        <SubmitButton />
+        <div className="pt-2">
+          <SubmitButton />
+        </div>
       </form>
 
-      <p className="text-center text-sm text-gray-500 mt-6">
-        ¿Ya tienes cuenta?{" "}
+      {/* Login */}
+      <div className="my-9 flex items-center gap-5">
+        <div className="h-px flex-1 bg-white/10" />
+
+        <span className="whitespace-nowrap text-xs font-medium uppercase tracking-[0.2em] text-white/50">
+          ¿Ya tienes cuenta?
+        </span>
+
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <p className="text-center text-base text-white/80">
+        ¿Ya estás registrado?{" "}
         <Link
           href="/login"
-          className="text-orange-500 hover:underline font-medium"
+          className="font-semibold text-[#F19A06] transition-colors hover:text-[#F19A06]/80 hover:underline"
         >
           Inicia sesión
         </Link>
+      </p>
+
+      {/* Legal */}
+      <p className="mx-auto mt-9 max-w-lg text-center text-sm leading-6 text-white/35">
+        Al crear tu cuenta aceptas nuestros{" "}
+        <Link
+          href="/terms"
+          className="text-[#F19A06]/80 transition-colors hover:text-[#F19A06]"
+        >
+          términos
+        </Link>{" "}
+        y{" "}
+        <Link
+          href="/privacy"
+          className="text-[#F19A06]/80 transition-colors hover:text-[#F19A06]"
+        >
+          política de privacidad
+        </Link>
+        .
       </p>
     </>
   );

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { headerData } from "./Navigation/menuData";
+import { APP_ROUTES } from "@/config/urls";
 import Logo from "./Logo";
 
 const Header: React.FC = () => {
@@ -55,7 +56,7 @@ const Header: React.FC = () => {
           {/* Desktop actions */}
           <div className="hidden items-center gap-3 lg:flex">
             <Button
-              render={<Link href="/signin" />}
+              render={<Link href={APP_ROUTES.login} />}
               variant="ghost"
               className="text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white"
             >
@@ -63,7 +64,7 @@ const Header: React.FC = () => {
             </Button>
 
             <Button
-              render={<Link href="/#demo" />}
+              render={<Link href={APP_ROUTES.register} />}
               className="h-10 rounded-lg bg-primary px-5 font-semibold text-background hover:bg-primary/85"
             >
               Solicitar demo
@@ -99,7 +100,7 @@ const Header: React.FC = () => {
 
               <div className="mt-3 grid gap-2 border-t border-white/10 pt-4">
                 <Button
-                  render={<Link href="/signin" />}
+                  render={<Link href={APP_ROUTES.login} />}
                   variant="outline"
                   className="h-11 border-white/10 bg-transparent text-white hover:bg-white/5"
                   onClick={() => setMenuOpen(false)}
@@ -108,7 +109,7 @@ const Header: React.FC = () => {
                 </Button>
 
                 <Button
-                  render={<Link href="/#demo" />}
+                  render={<Link href={APP_ROUTES.register} />}
                   className="h-11 bg-primary font-semibold text-background hover:bg-primary/85"
                   onClick={() => setMenuOpen(false)}
                 >
