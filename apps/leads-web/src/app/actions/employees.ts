@@ -362,6 +362,17 @@ export async function updateEmployeeStatusAction(
   employeeId: string,
   estado: EstadoEmpleado,
 ): Promise<EmployeeActionState> {
+  const parsedStatus = z
+    .enum(["activo", "vacaciones", "baja", "inactivo"])
+    .safeParse(estado);
+
+  if (!parsedStatus.success) {
+    return {
+      error: "El estado del empleado no es válido",
+      success: false,
+    };
+  }
+
   const tenantId = await getMyTenantId();
 
   if (!tenantId) {
@@ -376,7 +387,7 @@ export async function updateEmployeeStatusAction(
   const { error } = await admin
     .from("employees")
     .update({
-      estado,
+      estado: parsedStatus.data,
       updated_at: new Date().toISOString(),
     })
     .eq("id", employeeId)
