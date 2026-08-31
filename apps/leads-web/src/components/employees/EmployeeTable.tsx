@@ -1,57 +1,51 @@
 import type { Employee } from "@/types";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { EmployeeRow } from "./EmployeeRow";
 
 interface EmployeeTableProps {
   employees: Employee[];
 }
 
-export function EmployeeTable({
-  employees,
-}: EmployeeTableProps) {
+export function EmployeeTable({ employees }: EmployeeTableProps) {
   return (
-    <div className="rounded-xl border">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="p-4 text-left">
-              Nombre
-            </th>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Nombre</TableHead>
+          <TableHead>Especialidad</TableHead>
+          <TableHead>Estado</TableHead>
+          <TableHead>Acciones</TableHead>
+        </TableRow>
+      </TableHeader>
 
-            <th className="p-4 text-left">
-              Especialidad
-            </th>
-
-            <th className="p-4 text-left">
-              Estado
-            </th>
-
-            <th className="p-4 text-left">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {employees.length === 0 ? (
-            <tr>
-              <td
-                colSpan={4}
-                className="p-8 text-center text-muted-foreground"
-              >
-                No hay empleados registrados.
-              </td>
-            </tr>
-          ) : (
-            employees.map((employee) => (
-              <EmployeeRow
-                key={employee.id}
-                employee={employee}
-              />
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+      <TableBody>
+        {employees.length === 0 ? (
+          <TableRow>
+            <TableCell
+              colSpan={4}
+              className="py-8 text-center text-muted"
+            >
+              No hay empleados registrados.
+            </TableCell>
+          </TableRow>
+        ) : (
+          employees.map((employee) => (
+            <EmployeeRow
+              key={employee.id}
+              employee={employee}
+            />
+          ))
+        )}
+      </TableBody>
+    </Table>
   );
 }

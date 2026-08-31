@@ -6,6 +6,8 @@ import {
   NewEmployeeDialog,
 } from "@/components/employees";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/forms/Input";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 import { PageHeader } from "@/components/ui/page-header/PageHeader";
 import { Tabs } from "@/components/ui/tabs/Tabs";
@@ -73,23 +75,23 @@ export default async function EmployeesPage({
             method="get"
           >
             {statusFilter !== "activo" && (
-              <input type="hidden" name="estado" value={statusFilter} />
+              <input
+                type="hidden"
+                name="estado"
+                value={statusFilter}
+              />
             )}
 
-            <input
+            <Input
               type="search"
               name="q"
               defaultValue={q ?? ""}
               placeholder="Buscar empleados"
-              className="w-full rounded-xl border border-border bg-surface px-3 py-2.5"
             />
 
-            <button
-              type="submit"
-              className="rounded-xl bg-primary px-4 py-2 text-white"
-            >
+            <Button type="submit">
               Buscar
-            </button>
+            </Button>
           </form>
 
           <NewEmployeeDialog />
