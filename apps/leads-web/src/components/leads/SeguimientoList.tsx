@@ -2,7 +2,6 @@
 
 import type { Seguimiento } from "@/types";
 
-import { Card } from "@/components/ui/card/Card";
 import { Badge } from "@/components/ui/badge/Badge";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 
@@ -26,8 +25,7 @@ const TIPO_CONFIG: Record<
       | "success"
       | "warning"
       | "danger"
-      | "neutral"
-      | "outline";
+      | "neutral";
   }
 > = {
   llamada: {
@@ -87,32 +85,36 @@ export default function SeguimientoList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
       {seguimientos.map((seguimiento) => {
         const tipo = TIPO_CONFIG[seguimiento.tipo ?? "nota"];
 
         return (
-          <Card key={seguimiento.id}>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="mb-3 flex items-center gap-3">
-                  <Badge variant="neutral" className="flex items-center gap-1">
-                    {tipo.icon}
-                    {tipo.label}
-                  </Badge>
-                </div>
+          <div
+            key={seguimiento.id}
+            className="p-4 transition-colors hover:bg-background/60"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <Badge
+                  variant={tipo.variant}
+                  className="inline-flex items-center gap-1"
+                >
+                  {tipo.icon}
+                  {tipo.label}
+                </Badge>
 
-                <p className="text-sm leading-relaxed text-text">
+                <p className="mt-3 text-sm leading-relaxed text-text">
                   {seguimiento.descripcion}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-muted shrink-0">
+              <div className="flex shrink-0 items-center gap-2 text-xs text-muted">
                 <CalendarDays size={14} />
-                {formatFecha(seguimiento.created_at)}
+                <span>{formatFecha(seguimiento.created_at)}</span>
               </div>
             </div>
-          </Card>
+          </div>
         );
       })}
     </div>

@@ -7,17 +7,13 @@ interface AlertProps {
 }
 
 const variants = {
-  error:
-    "border-red-200 bg-red-50 text-red-700",
+  error: "border-danger/20 bg-danger/10 text-danger",
 
-  success:
-    "border-green-200 bg-green-50 text-green-700",
+  success: "border-success/20 bg-success/10 text-success",
 
-  warning:
-    "border-yellow-200 bg-yellow-50 text-yellow-700",
+  warning: "border-warning/20 bg-warning/10 text-warning",
 
-  info:
-    "border-blue-200 bg-blue-50 text-blue-700",
+  info: "border-secondary/20 bg-secondary/10 text-secondary",
 };
 
 export function Alert({
@@ -29,7 +25,7 @@ export function Alert({
     <div
       role="alert"
       className={cn(
-        "rounded-lg border px-4 py-3 text-sm",
+        "rounded-xl border px-4 py-3 text-sm",
         variants[variant],
         className,
       )}

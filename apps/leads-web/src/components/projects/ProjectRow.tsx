@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { PROJECT_STATUS } from "@/lib/constants/project-status";
 import type { Project } from "@/types";
 
@@ -12,40 +13,53 @@ export function ProjectRow({ project }: Props) {
   const status = PROJECT_STATUS[project.status];
 
   return (
-    <tr className="border-b hover:bg-slate-100 transition-colors">
-      <td className="px-4 py-3 font-medium">{project.name}</td>
+    <TableRow>
+      <TableCell className="font-medium">
+        {project.name}
+      </TableCell>
 
-      <td className="px-4 py-3">
+      <TableCell>
         {project.client_name || "-"}
-      </td>
+      </TableCell>
 
-      <td className="px-4 py-3">
+      <TableCell>
         <Badge variant={status.variant}>
           {status.label}
         </Badge>
-      </td>
+      </TableCell>
 
-      <td className="px-4 py-3 whitespace-nowrap">
+      <TableCell className="whitespace-nowrap text-muted">
         {project.planned_start_date ?? "-"}
-      </td>
+      </TableCell>
 
-      <td className="px-4 py-3 whitespace-nowrap">
+      <TableCell className="whitespace-nowrap tabular-nums">
         {project.approved_budget
           ? new Intl.NumberFormat("es-ES", {
               style: "currency",
               currency: "EUR",
             }).format(project.approved_budget)
           : "-"}
-      </td>
+      </TableCell>
 
-      <td className="px-4 py-3 text-right">
+      <TableCell className="text-right">
         <Link
           href={`/obras/${project.id}`}
-          className="text-sm text-primary hover:underline whitespace-nowrap"
+          className="
+            inline-flex h-9 items-center justify-center
+            rounded-lg border border-border
+            bg-surface px-3
+            text-sm font-medium text-primary
+            whitespace-nowrap
+            transition-colors
+            hover:bg-background
+            focus-visible:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-primary/20
+          "
         >
           Ver
         </Link>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

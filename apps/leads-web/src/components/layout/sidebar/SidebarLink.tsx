@@ -8,6 +8,7 @@ interface SidebarLinkProps {
   label: string;
   icon: React.ReactNode;
   disabled?: boolean;
+  onNavigate?: () => void;
 }
 
 export function SidebarLink({
@@ -15,13 +16,19 @@ export function SidebarLink({
   label,
   icon,
   disabled = false,
+  onNavigate,
 }: SidebarLinkProps) {
   const content = (
     <>
       {icon}
       <span>{label}</span>
+
       {disabled && (
-        <Badge className="ml-auto" size="sm" variant="neutral">
+        <Badge
+          className="ml-auto"
+          size="sm"
+          variant="neutral"
+        >
           Próximamente
         </Badge>
       )}
@@ -42,10 +49,13 @@ export function SidebarLink({
   return (
     <Link
       href={href}
+      onClick={onNavigate}
       className={cn(
         "flex items-center gap-3 rounded-xl px-4 py-3",
-        "text-muted hover:bg-primary hover:text-white",
-        "transition-all duration-200",
+        "text-muted transition-all duration-200",
+        "hover:bg-primary hover:text-white",
+        "focus-visible:outline-none focus-visible:ring-2",
+        "focus-visible:ring-primary/20",
       )}
     >
       {content}

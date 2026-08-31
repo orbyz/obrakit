@@ -18,42 +18,48 @@ export function Tabs<T extends string>({
   items,
 }: TabsProps<T>) {
   return (
-    <div className="mb-6 flex gap-2 border-b border-border">
-      {items.map((item) => {
-        const className = `
-          border-b-2
-          px-4
-          py-3
-          text-sm
-          font-medium
-          transition-all
+    <div className="mb-6 w-full overflow-x-auto border-b border-border">
+      <div className="flex min-w-max gap-1">
+        {items.map((item) => {
+          const className = `
+            inline-flex min-h-11 items-center justify-center
+            border-b-2
+            px-4
+            py-3
+            text-sm
+            font-medium
+            whitespace-nowrap
+            transition-colors
+            focus-visible:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-primary/20
+            ${
+              value === item.value
+                ? "border-primary text-primary"
+                : "border-transparent text-muted hover:border-border hover:text-text"
+            }
+          `;
 
-          ${
-            value === item.value
-              ? "border-primary text-primary"
-              : "border-transparent text-muted hover:text-text"
+          if (item.href) {
+            return (
+              <Link key={item.value} href={item.href} className={className}>
+                {item.label}
+              </Link>
+            );
           }
-        `;
 
-        if (item.href) {
           return (
-            <Link key={item.value} href={item.href} className={className}>
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => onChange?.(item.value)}
+              className={className}
+            >
               {item.label}
-            </Link>
+            </button>
           );
-        }
-
-        return (
-          <button
-            key={item.value}
-            type="button"
-            onClick={() => onChange?.(item.value)}
-            className={className}
-          >
-            {item.label}
-          </button>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 }

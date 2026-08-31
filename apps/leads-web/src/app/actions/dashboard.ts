@@ -3,6 +3,7 @@
 import { getCRMOpportunities } from "./leads";
 import { getProjects } from "./projects";
 import { getProjectDashboard } from "./project-dashboard";
+import { getEmployees } from "./employees";
 
 import type { ProjectStatus } from "@/types/projects";
 
@@ -25,6 +26,10 @@ export interface DashboardData {
     cancelled: number;
   };
 
+  team: {
+     active: number;
+   };
+
   financial: {
     revenue: number;
     costs: number;
@@ -42,9 +47,10 @@ export interface DashboardData {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const [opportunities, projects] = await Promise.all([
+  const [opportunities, projects, employees] = await Promise.all([
     getCRMOpportunities(),
     getProjects(),
+    getEmployees(),
   ]);
 
   const leads = {
@@ -74,6 +80,10 @@ export async function getDashboardData(): Promise<DashboardData> {
       (project) => project.status === "cancelled",
     ).length,
   };
+
+  const activeEmployees = employees.filter(
+    (employee) => employee.estado === "activo",
+  ).length;
 
   const activeProjects = projects
     .filter(
@@ -119,6 +129,9 @@ export async function getDashboardData(): Promise<DashboardData> {
         projectsByStatus.inProgress +
         projectsByStatus.paused,
       ...projectsByStatus,
+    },
+    team: {
+      active: activeEmployees,
     },
 
     financial: {

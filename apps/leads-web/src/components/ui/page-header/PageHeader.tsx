@@ -4,16 +4,30 @@ interface PageHeaderProps {
   actions?: React.ReactNode;
 }
 
-export function PageHeader({ title, description, actions }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  actions,
+}: PageHeaderProps) {
   return (
-    <div className="mb-8 flex items-start justify-between">
-      <div>
-        <h1 className="text-3xl font-bold text-text">{title}</h1>
+    <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+          {title}
+        </h1>
 
-        {description && <p className="mt-2 text-muted">{description}</p>}
+        {description && (
+          <p className="mt-1.5 text-sm text-muted sm:mt-2 sm:text-base">
+            {description}
+          </p>
+        )}
       </div>
 
-      {actions}
+      {actions && (
+        <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

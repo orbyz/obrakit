@@ -89,13 +89,13 @@ export default async function ProjectsPage({
           }))}
         />
 
-        <Card>
-          {filteredProjects.length === 0 ? (
+        {filteredProjects.length === 0 ? (
+          <Card>
             <EmptyState title="No existen obras." />
-          ) : (
-            <ProjectsTable projects={filteredProjects} />
-          )}
-        </Card>
+          </Card>
+        ) : (
+          <ProjectsTable projects={filteredProjects} />
+        )}
       </div>
 
   );

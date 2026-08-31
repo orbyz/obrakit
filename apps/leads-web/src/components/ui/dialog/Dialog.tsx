@@ -49,9 +49,7 @@ const DialogContent = React.forwardRef<
         "max-h-[90vh]",
         "overflow-y-auto",
 
-        "rounded-2xl",
-        "border border-border",
-        "bg-surface",
+        "rounded-2xl border border-border bg-surface p-6 shadow-card",
 
         "p-6",
 

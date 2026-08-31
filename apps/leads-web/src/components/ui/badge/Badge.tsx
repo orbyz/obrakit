@@ -18,17 +18,17 @@ interface BadgeProps {
 }
 
 const variants = {
-  primary: "bg-primary/10 text-primary border border-primary/20",
+  primary: "border border-primary/20 bg-primary/10 text-primary",
 
-  secondary: "bg-accent text-primary border border-accent",
+  secondary: "border border-secondary/20 bg-secondary/10 text-secondary",
 
-  success: "bg-success/10 text-success border border-success/20",
+  success: "border border-success/20 bg-success/10 text-success",
 
-  warning: "bg-warning/10 text-warning border border-warning/20",
+  warning: "border border-warning/20 bg-warning/10 text-warning",
 
-  danger: "bg-danger/10 text-danger border border-danger/20",
+  danger: "border border-danger/20 bg-danger/10 text-danger",
 
-  neutral: "bg-background text-muted border border-border",
+  neutral: "border border-border bg-background text-muted",
 };
 
 const sizes = {
@@ -45,7 +45,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-full font-medium whitespace-nowrap transition-colors",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium transition-colors",
         variants[variant],
         sizes[size],
         className,

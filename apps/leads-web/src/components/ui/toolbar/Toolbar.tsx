@@ -10,7 +10,8 @@ export function Toolbar({ children, className }: ToolbarProps) {
   return (
     <div
       className={cn(
-        "mb-6 flex flex-wrap items-center justify-between gap-3",
+        "mb-6 flex w-full flex-col gap-3",
+        "sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >

@@ -1,50 +1,60 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
 
 import { updateLeadAction, type UpdateLeadState } from "@/app/actions/leads";
 
 import type { Lead } from "@/types";
 
-import { Button } from "@/components/ui/button/Button";
-import { Input } from "@/components/ui/forms/Input";
-import { Textarea } from "@/components/ui/forms/Textarea";
-import { Select } from "@/components/ui/forms/Select";
-import { FormSection } from "@/components/ui/forms/FormSection";
 import { Alert } from "@/components/ui/forms/Alert";
+import { FormSection } from "@/components/ui/forms/FormSection";
+import { Input } from "@/components/ui/forms/Input";
+import { Select } from "@/components/ui/forms/Select";
+import { Textarea } from "@/components/ui/forms/Textarea";
+import { Button } from "@/components/ui/button/Button";
 
 const initialState: UpdateLeadState = {
   error: null,
   success: false,
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button
-      type="submit"
-      variant="secondary"
-      disabled={pending}
-      className="w-full"
-    >
-      {pending ? "Guardando..." : "Guardar cambios"}
-    </Button>
-  );
-}
-
 interface LeadInfoProps {
   lead: Lead;
 }
 
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <div className="flex justify-end">
+      <Button
+        type="submit"
+        variant="secondary"
+        disabled={pending}
+        className="w-full sm:w-auto"
+      >
+        {pending ? "Guardando..." : "Guardar cambios"}
+      </Button>
+    </div>
+  );
+}
+
 export default function LeadInfo({ lead }: LeadInfoProps) {
+  const router = useRouter();
   const updateAction = updateLeadAction.bind(null, lead.id);
 
   const [state, formAction] = useActionState(updateAction, initialState);
 
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+    }
+  }, [state.success, router]);
+
   return (
-    <form action={formAction} className="space-y-8">
+    <form action={formAction} className="space-y-6">
       {state.error && <Alert variant="error">{state.error}</Alert>}
 
       {state.success && (
@@ -112,6 +122,7 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
           <label className="mb-1 block text-xs font-medium text-muted">
             Dirección
           </label>
+
           <Input name="direccion" defaultValue={lead.direccion ?? ""} />
         </div>
       </FormSection>
@@ -123,7 +134,11 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
               Estado
             </label>
 
-            <Select name="estado" defaultValue={lead.estado}>
+            <Select
+              key={`estado-${lead.estado}`}
+              name="estado"
+              defaultValue={lead.estado}
+            >
               <option value="nuevo">Nuevo</option>
               <option value="en_curso">En curso</option>
               <option value="cerrado">Cerrado</option>
@@ -135,7 +150,12 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
               Tipo de obra
             </label>
 
-            <Select name="tipo_obra" defaultValue={lead.tipo_obra ?? ""}>
+            <Select
+              key={`tipo-obra-${lead.tipo_obra ?? ""}`}
+              name="tipo_obra"
+              defaultValue={lead.tipo_obra ?? ""}
+            >
+              <option value="">Seleccionar...</option>
               <option value="bano">Baño</option>
               <option value="cocina">Cocina</option>
               <option value="pintura">Pintura</option>
@@ -149,7 +169,12 @@ export default function LeadInfo({ lead }: LeadInfoProps) {
               Origen
             </label>
 
-            <Select name="origen" defaultValue={lead.origen ?? ""}>
+            <Select
+              key={`origen-${lead.origen ?? ""}`}
+              name="origen"
+              defaultValue={lead.origen ?? ""}
+            >
+              <option value="">Seleccionar...</option>
               <option value="whatsapp">WhatsApp</option>
               <option value="instagram">Instagram</option>
               <option value="recomendacion">Recomendación</option>
