@@ -1,7 +1,18 @@
 import type { ComponentPropsWithoutRef } from "react";
+import { cn } from "@/lib/utils";
 
 type LabelProps = ComponentPropsWithoutRef<"label">;
 
-export function Label({ children, ...props }: LabelProps) {
-  return <label {...props}>{children}</label>;
+export function Label({ className, children, ...props }: LabelProps) {
+  return (
+    <label
+      className={cn(
+        "mb-1.5 block text-sm font-medium text-secondary",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </label>
+  );
 }

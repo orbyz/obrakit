@@ -2,11 +2,21 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
-import { createLeadAction, type LeadActionState } from "@/app/actions/leads";
-import { X, MapPinned } from "lucide-react";
-import { Button } from "@/components/ui/button/Button";
-import { Input } from "@/components/ui/forms/Input";
+import {
+  ChevronDown,
+  MapPinned,
+  X,
+} from "lucide-react";
 
+import {
+  createLeadAction,
+  type LeadActionState,
+} from "@/app/actions/leads";
+
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/forms/Input";
+import { Label } from "@/components/ui/forms/Label";
 
 const initialState: LeadActionState = {
   error: null,
@@ -44,47 +54,56 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
   }, [state.success, onClose]);
 
   function handleOpenMaps() {
-    const direccion = direccionRef.current?.value;
+    const direccion = direccionRef.current?.value.trim();
+
     if (direccion) {
-      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
-      window.open(url, "_blank");
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        direccion,
+      )}`;
+
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
     }
+
+    if (!navigator.geolocation) {
+      window.open("https://www.google.com/maps", "_blank");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const url = `https://www.google.com/maps/search/?api=1&query=${coords.latitude},${coords.longitude}`;
+
+        window.open(url, "_blank", "noopener,noreferrer");
+      },
+      () => {
+        window.open("https://www.google.com/maps", "_blank");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000,
+      },
+    );
   }
 
-  const inputClass = `
-  w-full
-  rounded-xl
-  border
-  border-border
-  bg-surface
-  px-3
-  py-2.5
-  text-sm
-  text-text
-  placeholder:text-muted
-  focus:outline-none
-  focus:ring-2
-  focus:ring-primary/20
-  `;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/20 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div
         className="
-        w-full
-        max-w-lg
-        max-h-[90vh]
-        overflow-y-auto
-        rounded-2xl
-        border
-        border-border
-        bg-surface
-        shadow-elevated
-      "
+          flex w-full max-w-lg flex-col
+          max-h-[calc(100vh-2rem)]
+          overflow-hidden
+          rounded-2xl border border-border
+          bg-surface shadow-elevated
+        "
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-border bg-surface px-6 py-5">
-          <div>
-            <h2 className="text-xl font-bold text-text">Crear nueva Oportunidad</h2>
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4 sm:px-6 sm:py-5">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-text sm:text-xl">
+              Crear nueva oportunidad
+            </h2>
 
             <p className="mt-1 text-sm text-muted">
               Registra un nuevo cliente o proyecto.
@@ -92,14 +111,18 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
           </div>
 
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Cerrar"
             className="
-              rounded-xl
-              p-2
+              shrink-0 rounded-lg p-2
               text-muted
+              transition-colors
               hover:bg-background
               hover:text-text
-              transition-all
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-primary/30
             "
           >
             <X size={18} />
@@ -107,167 +130,260 @@ export default function NewLeadModal({ onClose }: NewLeadModalProps) {
         </div>
 
         {/* Form */}
-        <form ref={formRef} action={formAction} className="space-y-5 p-6">
-          {state.error && (
-            <div
-              className="
-            rounded-xl
-            border
-            border-danger/20
-            bg-danger/10
-            p-3
-            text-sm
-            text-danger
-            "
-            >
-              {state.error}
-            </div>
-          )}
+        <form
+          ref={formRef}
+          action={formAction}
+          className="overflow-y-auto p-5 sm:p-6"
+        >
+          <div className="space-y-5">
+            {state.error && (
+              <Alert variant="error">
+                {state.error}
+              </Alert>
+            )}
 
-          {/* Nombre */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre del cliente <span className="text-red-500">*</span>
-            </label>
-            <Input
-              name="nombre"
-              type="text"
-              placeholder="Carmen López"
-              required
-              className={inputClass}
-            />
-          </div>
+            {/* Nombre */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="lead-nombre"
+                className="text-sm font-medium text-text"
+              >
+                Nombre del cliente
+                <span className="ml-1 text-danger">*</span>
+              </Label>
 
-          {/* Teléfono */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono de contacto
-            </label>
-            <Input
-              name="telefono"
-              type="tel"
-              placeholder="600 000 000"
-              className={inputClass}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <Input
-              name="email"
-              type="email"
-              placeholder="cliente@email.com"
-              className={inputClass}
-            />
-          </div>
-
-          {/* Dirección con botón Maps */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Dirección de la obra
-            </label>
-            <div className="flex gap-2">
               <Input
-                ref={direccionRef}
-                name="direccion"
+                id="lead-nombre"
+                name="nombre"
                 type="text"
-                placeholder="Calle ejemplo 123, Valencia"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="Carmen López"
+                required
               />
-              <button
-                type="button"
-                onClick={handleOpenMaps}
+            </div>
+
+            {/* Teléfono */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="lead-telefono"
+                className="text-sm font-medium text-text"
+              >
+                Teléfono de contacto
+              </Label>
+
+              <Input
+                id="lead-telefono"
+                name="telefono"
+                type="tel"
+                placeholder="600 000 000"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="lead-email"
+                className="text-sm font-medium text-text"
+              >
+                Email
+              </Label>
+
+              <Input
+                id="lead-email"
+                name="email"
+                type="email"
+                placeholder="cliente@email.com"
+              />
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="lead-direccion"
+                className="text-sm font-medium text-text"
+              >
+                Dirección de la obra
+              </Label>
+
+              <div className="flex gap-2">
+                <Input
+                  id="lead-direccion"
+                  ref={direccionRef}
+                  name="direccion"
+                  type="text"
+                  placeholder="Calle ejemplo 123, Valencia"
+                  className="min-w-0 flex-1"
+                />
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  onClick={handleOpenMaps}
+                  aria-label="Abrir ubicación en Google Maps"
+                  title="Abrir dirección o ubicación actual en Google Maps"
+                  className="shrink-0 px-3"
+                >
+                  <MapPinned size={18} />
+                </Button>
+              </div>
+            </div>
+
+            {/* Zona */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="lead-zona"
+                className="text-sm font-medium text-text"
+              >
+                Zona / Municipio
+              </Label>
+
+              <Input
+                id="lead-zona"
+                name="zona"
+                type="text"
+                placeholder="Valencia, Bétera..."
+              />
+            </div>
+
+            {/* Fecha + días */}
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="lead-fecha-inicio"
+                  className="text-sm font-medium text-text"
+                >
+                  Fecha de inicio
+                </Label>
+
+                <Input
+                  id="lead-fecha-inicio"
+                  name="fecha_inicio"
+                  type="date"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="lead-dias-estimados"
+                  className="text-sm font-medium text-text"
+                >
+                  Días estimados
+                </Label>
+
+                <Input
+                  id="lead-dias-estimados"
+                  name="dias_estimados"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="Ej. 30"
+                />
+              </div>
+            </div>
+
+            {/* Tipo de obra */}
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="lead-tipo-obra"
+                className="text-sm font-medium text-text"
+              >
+                Tipo de obra
+                <span className="ml-1 text-xs font-normal text-muted">
+                  (opcional)
+                </span>
+              </Label>
+
+              <div className="relative">
+                <select
+                  id="lead-tipo-obra"
+                  name="tipo_obra"
+                  className="
+                    h-11 w-full appearance-none
+                    rounded-xl border border-border
+                    bg-surface px-3 pr-10
+                    text-sm text-text
+                    transition-colors
+                    focus:border-primary
+                    focus:outline-none
+                    focus:ring-2 focus:ring-primary/20
+                  "
+                >
+                  <option value="">No especificado</option>
+                  <option value="bano">Baño</option>
+                  <option value="cocina">Cocina</option>
+                  <option value="pintura">Pintura</option>
+                  <option value="integral">Integral</option>
+                  <option value="otro">Otro</option>
+                </select>
+
+                <ChevronDown
+                  size={16}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
+                />
+              </div>
+            </div>
+
+            {/* Origen */}
+            <details className="group rounded-xl border border-border bg-background/40">
+              <summary
                 className="
-                  shrink-0
-                  rounded-xl
-                  bg-primary
-                  px-3
-                  text-white
-                  hover:bg-primary-light
-                  transition-all
+                  flex cursor-pointer list-none
+                  items-center justify-between
+                  px-4 py-3
+                  text-sm font-medium text-text
+                  transition-colors
+                  hover:bg-background
+                  [&::-webkit-details-marker]:hidden
                 "
               >
-                <MapPinned size={18} />
-              </button>
-            </div>
+                <span>
+                  ¿Cómo llegó?
+                  <span className="ml-1 text-xs font-normal text-muted">
+                    (opcional)
+                  </span>
+                </span>
+
+                <ChevronDown
+                  size={16}
+                  className="text-muted transition-transform group-open:rotate-180"
+                />
+              </summary>
+
+              <div className="border-t border-border p-4">
+                <div className="relative">
+                  <select
+                    name="origen"
+                    className="
+                      h-11 w-full appearance-none
+                      rounded-xl border border-border
+                      bg-surface px-3 pr-10
+                      text-sm text-text
+                      transition-colors
+                      focus:border-primary
+                      focus:outline-none
+                      focus:ring-2 focus:ring-primary/20
+                    "
+                  >
+                    <option value="">No especificado</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="recomendacion">
+                      Recomendación
+                    </option>
+                    <option value="web">Web</option>
+                    <option value="otro">Otro</option>
+                  </select>
+
+                  <ChevronDown
+                    size={16}
+                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
+                  />
+                </div>
+              </div>
+            </details>
+
+            <SubmitButton />
           </div>
-
-          {/* Zona */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Zona / Municipio
-            </label>
-            <Input
-              name="zona"
-              type="text"
-              placeholder="Valencia, Bétera..."
-              className={inputClass}
-            />
-          </div>
-
-          {/* Fecha de inicio y días estimados */}
-          <div>
-            <label className="mb-1 block text-xs font-medium text-muted">
-              Fecha de inicio
-            </label>
-
-            <Input
-              name="fecha_inicio"
-              type="date"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-muted">
-              Días estimados
-            </label>
-
-            <Input
-              name="dias_estimados"
-              type="number"
-              min="1"
-              step="1"
-              placeholder="Ej. 30"
-            />
-          </div>
-
-          {/* Tipo de obra (opcional) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de obra{" "}
-              <span className="text-xs text-gray-400">(opcional)</span>
-            </label>
-            <select name="tipo_obra" className={inputClass}>
-              <option value="">No especificado</option>
-              <option value="bano">🚿 Baño</option>
-              <option value="cocina">🍳 Cocina</option>
-              <option value="pintura">🎨 Pintura</option>
-              <option value="integral">🏗️ Integral</option>
-              <option value="otro">🔧 Otro</option>
-            </select>
-          </div>
-
-          {/* Origen (opcional, colapsable) */}
-          <details className="border border-gray-200 rounded-lg">
-            <summary className="px-3 py-2 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50">
-              📊 ¿Cómo llegó? (opcional, para análisis)
-            </summary>
-            <div className="p-3 pt-0">
-              <select name="origen" className={inputClass}>
-                <option value="">No especificado</option>
-                <option value="whatsapp">💬 WhatsApp</option>
-                <option value="instagram">📸 Instagram</option>
-                <option value="recomendacion">👥 Recomendación</option>
-                <option value="web">🌐 Web</option>
-                <option value="otro">📌 Otro</option>
-              </select>
-            </div>
-          </details>
-
-          <SubmitButton />
         </form>
       </div>
     </div>

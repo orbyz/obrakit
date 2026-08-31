@@ -23,7 +23,7 @@ export default async function DashboardLayout({
       <SessionManager />
       <Sidebar email={user.email} />
 
-      <div className="flex flex-1 flex-col">
+      <div className="min-w-0 flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-surface px-6 py-4">
           <div>
             <h2 className="font-semibold text-text">Bienvenido</h2>
@@ -34,7 +34,9 @@ export default async function DashboardLayout({
           </form>
         </header>
 
-        <main className="flex-1 p-6">{children}</main>
+        <main className="min-w-0 flex-1 px-4 pb-6 pt-20 sm:p-6 md:pt-6">
+          {children}
+        </main>
       </div>
     </div>
   );

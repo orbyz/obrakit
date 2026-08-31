@@ -20,14 +20,16 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button
-      type="submit"
-      variant="secondary"
-      disabled={pending}
-      className="w-full"
-    >
-      {pending ? "Guardando..." : "Añadir seguimiento"}
-    </Button>
+    <div className="flex justify-end">
+      <Button
+        type="submit"
+        variant="secondary"
+        disabled={pending}
+        className="w-full sm:w-auto"
+      >
+        {pending ? "Guardando..." : "Añadir seguimiento"}
+      </Button>
+    </div>
   );
 }
 
@@ -47,17 +49,17 @@ export default function SeguimientoForm({ leadId }: SeguimientoFormProps) {
   }, [state.success]);
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-3">
+    <form ref={formRef} action={formAction} className="space-y-4">
       {state.error && <Alert variant="error">{state.error}</Alert>}
 
       {/* Tipo */}
       <Select name="tipo" required>
         <option value="">Tipo de contacto...</option>
-        <option value="llamada">📞 Llamada</option>
-        <option value="whatsapp">💬 WhatsApp</option>
-        <option value="visita">🏠 Visita</option>
-        <option value="presupuesto">📄 Presupuesto enviado</option>
-        <option value="nota">📝 Nota</option>
+        <option value="llamada">Llamada</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="visita">Visita</option>
+        <option value="presupuesto">Presupuesto enviado</option>
+        <option value="nota">Nota</option>
       </Select>
 
       {/* Descripción */}

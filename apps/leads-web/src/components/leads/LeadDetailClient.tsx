@@ -10,7 +10,6 @@ import SeguimientoForm from "./SeguimientoForm";
 import SeguimientoList from "./SeguimientoList";
 import { GenerateProjectButton } from "./GenerateProjectButton";
 
-import { Card } from "@/components/ui/card/Card";
 import { PageSection } from "@/components/ui/page-section/PageSection";
 
 function formatCurrency(value: number | null) {
@@ -36,13 +35,13 @@ export default function LeadDetailClient({
   const isClosed = lead.estado === "cerrado";
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,380px)]">
       <div className="space-y-6">
         <PageSection
           title="Resumen comercial"
           description="Información principal de la oportunidad."
         >
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid gap-5 sm:grid-cols-2">
             {isClosed && (
               <div>
                 <dt className="text-xs font-medium text-muted">
@@ -66,14 +65,18 @@ export default function LeadDetailClient({
             )}
 
             <div>
-              <dt className="text-xs font-medium text-muted">Tipo de obra</dt>
+              <dt className="text-xs font-medium text-muted">
+                Tipo de obra
+              </dt>
               <dd className="mt-1 text-sm text-text">
                 {lead.tipo_obra ?? "Pendiente de definir"}
               </dd>
             </div>
 
             <div>
-              <dt className="text-xs font-medium text-muted">Origen</dt>
+              <dt className="text-xs font-medium text-muted">
+                Origen
+              </dt>
               <dd className="mt-1 text-sm text-text">
                 {lead.origen ?? "Pendiente de definir"}
               </dd>
@@ -114,34 +117,33 @@ export default function LeadDetailClient({
         )}
       </div>
 
-      <Card>
-        <div className="space-y-8">
+      <PageSection
+        title="Actividad comercial"
+        description="Registra y consulta el seguimiento de la oportunidad."
+        className="lg:self-start"
+      >
+        <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-text">
-              Actividad comercial
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Registra y consulta el seguimiento de la oportunidad.
-            </p>
-          </div>
-
-          <div className="border-t border-border pt-6">
             <h3 className="text-sm font-semibold text-text">
               Nuevo seguimiento
             </h3>
+
             <div className="mt-4">
               <SeguimientoForm leadId={lead.id} />
             </div>
           </div>
 
           <div className="border-t border-border pt-6">
-            <h3 className="text-sm font-semibold text-text">Historial</h3>
+            <h3 className="text-sm font-semibold text-text">
+              Historial
+            </h3>
+
             <div className="mt-4">
               <SeguimientoList seguimientos={seguimientos} />
             </div>
           </div>
         </div>
-      </Card>
+      </PageSection>
     </div>
   );
 }

@@ -1,5 +1,14 @@
 import Link from "next/link";
+
 import type { RentabilidadPorObra } from "@/app/actions/rentabilidad";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface ObraRentabilidadTableProps {
   data: RentabilidadPorObra[];
@@ -10,91 +19,85 @@ export default function ObraRentabilidadTable({
 }: ObraRentabilidadTableProps) {
   if (data.length === 0) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-400 text-sm">Sin obras cerradas aún</p>
+      <div className="flex min-h-56 items-center justify-center rounded-xl border border-dashed border-border bg-surface px-6 py-10 text-center">
+        <p className="text-sm text-muted">Sin obras cerradas aún</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-medium text-gray-700">
-              Obra
-            </th>
-            <th className="text-right py-3 px-4 font-medium text-gray-700">
-              Facturado
-            </th>
-            <th className="text-right py-3 px-4 font-medium text-gray-700">
-              Gastado
-            </th>
-            <th className="text-right py-3 px-4 font-medium text-gray-700">
-              Margen €
-            </th>
-            <th className="text-right py-3 px-4 font-medium text-gray-700">
-              Margen %
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <tr
-              key={row.id}
-              className="border-b border-gray-100 hover:bg-gray-50"
-            >
-              <td className="py-3 px-4">
-                <Link
-                  href={`/obras/${row.id}`}
-                  className="font-medium text-primary hover:underline"
-                >
-                  {row.nombre}
-                </Link>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Obra</TableHead>
+          <TableHead className="text-right">Facturado</TableHead>
+          <TableHead className="text-right">Gastado</TableHead>
+          <TableHead className="whitespace-nowrap text-right">
+            Margen €
+          </TableHead>
+          <TableHead className="whitespace-nowrap text-right">
+            Margen %
+          </TableHead>
+        </TableRow>
+      </TableHeader>
 
-                {row.hasUncalculatedLaborCost && (
-                  <p className="mt-1 text-xs text-muted">
-                    Coste laboral incompleto
-                  </p>
-                )}
-              </td>
-              <td className="py-3 px-4 text-right text-gray-900">
-                {row.facturado.toLocaleString("es-ES", {
-                  minimumFractionDigits: 0,
-                })}{" "}
-                €
-              </td>
-              <td className="py-3 px-4 text-right text-orange-600">
-                {row.gastado.toLocaleString("es-ES", {
-                  minimumFractionDigits: 0,
-                })}{" "}
-                €
-              </td>
-              <td
-                className={`py-3 px-4 text-right font-bold ${
-                  row.margen >= 0 ? "text-green-600" : "text-red-600"
-                }`}
+      <TableBody>
+        {data.map((row) => (
+          <TableRow key={row.id}>
+            <TableCell>
+              <Link
+                href={`/obras/${row.id}`}
+                className="font-medium text-primary hover:underline"
               >
-                {row.margen.toLocaleString("es-ES", {
-                  minimumFractionDigits: 0,
-                })}{" "}
-                €
-              </td>
-              <td
-                className={`py-3 px-4 text-right font-bold ${
-                  row.margenPorcentaje >= 30
-                    ? "text-green-600"
-                    : row.margenPorcentaje >= 15
-                      ? "text-amber-600"
-                      : "text-red-600"
-                }`}
-              >
-                {row.margenPorcentaje}%
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                {row.nombre}
+              </Link>
+
+              {row.hasUncalculatedLaborCost && (
+                <p className="mt-1 text-xs text-muted">
+                  Coste laboral incompleto
+                </p>
+              )}
+            </TableCell>
+
+            <TableCell className="whitespace-nowrap text-right">
+              {row.facturado.toLocaleString("es-ES", {
+                minimumFractionDigits: 0,
+              })}{" "}
+              €
+            </TableCell>
+
+            <TableCell className="whitespace-nowrap text-right text-warning">
+              {row.gastado.toLocaleString("es-ES", {
+                minimumFractionDigits: 0,
+              })}{" "}
+              €
+            </TableCell>
+
+            <TableCell
+              className={`whitespace-nowrap text-right font-semibold ${
+                row.margen >= 0 ? "text-success" : "text-danger"
+              }`}
+            >
+              {row.margen.toLocaleString("es-ES", {
+                minimumFractionDigits: 0,
+              })}{" "}
+              €
+            </TableCell>
+
+            <TableCell
+              className={`whitespace-nowrap text-right font-semibold ${
+                row.margenPorcentaje >= 30
+                  ? "text-success"
+                  : row.margenPorcentaje >= 15
+                    ? "text-warning"
+                    : "text-danger"
+              }`}
+            >
+              {row.margenPorcentaje}%
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
