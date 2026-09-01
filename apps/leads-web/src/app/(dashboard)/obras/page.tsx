@@ -50,12 +50,10 @@ export default async function ProjectsPage({
   return (
 
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
         <PageHeader
           title="Obras"
           description="Gestiona todas las obras del sistema."
-          />
-        </div>
+        />
 
         <Toolbar>
           <form

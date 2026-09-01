@@ -2,9 +2,8 @@
 
 import type { Material } from "@/types";
 
-import { PageHeader } from "@/components/ui/page-header/PageHeader";
-
 import { EmployeeFeedbackProvider } from "../employees/EmployeeFeedback";
+import { PageHeader } from "../ui/page-header/PageHeader";
 import { MaterialTable } from "./MaterialTable";
 import { NewMaterialDialog } from "./NewMaterialDialog";
 
@@ -12,7 +11,9 @@ interface MaterialsClientProps {
   materials: Material[];
 }
 
-function MaterialsContent({ materials }: MaterialsClientProps) {
+function MaterialsContent({
+  materials,
+}: MaterialsClientProps) {
   return (
     <div className="space-y-6">
       <PageHeader
