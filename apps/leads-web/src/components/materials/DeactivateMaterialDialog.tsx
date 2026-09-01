@@ -6,7 +6,9 @@ import { deactivateMaterialAction } from "@/app/actions/materials";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -14,9 +16,9 @@ import {
 } from "@/components/ui/dialog";
 import type { Material } from "@/types";
 
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
-
 import { Ban } from "lucide-react";
+
+import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
 
 interface DeactivateMaterialDialogProps {
   material: Material;
@@ -45,10 +47,7 @@ export function DeactivateMaterialDialog({
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="danger"
@@ -63,32 +62,28 @@ export function DeactivateMaterialDialog({
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            Desactivar material
-          </DialogTitle>
+          <DialogTitle>Desactivar material</DialogTitle>
+
+          <DialogDescription>
+            ¿Deseas desactivar el material{" "}
+            <strong>{material.nombre}</strong>?
+          </DialogDescription>
         </DialogHeader>
 
-        <p className="text-sm text-muted-foreground">
-          ¿Deseas desactivar el material{" "}
-          <strong>{material.nombre}</strong>?
-        </p>
-
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-          >
-            Cancelar
-          </Button>
+          <DialogClose asChild>
+            <Button variant="outline" type="button" disabled={pending}>
+              Cancelar
+            </Button>
+          </DialogClose>
 
           <Button
             variant="danger"
+            type="button"
             disabled={pending}
             onClick={handleDeactivate}
           >
-            {pending
-              ? "Desactivando..."
-              : "Desactivar"}
+            {pending ? "Desactivando..." : "Desactivar"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 
-import { Input } from "../ui/forms/Input";
+import { Input, Label, Select } from "@/components/ui/forms";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -108,9 +108,7 @@ export function MaterialForm({
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Nombre
-        </label>
+        <Label htmlFor="nombre">Nombre</Label>
 
         <Input
           name="nombre"
@@ -120,9 +118,7 @@ export function MaterialForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Descripción
-        </label>
+        <Label htmlFor="descripcion">Descripción</Label>
 
         <Input
           name="descripcion"
@@ -131,11 +127,9 @@ export function MaterialForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Categoría
-        </label>
+        <Label htmlFor="categoria">Categoría</Label>
 
-        <select
+        <Select
           name="categoria"
           className="w-full rounded-lg border px-3 py-2"
           defaultValue={material?.categoria ?? "otro"}
@@ -148,15 +142,13 @@ export function MaterialForm({
               {category.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Unidad
-        </label>
+        <Label htmlFor="unidad_base">Unidad</Label>
 
-        <select
+        <Select
           name="unidad_base"
           className="w-full rounded-lg border px-3 py-2"
           defaultValue={material?.unidad_base ?? "und"}
@@ -169,13 +161,11 @@ export function MaterialForm({
               {unit.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Precio habitual (€)
-        </label>
+        <Label htmlFor="precio_habitual">Precio habitual (€)</Label>
 
         <Input
           name="precio_habitual"
@@ -188,9 +178,7 @@ export function MaterialForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Marca
-        </label>
+        <Label htmlFor="marca">Marca</Label>
 
         <Input
           name="marca"
@@ -199,9 +187,7 @@ export function MaterialForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Referencia
-        </label>
+        <Label htmlFor="referencia">Referencia</Label>
 
         <Input
           name="referencia"

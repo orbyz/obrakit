@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 
-import { Input } from "../ui/forms/Input";
+import { Input, Label, Select } from "@/components/ui/forms";
 import { Button } from "@/components/ui/button";
 
 
@@ -83,11 +83,10 @@ export function EmployeeForm({
     <form action={formAction} className="space-y-4">
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Nombre
-        </label>
+        <Label htmlFor="nombre">Nombre</Label>
 
         <Input
+          id="nombre"
           name="nombre"
           defaultValue={employee?.nombre ?? ""}
           required
@@ -95,53 +94,49 @@ export function EmployeeForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Apellidos
-        </label>
+        <Label htmlFor="apellidos">Apellidos</Label>
 
         <Input
+          id="apellidos"
           name="apellidos"
           defaultValue={employee?.apellidos ?? ""}
+          required
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Especialidad
-        </label>
+        <Label htmlFor="especialidad">Especialidad</Label>
 
         <Input
+          id="especialidad"
           name="especialidad"
           defaultValue={employee?.especialidad ?? ""}
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Tipo de contrato
-        </label>
+        <Label htmlFor="tipo_contrato">Tipo de contrato</Label>
 
-        <select
+        <Select
+          id="tipo_contrato"
           name="tipo_contrato"
-          className="w-full rounded-lg border px-3 py-2"
           defaultValue={employee?.tipo_contrato ?? "empleado"}
         >
           <option value="empleado">Empleado</option>
           <option value="autonomo">Autónomo</option>
           <option value="temporal">Temporal</option>
           <option value="subcontrata">Subcontrata</option>
-        </select>
+        </Select>
       </div>
 
-
       <div>
-        <label className="mb-1 block text-sm font-medium">
+        <Label htmlFor="pricing_model">
           Modelo de tarificación
-        </label>
+        </Label>
 
-        <select
+        <Select
+          id="pricing_model"
           name="pricing_model"
-          className="w-full rounded-lg border px-3 py-2"
           value={pricingModel}
           onChange={(event) =>
             setPricingModel(event.target.value as EmployeePricingModel)
@@ -151,15 +146,16 @@ export function EmployeeForm({
           <option value="daily">Por día</option>
           <option value="monthly">Mensual</option>
           <option value="fixed">Precio fijo</option>
-        </select>
+        </Select>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
+        <Label htmlFor={pricingField.name}>
           {pricingField.label}
-        </label>
+        </Label>
 
         <Input
+          id={pricingField.name}
           key={pricingField.name}
           name={pricingField.name}
           type="number"

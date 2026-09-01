@@ -5,6 +5,7 @@ import type { Gasto } from "@/types";
 
 import { Button } from "@/components/ui/button/Button";
 import { FormSection } from "@/components/ui/forms/FormSection";
+import { Tabs } from "../ui/tabs/Tabs";
 
 import GastoForm from "./GastoForm";
 import GastosList from "./GastosList";
@@ -31,17 +32,17 @@ interface GastosClientProps {
 
 const TABS = [
   {
-    key: "lista",
+    value: "lista",
     label: "Lista",
     icon: ClipboardList,
   },
   {
-    key: "porObra",
+    value: "porObra",
     label: "Por obra",
     icon: Building2,
   },
   {
-    key: "porCategoria",
+    value: "porCategoria",
     label: "Categorías",
     icon: Package,
   },
@@ -91,7 +92,7 @@ export default function GastosClient({
 
       {/* Formulario */}
       {showForm && (
-        <Card className="mb-8 rounded-2xl border border-border bg-surface p-6 shadow-card">
+        <Card className="mb-8">
           <FormSection title="Registrar gasto">
             <GastoForm
               projects={projects}
@@ -102,33 +103,19 @@ export default function GastosClient({
       )}
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-2 border-b border-border">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setVistaActiva(tab.key)}
-            className={`
-              border-b-2
-              px-4
-              py-3
-              text-sm
-              font-medium
-              transition-all
-
-              ${
-                vistaActiva === tab.key
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted hover:text-text"
-              }
-            `}
-          >
+      <Tabs
+        value={vistaActiva}
+        onChange={setVistaActiva}
+        items={TABS.map((tab) => ({
+          value: tab.value,
+          label: (
             <span className="inline-flex items-center gap-2">
               <tab.icon className="h-4 w-4" aria-hidden="true" />
               {tab.label}
             </span>
-          </button>
-        ))}
-      </div>
+          ),
+        }))}
+      />
 
       {/* Lista */}
       {vistaActiva === "lista" && <GastosList gastos={gastos} />}
@@ -137,7 +124,7 @@ export default function GastosClient({
       {vistaActiva === "porObra" && (
         <div className="space-y-3">
           {resumen.porObra.length === 0 ? (
-            <Card className="rounded-2xl border border-border bg-surface py-12 text-center text-muted shadow-card">
+            <Card className="py-12 text-center text-muted">
               Sin datos todavía
             </Card>
           ) : (

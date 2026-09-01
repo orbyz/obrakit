@@ -16,10 +16,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/forms/Input";
+import { Label } from "@/components/ui/forms/Label";
 import { Select } from "@/components/ui/forms/Select";
 import type { EmployeeAssignment } from "@/types";
 
 import { useEmployeeFeedback } from "./EmployeeFeedback";
+
 
 interface EmployeeWorkWeekDialogProps {
   assignments: EmployeeAssignment[];
@@ -215,9 +217,9 @@ export function EmployeeWorkWeekDialog({
         ) : (
           <form action={formAction} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium" htmlFor="assignment_id">
+              <Label className="mb-1 block text-sm font-medium" htmlFor="assignment_id">
                 Asignación
-              </label>
+              </Label>
               <Select
                 id="assignment_id"
                 name="assignment_id"
@@ -234,9 +236,9 @@ export function EmployeeWorkWeekDialog({
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium" htmlFor="week_start">
+              <Label className="mb-1 block text-sm font-medium" htmlFor="week_start">
                 Semana
-              </label>
+              </Label>
               <Input
                 id="week_start"
                 name="week_start"
@@ -264,9 +266,9 @@ export function EmployeeWorkWeekDialog({
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="mb-1 block text-sm font-medium" htmlFor="start_time">
+                <Label className="mb-1 block text-sm font-medium" htmlFor="start_time">
                   Inicio
-                </label>
+                </Label>
                 <Input
                   id="start_time"
                   name="start_time"
@@ -278,9 +280,9 @@ export function EmployeeWorkWeekDialog({
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium" htmlFor="end_time">
+                <Label className="mb-1 block text-sm font-medium" htmlFor="end_time">
                   Fin
-                </label>
+                </Label>
                 <Input
                   id="end_time"
                   name="end_time"
@@ -292,9 +294,9 @@ export function EmployeeWorkWeekDialog({
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium" htmlFor="break_minutes">
+                <Label className="mb-1 block text-sm font-medium" htmlFor="break_minutes">
                   Descanso
-                </label>
+                </Label>
                 <Input
                   id="break_minutes"
                   name="break_minutes"

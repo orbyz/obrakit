@@ -62,12 +62,10 @@ export default async function EmployeesPage({
   return (
     <EmployeeFeedbackProvider>
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <PageHeader
-            title="Empleados"
-            description="Gestiona todos los empleados de tu empresa."
-          />
-        </div>
+        <PageHeader
+          title="Empleados"
+          description="Gestiona todos los empleados de tu empresa."
+        />
 
         <Toolbar>
           <form
