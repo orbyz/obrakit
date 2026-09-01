@@ -16,6 +16,8 @@ import type { Material } from "@/types";
 
 import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
 
+import { Ban } from "lucide-react";
+
 interface DeactivateMaterialDialogProps {
   material: Material;
 }
@@ -51,8 +53,11 @@ export function DeactivateMaterialDialog({
         <Button
           variant="danger"
           size="sm"
+          className="h-9 w-9 p-0"
+          aria-label={`Desactivar material ${material.nombre}`}
+          title="Desactivar material"
         >
-          Desactivar
+          <Ban className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
 

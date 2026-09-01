@@ -5,6 +5,8 @@ import { useTransition } from "react";
 
 import { reactivateEmployeeAction } from "@/app/actions/employees";
 
+import { Eye, RotateCcw } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,9 +89,11 @@ export function EmployeeRow({ employee }: EmployeeRowProps) {
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/empleados/${employee.id}`}
-            className="inline-flex h-9 items-center justify-center rounded-xl border border-border bg-surface px-3 text-sm font-medium text-text transition-colors hover:bg-background"
+            aria-label={`Ver empleado ${employee.nombre}`}
+            title="Ver empleado"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-white text-text transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           >
-            Ver
+            <Eye className="h-4 w-4" aria-hidden="true" />
           </Link>
 
           {employee.estado === "activo" && (
@@ -101,13 +105,16 @@ export function EmployeeRow({ employee }: EmployeeRowProps) {
 
           {employee.estado === "inactivo" && (
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               type="button"
               disabled={pending}
               onClick={handleReactivate}
+              aria-label={`Reactivar empleado ${employee.nombre}`}
+              title="Reactivar empleado"
+              className="h-9 w-9 p-0"
             >
-              {pending ? "Reactivando..." : "Reactivar"}
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}
         </div>

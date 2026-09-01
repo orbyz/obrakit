@@ -5,6 +5,7 @@ import {
   getEmployeeAssignments,
   getProjectsForSelect,
 } from "@/app/actions/employee-assignments";
+
 import { getEmployeeById } from "@/app/actions/employees";
 import { getEmployeeLabourCost } from "@/app/actions/labour-costs";
 import { getEmployeeWorkLogs } from "@/app/actions/employee-worklogs";
@@ -21,6 +22,15 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 import { PageHeader } from "@/components/ui/page-header/PageHeader";
 import { assignmentStatusConfig } from "@/lib/constants/assignment-status";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface EmployeeDetailPageProps {
   params: Promise<{ id: string }>;
@@ -117,53 +127,63 @@ export default async function EmployeeDetailPage({
           {assignments.length === 0 ? (
             <EmptyState title="No existen asignaciones." />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-[800px] w-full table-fixed">
-                <thead>
-                  <tr className="border-b border-border text-left text-sm text-muted">
-                    <th className="w-[24%] p-3 font-medium">Obra</th>
-                    <th className="w-[18%] p-3 font-medium">Rol</th>
-                    <th className="w-[14%] p-3 font-medium">Estado</th>
-                    <th className="w-[14%] p-3 font-medium">Fecha inicio</th>
-                    <th className="w-[14%] p-3 font-medium">Fecha fin</th>
-                    <th className="w-[16%] p-3 font-medium">Acciones</th>
-                  </tr>
-                </thead>
+            <Table className="min-w-[800px] table-fixed">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[24%]">Obra</TableHead>
+                  <TableHead className="w-[18%]">Rol</TableHead>
+                  <TableHead className="w-[14%]">Estado</TableHead>
+                  <TableHead className="w-[14%]">Fecha inicio</TableHead>
+                  <TableHead className="w-[14%]">Fecha fin</TableHead>
+                  <TableHead className="w-[16%]">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
 
-                <tbody>
-                  {assignments.map((assignment) => (
-                    <tr
-                      key={assignment.id}
-                      className="border-b border-border transition-colors hover:bg-background last:border-0"
+              <TableBody>
+                {assignments.map((assignment) => (
+                  <TableRow key={assignment.id}>
+                    <TableCell
+                      className="max-w-0 truncate"
+                      title={assignment.project?.name}
                     >
-                      <td className="max-w-0 truncate p-3 text-sm" title={assignment.project?.name}>
-                        {assignment.project?.name ?? "Obra no disponible"}
-                      </td>
-                      <td className="max-w-0 truncate p-3 text-sm" title={assignment.role}>
-                        {assignment.role}
-                      </td>
-                      <td className="p-3">
-                        <Badge variant={assignmentStatusConfig[assignment.status].badgeVariant}>
-                          {assignmentStatusConfig[assignment.status].label}
-                        </Badge>
-                      </td>
-                      <td className="whitespace-nowrap p-3 text-sm">
-                        {formatDate(assignment.start_date)}
-                      </td>
-                      <td className="whitespace-nowrap p-3 text-sm">
-                        {formatDate(assignment.end_date)}
-                      </td>
-                      <td className="p-3">
-                        <AssignmentStatusActions
-                          assignmentId={assignment.id}
-                          status={assignment.status}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      {assignment.project?.name ?? "Obra no disponible"}
+                    </TableCell>
+
+                    <TableCell
+                      className="max-w-0 truncate"
+                      title={assignment.role}
+                    >
+                      {assignment.role}
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge
+                        variant={
+                          assignmentStatusConfig[assignment.status].badgeVariant
+                        }
+                      >
+                        {assignmentStatusConfig[assignment.status].label}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell className="whitespace-nowrap">
+                      {formatDate(assignment.start_date)}
+                    </TableCell>
+
+                    <TableCell className="whitespace-nowrap">
+                      {formatDate(assignment.end_date)}
+                    </TableCell>
+
+                    <TableCell>
+                      <AssignmentStatusActions
+                        assignmentId={assignment.id}
+                        status={assignment.status}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </Card>
 

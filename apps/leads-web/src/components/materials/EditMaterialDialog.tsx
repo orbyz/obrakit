@@ -15,6 +15,8 @@ import type { Material } from "@/types";
 
 import { MaterialForm } from "./MaterialForm";
 
+import { Pencil } from "lucide-react";
+
 interface EditMaterialDialogProps {
   material: Material;
 }
@@ -33,8 +35,11 @@ export function EditMaterialDialog({
         <Button
           variant="outline"
           size="sm"
+          className="h-9 w-9 p-0"
+          aria-label={`Editar material ${material.nombre}`}
+          title="Editar material"
         >
-          Editar
+          <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
 

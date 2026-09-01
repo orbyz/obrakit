@@ -4,6 +4,11 @@ import type { MaterialConsumption } from "@/types";
 import { formatDate } from "@/lib/formatters/date";
 import { formatCurrency } from "@/lib/formatters/currency";
 
+import {
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
+
 import { DeleteMaterialConsumptionDialog } from "./DeleteMaterialConsumptionDialog";
 import { EditMaterialConsumptionDialog } from "./EditMaterialConsumptionDialog";
 
@@ -15,28 +20,28 @@ export function MaterialConsumptionRow({
   consumption,
 }: MaterialConsumptionRowProps) {
   return (
-    <tr className="border-b">
-      <td className="p-4">
+    <TableRow>
+      <TableCell>
         {formatDate(consumption.fecha)}
-      </td>
+      </TableCell>
 
-      <td className="p-4">
+      <TableCell className="font-medium">
         {consumption.material_nombre_snapshot}
-      </td>
+      </TableCell>
 
-      <td className="p-4">
+      <TableCell>
         {consumption.cantidad} {consumption.unidad_snapshot}
-      </td>
+      </TableCell>
 
-      <td className="px-4 py-3 text-right">
+      <TableCell className="text-right">
         {formatCurrency(consumption.precio_snapshot)}
-      </td>
+      </TableCell>
 
-      <td className="px-4 py-3 text-right">
+      <TableCell className="text-right font-medium">
         {formatCurrency(consumption.importe_total)}
-      </td>
+      </TableCell>
 
-      <td className="p-4">
+      <TableCell>
         <div className="flex gap-2">
           <EditMaterialConsumptionDialog
             consumption={consumption}
@@ -46,7 +51,7 @@ export function MaterialConsumptionRow({
             consumption={consumption}
           />
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

@@ -10,6 +10,14 @@ import GastoForm from "./GastoForm";
 import GastosList from "./GastosList";
 import { Card } from "../ui/card/Card";
 
+import {
+  Building2,
+  ClipboardList,
+  Package,
+  Plus,
+  X,
+} from "lucide-react";
+
 interface GastosClientProps {
   gastos: Gasto[];
   projects: { id: string; name: string }[];
@@ -24,15 +32,18 @@ interface GastosClientProps {
 const TABS = [
   {
     key: "lista",
-    label: "📋 Lista",
+    label: "Lista",
+    icon: ClipboardList,
   },
   {
     key: "porObra",
-    label: "🏗️ Por obra",
+    label: "Por obra",
+    icon: Building2,
   },
   {
     key: "porCategoria",
-    label: "📦 Categorías",
+    label: "Categorías",
+    icon: Package,
   },
 ] as const;
 
@@ -64,7 +75,17 @@ export default function GastosClient({
           variant="secondary"
           onClick={() => setShowForm((value) => !value)}
         >
-          {showForm ? "Cerrar" : "+ Nuevo gasto"}
+          {showForm ? (
+            <>
+              <X className="h-4 w-4" aria-hidden="true" />
+              Cerrar
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Nuevo gasto
+            </>
+          )}
         </Button>
       </div>
 
@@ -101,7 +122,10 @@ export default function GastosClient({
               }
             `}
           >
-            {tab.label}
+            <span className="inline-flex items-center gap-2">
+              <tab.icon className="h-4 w-4" aria-hidden="true" />
+              {tab.label}
+            </span>
           </button>
         ))}
       </div>
@@ -133,7 +157,10 @@ export default function GastosClient({
                 "
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">🏗️</span>
+                  <Building2
+                    className="h-5 w-5 text-muted"
+                    aria-hidden="true"
+                  />
 
                   <span className="font-medium text-text">{obra.nombre}</span>
                 </div>

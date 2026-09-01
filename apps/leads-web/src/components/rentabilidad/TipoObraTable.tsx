@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/table";
 
 const TIPO_LABEL: Record<string, string> = {
-  bano: "🚿 Baño",
-  cocina: "🍳 Cocina",
-  pintura: "🎨 Pintura",
-  integral: "🏗 Integral",
-  otro: "🔧 Otro",
+  bano: "Baño",
+  cocina: "Cocina",
+  pintura: "Pintura",
+  integral: "Integral",
+  otro: "Otro",
 };
 
 interface TipoObraTableProps {

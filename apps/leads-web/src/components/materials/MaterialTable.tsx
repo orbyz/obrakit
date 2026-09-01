@@ -1,61 +1,54 @@
 import type { Material } from "@/types";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { MaterialRow } from "./MaterialRow";
 
 interface MaterialTableProps {
   materials: Material[];
 }
 
-export function MaterialTable({
-  materials,
-}: MaterialTableProps) {
+export function MaterialTable({ materials }: MaterialTableProps) {
   return (
-    <div className="rounded-xl border">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="p-4 text-left">
-              Nombre
-            </th>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Nombre</TableHead>
+          <TableHead>Categoría</TableHead>
+          <TableHead>Unidad</TableHead>
+          <TableHead className="text-right">
+            Precio habitual
+          </TableHead>
+          <TableHead>Acciones</TableHead>
+        </TableRow>
+      </TableHeader>
 
-            <th className="p-4 text-left">
-              Categoría
-            </th>
-
-            <th className="p-4 text-left">
-              Unidad
-            </th>
-
-            <th className="p-4 text-left">
-              Precio habitual
-            </th>
-
-            <th className="p-4 text-left">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {materials.length === 0 ? (
-            <tr>
-              <td
-                colSpan={5}
-                className="p-8 text-center text-muted-foreground"
-              >
-                No hay materiales registrados.
-              </td>
-            </tr>
-          ) : (
-            materials.map((material) => (
-              <MaterialRow
-                key={material.id}
-                material={material}
-              />
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+      <TableBody>
+        {materials.length === 0 ? (
+          <TableRow>
+            <TableCell
+              colSpan={5}
+              className="py-8 text-center text-muted"
+            >
+              No hay materiales registrados.
+            </TableCell>
+          </TableRow>
+        ) : (
+          materials.map((material) => (
+            <MaterialRow
+              key={material.id}
+              material={material}
+            />
+          ))
+        )}
+      </TableBody>
+    </Table>
   );
 }

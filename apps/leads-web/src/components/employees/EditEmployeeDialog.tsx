@@ -14,6 +14,8 @@ import type { Employee } from "@/types";
 
 import { EmployeeForm } from "./EmployeeForm";
 
+import { Pencil } from "lucide-react";
+
 interface EditEmployeeDialogProps {
   employee: Employee;
 }
@@ -24,8 +26,14 @@ export function EditEmployeeDialog({ employee }: EditEmployeeDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Editar
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 w-9 p-0"
+          aria-label={`Editar empleado ${employee.nombre}`}
+          title="Editar empleado"
+        >
+          <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
 

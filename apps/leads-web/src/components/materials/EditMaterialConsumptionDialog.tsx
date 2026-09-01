@@ -11,6 +11,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import { Pencil } from "lucide-react";
+
 import type { MaterialConsumption } from "@/types";
 
 import { MaterialConsumptionForm } from "./MaterialConsumptionForm";
@@ -33,8 +35,11 @@ export function EditMaterialConsumptionDialog({
         <Button
           variant="outline"
           size="sm"
+          className="h-9 w-9 p-0"
+          aria-label={`Editar consumo de ${consumption.material_nombre_snapshot}`}
+          title="Editar consumo"
         >
-          Editar
+          <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
 

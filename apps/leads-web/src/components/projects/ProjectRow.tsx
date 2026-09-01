@@ -5,6 +5,8 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { PROJECT_STATUS } from "@/lib/constants/project-status";
 import type { Project } from "@/types";
 
+import { Eye } from "lucide-react";
+
 type Props = {
   project: Project;
 };
@@ -44,20 +46,11 @@ export function ProjectRow({ project }: Props) {
       <TableCell className="text-right">
         <Link
           href={`/obras/${project.id}`}
-          className="
-            inline-flex h-9 items-center justify-center
-            rounded-lg border border-border
-            bg-surface px-3
-            text-sm font-medium text-primary
-            whitespace-nowrap
-            transition-colors
-            hover:bg-background
-            focus-visible:outline-none
-            focus-visible:ring-2
-            focus-visible:ring-primary/20
-          "
+          aria-label="Ver obra"
+          title="Ver obra"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-white text-text transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         >
-          Ver
+          <Eye className="h-4 w-4" aria-hidden="true" />
         </Link>
       </TableCell>
     </TableRow>

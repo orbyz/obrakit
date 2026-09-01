@@ -1,5 +1,13 @@
 import type { MaterialConsumption } from "@/types";
 
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { MaterialConsumptionRow } from "./MaterialConsumptionRow";
 
 interface MaterialConsumptionTableProps {
@@ -11,8 +19,8 @@ export function MaterialConsumptionTable({
 }: MaterialConsumptionTableProps) {
   if (consumptions.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
-        <h3 className="text-lg font-medium">
+      <div className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center">
+        <h3 className="text-base font-semibold text-text">
           Aún no hay consumos registrados
         </h3>
 
@@ -23,57 +31,28 @@ export function MaterialConsumptionTable({
       </div>
     );
   }
+
   return (
-    <div className="rounded-xl border">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Fecha
-            </th>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Fecha</TableHead>
+          <TableHead>Material</TableHead>
+          <TableHead>Cantidad</TableHead>
+          <TableHead className="text-right">Precio</TableHead>
+          <TableHead className="text-right">Importe</TableHead>
+          <TableHead>Acciones</TableHead>
+        </TableRow>
+      </TableHeader>
 
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Material
-            </th>
-
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Cantidad
-            </th>
-
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Precio
-            </th>
-
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Importe
-            </th>
-
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {consumptions.length === 0 ? (
-            <tr>
-              <td
-                colSpan={6}
-                className="p-8 text-center text-muted-foreground"
-              >
-                No hay consumos registrados para esta obra.
-              </td>
-            </tr>
-          ) : (
-            consumptions.map((consumption) => (
-              <MaterialConsumptionRow
-                key={consumption.id}
-                consumption={consumption}
-              />
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+      <TableBody>
+        {consumptions.map((consumption) => (
+          <MaterialConsumptionRow
+            key={consumption.id}
+            consumption={consumption}
+          />
+        ))}
+      </TableBody>
+    </Table>
   );
 }
