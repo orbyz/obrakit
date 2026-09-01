@@ -3,20 +3,26 @@
 import { useTransition } from "react";
 
 import { reactivateMaterialAction } from "@/app/actions/materials";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
+import { RotateCcw } from "lucide-react";
+
 import type { Material } from "@/types";
 
+import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
 import { DeactivateMaterialDialog } from "./DeactivateMaterialDialog";
 import { EditMaterialDialog } from "./EditMaterialDialog";
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
 
 interface MaterialRowProps {
   material: Material;
 }
 
-export function MaterialRow({
-  material,
-}: MaterialRowProps) {
+export function MaterialRow({ material }: MaterialRowProps) {
   const [pending, startTransition] = useTransition();
   const { showError, showSuccess } = useEmployeeFeedback();
 
@@ -29,49 +35,70 @@ export function MaterialRow({
         return;
       }
 
-      showError(result.error ?? "Error al reactivar el material.");
+      showError(
+        result.error ?? "Error al reactivar el material.",
+      );
     });
   }
 
   return (
-    <tr className="border-b">
-      <td className="p-4 font-medium">
-        {material.nombre}
-      </td>
+    <TableRow>
+      <TableCell>
+        <span className="font-medium text-text">
+          {material.nombre}
+        </span>
+      </TableCell>
 
-      <td className="p-4 capitalize">
-        {material.categoria.replaceAll("_", " ")}
-      </td>
+      <TableCell>
+        <span className="capitalize text-muted">
+          {material.categoria.replaceAll("_", " ")}
+        </span>
+      </TableCell>
 
-      <td className="p-4">
+      <TableCell>
         {material.unidad_base}
-      </td>
+      </TableCell>
 
-      <td className="p-4">
-        € {material.precio_habitual.toFixed(2)}
-      </td>
+      <TableCell className="text-right font-medium whitespace-nowrap">
+        {material.precio_habitual.toLocaleString("es-ES", {
+          style: "currency",
+          currency: "EUR",
+          minimumFractionDigits: 2,
+        })}
+      </TableCell>
 
-      <td className="p-4">
-        <div className="flex gap-2">
+      <TableCell>
+        <div className="flex flex-wrap gap-2">
           {material.activo ? (
             <>
               <EditMaterialDialog material={material} />
-
               <DeactivateMaterialDialog material={material} />
             </>
           ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-              disabled={pending}
-              onClick={handleReactivate}
-            >
-              {pending ? "Reactivando..." : "Reactivar"}
-            </Button>
+            <>
+              <Badge variant="neutral">
+                Inactivo
+              </Badge>
+
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                disabled={pending}
+                onClick={handleReactivate}
+                className="h-9 w-9 p-0"
+                aria-label={`Reactivar material ${material.nombre}`}
+                title="Reactivar material"
+              >
+                <RotateCcw
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+              </Button>
+            </>
           )}
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

@@ -1,5 +1,14 @@
 import type { LabourCostSummary } from "@/types";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 interface EmployeeLabourCostProps {
   summary: LabourCostSummary;
 }
@@ -48,43 +57,41 @@ export function EmployeeLabourCost({ summary }: EmployeeLabourCostProps) {
           No existen jornadas con una duración válida para este empleado.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-[640px] w-full table-fixed">
-            <thead>
-              <tr className="border-b border-border text-left text-sm text-muted">
-                <th className="w-[20%] p-3 font-medium">Fecha</th>
-                <th className="w-[40%] p-3 font-medium">Obra</th>
-                <th className="w-[20%] p-3 font-medium">Horas</th>
-                <th className="w-[20%] p-3 font-medium">Coste</th>
-              </tr>
-            </thead>
+        <Table className="min-w-[640px] table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[20%]">Fecha</TableHead>
+              <TableHead className="w-[40%]">Obra</TableHead>
+              <TableHead className="w-[20%]">Horas</TableHead>
+              <TableHead className="w-[20%]">Coste</TableHead>
+            </TableRow>
+          </TableHeader>
 
-            <tbody>
-              {summary.worklogs.map((workLog) => (
-                <tr
-                  key={workLog.id}
-                  className="border-b border-border last:border-0"
+          <TableBody>
+            {summary.worklogs.map((workLog) => (
+              <TableRow key={workLog.id}>
+                <TableCell className="whitespace-nowrap">
+                  {workLog.fecha}
+                </TableCell>
+
+                <TableCell
+                  className="max-w-0 truncate"
+                  title={workLog.obra?.nombre}
                 >
-                  <td className="whitespace-nowrap p-3 text-sm">
-                    {workLog.fecha}
-                  </td>
-                  <td
-                    className="max-w-0 truncate p-3 text-sm"
-                    title={workLog.obra?.nombre}
-                  >
-                    {workLog.obra?.nombre ?? "Obra no disponible"}
-                  </td>
-                  <td className="whitespace-nowrap p-3 text-sm">
-                    {formatHours(workLog.horas)}
-                  </td>
-                  <td className="whitespace-nowrap p-3 text-sm">
-                    {workLog.coste === null ? "-" : formatCost(workLog.coste)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  {workLog.obra?.nombre ?? "Obra no disponible"}
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  {formatHours(workLog.horas)}
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  {workLog.coste === null ? "-" : formatCost(workLog.coste)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );

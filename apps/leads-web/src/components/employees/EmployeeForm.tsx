@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 
 import { Input } from "../ui/forms/Input";
+import { Button } from "@/components/ui/button";
 
 
 import {
@@ -168,13 +169,13 @@ export function EmployeeForm({
         />
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-primary px-4 py-2 text-white disabled:opacity-50"
+        className="w-full"
       >
         {pending ? "Guardando..." : "Guardar empleado"}
-      </button>
+      </Button>
 
     </form>
   );

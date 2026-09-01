@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import type { MaterialConsumption } from "@/types";
 
+import { Trash2 } from "lucide-react";
+
 import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
 
 interface DeleteMaterialConsumptionDialogProps {
@@ -59,8 +61,11 @@ export function DeleteMaterialConsumptionDialog({
         <Button
           variant="danger"
           size="sm"
+          className="h-9 w-9 p-0"
+          aria-label={`Eliminar consumo de ${consumption.material_nombre_snapshot}`}
+          title="Eliminar consumo"
         >
-          Eliminar
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
 

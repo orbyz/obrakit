@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import type { Employee } from "@/types";
 
+import { Ban } from "lucide-react";
+
 import { useEmployeeFeedback } from "./EmployeeFeedback";
 
 interface DeactivateEmployeeDialogProps {
@@ -49,8 +51,14 @@ export function DeactivateEmployeeDialog({
       onOpenChange={setOpen}
     >
       <DialogTrigger asChild>
-        <Button variant="danger" size="sm">
-          Desactivar
+        <Button
+          variant="danger"
+          size="sm"
+          className="h-9 w-9 p-0"
+          aria-label={`Desactivar empleado ${employee.nombre}`}
+          title="Desactivar empleado"
+        >
+          <Ban className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
 
