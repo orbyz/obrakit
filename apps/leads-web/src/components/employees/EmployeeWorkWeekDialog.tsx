@@ -338,7 +338,7 @@ export function EmployeeWorkWeekDialog({
               </div>
             </div>
 
-            <div className="rounded-xl bg-accent p-4 text-sm font-medium text-primary">
+            <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-secondary">
               Total previsto de la semana: {formatWorkedMinutes(totalWorkedMinutes)}
             </div>
 

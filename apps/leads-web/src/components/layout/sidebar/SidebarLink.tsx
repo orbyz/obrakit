@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,9 @@ export function SidebarLink({
   disabled = false,
   onNavigate,
 }: SidebarLinkProps) {
+  const pathname = usePathname();
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+
   const content = (
     <>
       {icon}
@@ -39,7 +43,7 @@ export function SidebarLink({
     return (
       <span
         aria-disabled="true"
-        className="flex cursor-not-allowed items-center gap-3 rounded-xl px-4 py-3 text-muted opacity-50"
+        className="flex cursor-not-allowed items-center gap-3 rounded-xl px-4 py-3 text-slate-400 opacity-50"
       >
         {content}
       </span>
@@ -50,12 +54,15 @@ export function SidebarLink({
     <Link
       href={href}
       onClick={onNavigate}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-xl px-4 py-3",
-        "text-muted transition-all duration-200",
-        "hover:bg-primary hover:text-white",
+        "relative flex items-center gap-3 rounded-xl px-4 py-3",
+        "text-slate-300 transition-colors duration-200",
+        "hover:bg-secondary-light hover:text-slate-100",
         "focus-visible:outline-none focus-visible:ring-2",
-        "focus-visible:ring-primary/20",
+        "focus-visible:ring-primary/40",
+        isActive &&
+          "bg-secondary-light font-medium text-slate-100 before:absolute before:left-0 before:h-6 before:w-1 before:rounded-r-full before:bg-primary",
       )}
     >
       {content}

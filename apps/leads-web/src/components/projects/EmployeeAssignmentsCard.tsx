@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 
 import { NewProjectAssignmentDialog } from "./NewProjectAssignmentDialog";
+import { EmployeeAssignmentEmptyAction } from "./EmployeeAssignmentEmptyAction";
 
 interface EmployeeAssignmentsCardProps {
   projectId: string;
@@ -32,16 +33,32 @@ export async function EmployeeAssignmentsCard({
             Empleados asignados
           </h2>
 
-          <NewProjectAssignmentDialog
-            projectId={projectId}
-            employees={employees}
-          />
+          {assignments.length > 0 && (
+            <NewProjectAssignmentDialog
+              projectId={projectId}
+              employees={employees}
+            />
+          )}
         </div>
 
         {assignments.length === 0 ? (
           <EmptyState
-            title="No hay empleados asignados."
-            description="Asigna empleados para comenzar el seguimiento de la obra."
+            title={
+              employees.length === 0
+                ? "Aún no tienes empleados disponibles."
+                : "No hay empleados asignados."
+            }
+            description={
+              employees.length === 0
+                ? "Crea un empleado para poder asignarlo a esta obra."
+                : "Asigna empleados para comenzar el seguimiento de la obra."
+            }
+            action={
+              <EmployeeAssignmentEmptyAction
+                projectId={projectId}
+                employees={employees}
+              />
+            }
           />
         ) : (
           <div className="space-y-3">

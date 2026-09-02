@@ -13,19 +13,33 @@ import {
 
 import { MaterialForm } from "./MaterialForm";
 
-export function NewMaterialDialog() {
-  const [open, setOpen] = useState(false);
+interface NewMaterialDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSuccess?: () => void;
+  hideTrigger?: boolean;
+}
+
+export function NewMaterialDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  hideTrigger = false,
+}: NewMaterialDialogProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const dialogOpen = open ?? uncontrolledOpen;
+  const setDialogOpen = onOpenChange ?? setUncontrolledOpen;
 
   return (
     <Dialog
-      open={open}
-      onOpenChange={setOpen}
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
     >
-      <DialogTrigger asChild>
-        <Button>
-          Nuevo material
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button>Nuevo material</Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
@@ -35,7 +49,10 @@ export function NewMaterialDialog() {
         </DialogHeader>
 
         <MaterialForm
-          onSuccess={() => setOpen(false)}
+          onSuccess={() => {
+            setDialogOpen(false);
+            onSuccess?.();
+          }}
         />
       </DialogContent>
     </Dialog>

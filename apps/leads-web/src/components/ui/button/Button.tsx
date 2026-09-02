@@ -12,16 +12,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
   primary:
-    "bg-[#F19A06] text-[#1C2A43] hover:bg-[#D98600] focus-visible:ring-[#F19A06]/40",
+    "bg-primary text-secondary hover:bg-primary-hover focus-visible:ring-primary/40",
 
   secondary:
-    "bg-[#1C2A43] text-white hover:bg-[#263956] focus-visible:ring-[#1C2A43]/30",
+    "bg-secondary text-white hover:bg-secondary-light focus-visible:ring-secondary/30",
 
   outline:
-    "border border-[#E2E8F0] bg-white text-[#1C2A43] hover:bg-[#F1F5F9] focus-visible:ring-[#F19A06]/30",
+    "border border-border bg-surface text-secondary hover:bg-surface-muted focus-visible:ring-primary/30",
 
   danger:
-    "bg-[#DC2626] text-white hover:bg-[#DC2626]/90 focus-visible:ring-[#DC2626]/30",
+    "bg-danger text-white hover:bg-danger/90 focus-visible:ring-danger/30",
 };
 
 const sizes = {

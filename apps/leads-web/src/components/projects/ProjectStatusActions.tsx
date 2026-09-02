@@ -83,7 +83,7 @@ export function ProjectStatusActions({
             </Button>
 
             {isOpen && (
-              <div className="absolute right-0 z-20 mt-2 min-w-48 overflow-hidden rounded-md border bg-background p-1 shadow-md">
+              <div className="absolute right-0 z-20 mt-2 min-w-48 overflow-hidden rounded-md border border-border bg-surface p-1 shadow-md">
                 <div className="px-3 py-2 text-xs font-medium text-muted">
                   Cambiar estado
                 </div>
@@ -93,13 +93,21 @@ export function ProjectStatusActions({
                     <button
                       key={nextStatus}
                       type="button"
-                      className="flex w-full items-center rounded-sm px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                      onClick={() =>
-                        handleStatusChange(
-                          nextStatus,
-                        )
-                      }
+                      className="
+                        flex w-full items-center
+                        rounded-sm
+                        px-3 py-2
+                        text-left text-sm
+                        text-text
+                        transition-colors
+                        hover:bg-surface-muted
+                        focus-visible:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-primary/20
+                      "
+                      onClick={() => handleStatusChange(nextStatus)}
                     >
+
                       {nextStatus === "cancelled"
                         ? "Cancelar obra"
                         : STATUS_ACTION_LABELS[

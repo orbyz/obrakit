@@ -9,23 +9,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#0F2747",
-        "primary-light": "#173A69",
+        primary: "var(--primary)",
+        "primary-hover": "var(--primary-hover)",
 
-        accent: "#F5B301",
-        "accent-hover": "#E5A500",
+        secondary: "var(--secondary)",
+        "secondary-light": "var(--secondary-light)",
 
-        background: "#F8FAFC",
-        surface: "#FFFFFF",
+        background: "var(--background)",
+        surface: "var(--surface)",
+        "surface-muted": "var(--surface-muted)",
 
-        text: "#1E293B",
-        muted: "#64748B",
+        foreground: "var(--foreground)",
+        text: "var(--text)",
+        muted: "var(--muted)",
+        "muted-light": "var(--muted-light)",
 
-        success: "#22C55E",
-        warning: "#F59E0B",
-        danger: "#EF4444",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        danger: "var(--danger)",
+        info: "var(--info)",
 
-        border: "#E2E8F0",
+        border: "var(--border)",
+        "border-strong": "var(--border-strong)",
+
+        input: "var(--input)",
+        ring: "var(--ring)",
+
+        accent: "var(--primary)",
+        "accent-hover": "var(--primary-hover)",
       },
 
       borderRadius: {
