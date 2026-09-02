@@ -116,7 +116,7 @@ export async function loginAction(
     return { error: "Email o contraseña incorrectos", success: false };
   }
 
-  redirect("/leads");
+  redirect("/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {
