@@ -4,12 +4,14 @@ interface EmptyStateProps {
   icon?: ReactNode;
   title: string;
   description?: string;
+  action?: ReactNode;
 }
 
 export function EmptyState({
   icon,
   title,
   description,
+  action,
 }: EmptyStateProps) {
   return (
     <div className="flex min-h-56 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface px-6 py-10 text-center sm:min-h-64">
@@ -28,6 +30,8 @@ export function EmptyState({
           {description}
         </p>
       )}
+
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }

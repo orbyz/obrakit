@@ -13,18 +13,33 @@ import {
 
 import { EmployeeForm } from "./EmployeeForm";
 
-export function NewEmployeeDialog() {
-  const [open, setOpen] = useState(false);
+interface NewEmployeeDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSuccess?: () => void;
+  hideTrigger?: boolean;
+}
+
+export function NewEmployeeDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  hideTrigger = false,
+}: NewEmployeeDialogProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const dialogOpen = open ?? uncontrolledOpen;
+  const setDialogOpen = onOpenChange ?? setUncontrolledOpen;
+
   return (
     <Dialog
-      open={open}
-      onOpenChange={setOpen}
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
     >
-      <DialogTrigger asChild>
-        <Button>
-          Nuevo empleado
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button>Nuevo empleado</Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent>
         <DialogHeader>
@@ -34,7 +49,10 @@ export function NewEmployeeDialog() {
         </DialogHeader>
 
         <EmployeeForm
-          onSuccess={() => setOpen(false)}
+          onSuccess={() => {
+            setDialogOpen(false);
+            onSuccess?.();
+          }}
         />
       </DialogContent>
     </Dialog>

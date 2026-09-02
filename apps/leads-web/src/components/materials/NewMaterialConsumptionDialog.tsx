@@ -20,25 +20,33 @@ import { MaterialConsumptionForm } from "./MaterialConsumptionForm";
 interface NewMaterialConsumptionDialogProps {
   projectId: string;
   materials: Material[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 export function NewMaterialConsumptionDialog({
   projectId,
   materials,
+  open,
+  onOpenChange,
+  hideTrigger = false,
 }: NewMaterialConsumptionDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const dialogOpen = open ?? uncontrolledOpen;
+  const setDialogOpen = onOpenChange ?? setUncontrolledOpen;
   const router = useRouter();
 
   return (
     <Dialog
-      open={open}
-      onOpenChange={setOpen}
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
     >
-      <DialogTrigger asChild>
-        <Button>
-          Añadir material
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button>Añadir material</Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
@@ -52,7 +60,7 @@ export function NewMaterialConsumptionDialog({
           projectId={projectId}
           materials={materials}
           onSuccess={() => {
-            setOpen(false);
+            setDialogOpen(false);
             router.refresh();
           }}
         />

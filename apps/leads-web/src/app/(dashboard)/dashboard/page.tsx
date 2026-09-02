@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge/Badge";
 import { Card } from "@/components/ui/card/Card";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 import StatCard from "@/components/ui/stat-card/StatCard";
-import { PageHeader } from "@/components/ui/page-header/PageHeader";
+import { getCurrentTenant } from "@/lib/tenant/context";
 
 function formatCurrency(value: number) {
   return `${value.toLocaleString("es-ES", {
@@ -33,15 +33,20 @@ const PROJECT_STATUS_LABELS = {
 } as const;
 
 export default async function DashboardPage() {
-  const dashboard = await getDashboardData();
+  const [dashboard, tenant] = await Promise.all([
+    getDashboardData(),
+    getCurrentTenant(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-8">
-        <PageHeader
-          title="Dashboard"
-          description="Resumen general de la actividad de tu negocio."
-        />
+        <h1 className="text-2xl font-bold text-text sm:text-3xl">
+          Hola {tenant?.nombre ?? "de nuevo"}
+        </h1>
+        <p className="mt-1 text-sm text-muted sm:text-base">
+          Así van las obras de hoy
+        </p>
       </div>
 
       {/* Resumen principal */}

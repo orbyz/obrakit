@@ -28,6 +28,9 @@ interface NewProjectAssignmentDialogProps {
     nombre: string;
     apellidos: string | null;
   }>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 const initialState: EmployeeAssignmentActionState = {
@@ -48,8 +51,13 @@ const workDayOptions = [
 export function NewProjectAssignmentDialog({
   projectId,
   employees,
+  open,
+  onOpenChange,
+  hideTrigger = false,
 }: NewProjectAssignmentDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const dialogOpen = open ?? uncontrolledOpen;
+  const setDialogOpen = onOpenChange ?? setUncontrolledOpen;
   const { showError, showSuccess } = useEmployeeFeedback();
 
   const [state, formAction, pending] = useActionState(
@@ -62,7 +70,7 @@ export function NewProjectAssignmentDialog({
       showSuccess("Empleado asignado correctamente.");
 
       queueMicrotask(() => {
-        setOpen(false);
+        setDialogOpen(false);
       });
 
       return;
@@ -71,13 +79,15 @@ export function NewProjectAssignmentDialog({
     if (state.error) {
       showError(state.error);
     }
-  }, [showError, showSuccess, state.error, state.success]);
+  }, [setDialogOpen, showError, showSuccess, state.error, state.success]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Nueva asignación</Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button>Nueva asignación</Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent>
         <DialogHeader>
