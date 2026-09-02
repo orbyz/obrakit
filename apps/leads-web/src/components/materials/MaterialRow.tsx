@@ -17,6 +17,7 @@ import type { Material } from "@/types";
 import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
 import { DeactivateMaterialDialog } from "./DeactivateMaterialDialog";
 import { EditMaterialDialog } from "./EditMaterialDialog";
+import { MATERIAL_CATEGORY_LABELS } from "./material-categories";
 
 interface MaterialRowProps {
   material: Material;
@@ -50,8 +51,8 @@ export function MaterialRow({ material }: MaterialRowProps) {
       </TableCell>
 
       <TableCell>
-        <span className="capitalize text-muted">
-          {material.categoria.replaceAll("_", " ")}
+        <span className="text-muted">
+          {MATERIAL_CATEGORY_LABELS[material.categoria]}
         </span>
       </TableCell>
 
