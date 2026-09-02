@@ -13,11 +13,11 @@ import {
 
 import type {
   Material,
-  MaterialCategory,
   MaterialUnit,
 } from "@/types";
 
 import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+import { MATERIAL_CATEGORY_OPTIONS } from "./material-categories";
 
 const initialState: MaterialActionState = {
   error: null,
@@ -29,24 +29,6 @@ interface MaterialFormProps {
   material?: Material;
   onSuccess?: () => void;
 }
-
-const categories: {
-  value: MaterialCategory;
-  label: string;
-}[] = [
-  { value: "albanileria", label: "Albañilería" },
-  { value: "ceramica", label: "Cerámica" },
-  { value: "fontaneria", label: "Fontanería" },
-  { value: "electricidad", label: "Electricidad" },
-  { value: "pintura", label: "Pintura" },
-  { value: "carpinteria", label: "Carpintería" },
-  { value: "ferreteria", label: "Ferretería" },
-  { value: "aislamiento", label: "Aislamiento" },
-  { value: "cubiertas", label: "Cubiertas" },
-  { value: "yesos", label: "Yesos" },
-  { value: "hormigon", label: "Hormigón" },
-  { value: "otro", label: "Otro" },
-];
 
 const units: {
   value: MaterialUnit;
@@ -134,7 +116,7 @@ export function MaterialForm({
           className="w-full rounded-lg border px-3 py-2"
           defaultValue={material?.categoria ?? "otro"}
         >
-          {categories.map((category) => (
+          {MATERIAL_CATEGORY_OPTIONS.map((category) => (
             <option
               key={category.value}
               value={category.value}
