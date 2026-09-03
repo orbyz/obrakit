@@ -19,6 +19,13 @@ export function TrialBanner({ subscription }: TrialBannerProps) {
 
   const daysRemaining = getTrialDaysRemaining(subscription.trial_ends_at);
 
+  const trialMessage =
+    daysRemaining <= 1
+      ? "Tu período de evaluación termina mañana. Aprovecha hoy para probar ObraKit."
+      : daysRemaining <= 3
+        ? "Tu período de evaluación está por terminar. Aprovecha estos últimos días para probar ObraKit."
+        : "Estás probando ObraKit. Aprovecha este período para conocer sus funcionalidades.";
+
   if (daysRemaining <= 0) {
     return null;
   }
@@ -37,10 +44,7 @@ export function TrialBanner({ subscription }: TrialBannerProps) {
           </Badge>
         </div>
 
-        <p className="mt-1 text-sm text-muted">
-          Estás probando ObraKit. Aprovecha este período para conocer sus
-          funcionalidades.
-        </p>
+        <p className="mt-1 text-sm text-muted">{trialMessage}</p>
       </div>
     </div>
   );
