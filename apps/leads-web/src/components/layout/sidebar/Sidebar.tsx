@@ -79,36 +79,6 @@ export function Sidebar({ email }: SidebarProps) {
 
       <div className="my-4 border-t border-white/10" />
 
-      <section>
-        <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-slate-400">
-          COMERCIAL
-        </p>
-
-        <div className="space-y-2">
-          <SidebarLink
-            href="/leads"
-            label="CRM"
-            icon={<Users size={18} />}
-            onNavigate={closeSidebar}
-          />
-
-          <SidebarLink
-            href="/presupuestos"
-            label="Presupuestos"
-            icon={<FileText size={18} />}
-            disabled
-          />
-
-          <SidebarLink
-            href="/seguimientos"
-            label="Seguimientos"
-            icon={<ClipboardList size={18} />}
-            disabled
-          />
-        </div>
-      </section>
-
-      <div className="my-4 border-t border-white/10" />
 
       <section>
         <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-slate-400">
@@ -142,6 +112,37 @@ export function Sidebar({ email }: SidebarProps) {
             label="Gastos"
             disabled
             icon={<Receipt size={18} />}
+          />
+        </div>
+      </section>
+
+      <div className="my-4 border-t border-white/10" />
+
+      <section>
+        <p className="mb-2 px-4 text-xs font-semibold tracking-wide text-slate-400">
+          COMERCIAL
+        </p>
+
+        <div className="space-y-2">
+          <SidebarLink
+            href="/leads"
+            label="CRM"
+            icon={<Users size={18} />}
+            onNavigate={closeSidebar}
+          />
+
+          <SidebarLink
+            href="/presupuestos"
+            label="Presupuestos"
+            icon={<FileText size={18} />}
+            disabled
+          />
+
+          <SidebarLink
+            href="/seguimientos"
+            label="Seguimientos"
+            icon={<ClipboardList size={18} />}
+            disabled
           />
         </div>
       </section>

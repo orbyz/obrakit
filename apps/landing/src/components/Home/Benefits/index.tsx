@@ -30,7 +30,7 @@ const benefits = [
 
 const Benefits = () => {
   return (
-    <section className="bg-white py-24 sm:py-32">
+    <section id="benefits" className="bg-white py-24 sm:py-32">
       <div className="container">
         <div className="mx-auto max-w-3xl text-center">
           <motion.p

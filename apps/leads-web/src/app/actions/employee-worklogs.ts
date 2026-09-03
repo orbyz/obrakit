@@ -6,6 +6,8 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
+import { requireActiveSubscription } from "@/lib/subscription/access";
+
 import type {
   Employee,
   EmployeeAssignment,
@@ -323,6 +325,16 @@ export async function createEmployeeWorkLogAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
+
   const admin = createAdminClient();
 
   const { data: assignmentData, error: assignmentError } =
@@ -462,6 +474,16 @@ export async function createEmployeeWorkWeekAction(
       success: false,
     };
   }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
 
   const admin = createAdminClient();
   const { data: assignmentData, error: assignmentError } = await admin
@@ -631,6 +653,15 @@ export async function updateEmployeeWorkLogAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { data, error: workLogError } = await admin
@@ -692,6 +723,15 @@ export async function deleteEmployeeWorkLogAction(
   if (!tenantId) {
     return {
       error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
       success: false,
     };
   }

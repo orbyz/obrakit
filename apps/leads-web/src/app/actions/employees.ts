@@ -15,7 +15,7 @@ import type {
   EstadoEmpleado,
 } from "@/types";
 
-
+import { requireActiveSubscription } from "@/lib/subscription/access";
 
 // ─────────────────────────────────────────────────────────────
 // Tipos
@@ -176,6 +176,16 @@ export async function createEmployeeAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
+
   const supabase = await createClient();
 
   const {
@@ -252,6 +262,15 @@ export async function updateEmployeeAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -294,6 +313,15 @@ export async function deactivateEmployeeAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -331,6 +359,16 @@ export async function reactivateEmployeeAction(
       success: false,
     };
   }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
 
   const admin = createAdminClient();
 
@@ -378,6 +416,15 @@ export async function updateEmployeeStatusAction(
   if (!tenantId) {
     return {
       error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
       success: false,
     };
   }

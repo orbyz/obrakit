@@ -6,6 +6,8 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
+import { requireActiveSubscription } from "@/lib/subscription/access";
+
 import {
   PROJECT_STATUS_TRANSITIONS,
 } from "@/lib/constants/project-status";
@@ -189,6 +191,15 @@ export async function updateProjectStatusAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      success: false,
+      message: subscription.error ?? "Suscripción no activa.",
+    };
+  }
+
   const admin = createAdminClient();
 
   const { data: project, error: projectError } =
@@ -293,6 +304,15 @@ export async function generateProjectFromLeadAction(
     return {
       success: false,
       message: "No se encontró el negocio asociado.",
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      success: false,
+      message: subscription.error ?? "Suscripción no activa.",
     };
   }
 
@@ -468,6 +488,15 @@ export async function createProjectAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      success: false,
+      message: subscription.error ?? "Suscripción no activa.",
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -572,6 +601,15 @@ export async function updateProjectAction(
     return {
       success: false,
       message: "No se encontró el negocio asociado.",
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      success: false,
+      message: subscription.error ?? "Suscripción no activa.",
     };
   }
 

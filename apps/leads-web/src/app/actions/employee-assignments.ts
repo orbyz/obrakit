@@ -7,6 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { EmployeeAssignment, EmployeeAssignmentStatus } from "@/types";
 
+import { requireActiveSubscription } from "@/lib/subscription/access";
+
 export interface EmployeeAssignmentActionState {
   error: string | null;
   success: boolean;
@@ -206,6 +208,15 @@ export async function createEmployeeAssignmentAction(
     return { error: "No se encontró el negocio asociado", success: false };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
   const endDate = parsed.data.end_date || null;
   const defaultStartTime = parsed.data.default_start_time || null;
@@ -298,6 +309,15 @@ export async function updateEmployeeAssignmentStatusAction(
 
   if (!tenantId) {
     return { error: "No se encontró el negocio asociado", success: false };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
   }
 
   const admin = createAdminClient();

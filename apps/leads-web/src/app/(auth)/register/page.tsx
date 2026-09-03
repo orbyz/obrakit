@@ -112,7 +112,7 @@ export default function RegisterPage() {
       {/* Trial */}
       <div className="mb-7 rounded-xl border border-[#F19A06]/20 bg-[#F19A06]/[0.06] px-5 py-4 text-center">
         <p className="text-sm font-semibold text-[#F19A06]">
-          14 días de prueba gratis
+          7 días de prueba gratis
         </p>
 
         <p className="mt-1 text-sm text-white/50">

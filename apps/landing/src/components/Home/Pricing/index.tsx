@@ -282,7 +282,7 @@ const Pricing = () => {
 
               <div>
                 <p className="text-sm font-semibold text-primary">
-                  Founder · primeros 50 clientes
+                  Founder · primeros 20 clientes
                 </p>
 
                 <h3 className="mt-1 text-lg font-semibold text-slate-900">

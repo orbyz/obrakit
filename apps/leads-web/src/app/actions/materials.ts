@@ -9,6 +9,8 @@ import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { requireActiveSubscription } from "@/lib/subscription/access";
+
 
 import type {
   Material,
@@ -197,6 +199,15 @@ export async function createMaterialAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -251,6 +262,15 @@ export async function updateMaterialAction(
   if (!tenantId) {
     return {
       error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
       success: false,
     };
   }
@@ -312,6 +332,15 @@ export async function deactivateMaterialAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { data, error } = await admin
@@ -359,6 +388,15 @@ export async function reactivateMaterialAction(
   if (!tenantId) {
     return {
       error: "No se encontró el negocio asociado",
+      success: false,
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
       success: false,
     };
   }

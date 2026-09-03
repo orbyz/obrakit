@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { Seguimiento } from "@/types";
+import { requireActiveSubscription } from "@/lib/subscription/access";
 
 // ── Schema ─────────────────────────────────────────────────────────
 
@@ -66,6 +67,15 @@ export async function createSeguimientoAction(
     .single();
 
   if (!lead) return { error: "Lead no encontrado", success: false };
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
 
   const admin = createAdminClient();
 
