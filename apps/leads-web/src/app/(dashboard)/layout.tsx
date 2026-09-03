@@ -1,6 +1,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { hasActiveSubscription } from "@/lib/subscription/access";
 import { SessionManager } from "@/components/core/SessionManager";
 import { Sidebar } from "@/components/layout/sidebar/Sidebar";
 
@@ -15,6 +16,12 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const hasAccess = await hasActiveSubscription();
+
+  if (!hasAccess) {
+    redirect("/subscription-required");
+  }
 
   return (
     <div className="flex min-h-screen bg-background">

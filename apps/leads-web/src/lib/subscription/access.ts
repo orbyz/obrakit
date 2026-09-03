@@ -17,7 +17,19 @@ export async function hasActiveSubscription(): Promise<boolean> {
     return false;
   }
 
-  return subscription.status === "active" || subscription.status === "trialing";
+  if (subscription.status === "active") {
+    return true;
+  }
+
+  if (subscription.status === "trialing") {
+    if (!subscription.trial_ends_at) {
+      return false;
+    }
+
+    return new Date(subscription.trial_ends_at) > new Date();
+  }
+
+  return false;
 }
 
 export async function hasPlan(planSlug: string): Promise<boolean> {
@@ -27,9 +39,20 @@ export async function hasPlan(planSlug: string): Promise<boolean> {
     return false;
   }
 
-  return (
-    (subscription.status === "active" ||
-      subscription.status === "trialing") &&
-    subscription.plan.slug === planSlug
-  );
+  if (subscription.status === "active") {
+    return subscription.plan.slug === planSlug;
+  }
+
+  if (subscription.status === "trialing") {
+    if (!subscription.trial_ends_at) {
+      return false;
+    }
+
+    return (
+      subscription.plan.slug === planSlug &&
+      new Date(subscription.trial_ends_at) > new Date()
+    );
+  }
+
+  return false;
 }
