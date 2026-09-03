@@ -90,7 +90,54 @@ export async function registerAction(
     return { error: "Error al configurar el acceso", success: false };
   }
 
-  redirect("/leads");
+  // 5. Obtener el plan de evaluación
+  const { data: evaluationPlan, error: planError } = await admin
+    .from("plans")
+    .select("id, trial_days")
+    .eq("slug", "evaluation")
+    .eq("activo", true)
+    .maybeSingle();
+
+  if (planError || !evaluationPlan) {
+    return {
+      error: "Error al configurar el período de prueba",
+      success: false,
+    };
+  }
+
+  if (evaluationPlan.trial_days <= 0) {
+    return {
+      error: "El período de prueba no está configurado correctamente",
+      success: false,
+    };
+  }
+
+  // 6. Crear subscription de evaluación
+  const trialStartedAt = new Date();
+  const trialEndsAt = new Date(trialStartedAt);
+
+  trialEndsAt.setDate(
+    trialEndsAt.getDate() + evaluationPlan.trial_days,
+  );
+
+  const { error: subscriptionError } = await admin
+    .from("subscriptions")
+    .insert({
+      tenant_id: tenantData.id,
+      plan_id: evaluationPlan.id,
+      status: "trialing",
+      trial_started_at: trialStartedAt.toISOString(),
+      trial_ends_at: trialEndsAt.toISOString(),
+    });
+
+  if (subscriptionError) {
+    return {
+      error: "Error al configurar la suscripción",
+      success: false,
+    };
+  }
+
+  redirect("/dashboard");
 }
 
 export async function loginAction(
