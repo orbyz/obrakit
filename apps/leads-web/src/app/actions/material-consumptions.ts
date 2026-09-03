@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { requireActiveSubscription } from "@/lib/subscription/access";
 
 import type { Material, MaterialConsumption } from "@/types";
 
@@ -300,6 +301,15 @@ export async function createMaterialConsumptionAction(
     materialSnapshot.precio_snapshot,
   );
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -387,6 +397,15 @@ export async function updateMaterialConsumptionAction(
     currentConsumption.precio_snapshot,
   );
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -443,6 +462,15 @@ export async function deleteMaterialConsumptionAction(
   if (!currentConsumption) {
     return {
       error: "No se encontró el consumo de material",
+      success: false,
+    };
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
       success: false,
     };
   }

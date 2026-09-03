@@ -83,3 +83,14 @@ export async function hasPlan(
 
   return false;
 }
+
+export async function requireActiveSubscription() {
+  const hasAccess = await hasActiveSubscription();
+
+  return {
+    allowed: hasAccess,
+    error: hasAccess
+      ? null
+      : "Tu período de prueba ha terminado. Activa una suscripción para continuar.",
+  };
+}

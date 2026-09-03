@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { EstadoLead, Lead, Project } from "@/types";
+import { requireActiveSubscription } from "@/lib/subscription/access";
 
 // ── Schemas ────────────────────────────────────────────────────────
 
@@ -127,6 +128,15 @@ export async function createLeadAction(
     return { error: "No se encontró el negocio asociado", success: false };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -178,7 +188,14 @@ export async function updateLeadEstadoAction(
 ): Promise<void> {
   const tenantId = await getMyTenantId();
 
+
   if (!tenantId) {
+    return;
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
     return;
   }
 
@@ -271,6 +288,15 @@ export async function updateLeadAction(
     return { error: "No se pudo identificar el tenant", success: false };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -319,6 +345,12 @@ export async function extenderPlazoAction(
   const tenantId = await getMyTenantId();
 
   if (!tenantId) {
+    return;
+  }
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
     return;
   }
 

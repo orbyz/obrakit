@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/server";
 
 import type { Gasto } from "@/types";
 
+import { requireActiveSubscription } from "@/lib/subscription/access";
+
 // ─────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────
@@ -426,6 +428,15 @@ export async function createGastoAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const projectId =
     parsed.data.project_id || null;
 
@@ -526,6 +537,15 @@ export async function updateGastoAction(
     };
   }
 
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
+
   const projectId = parsed.data.project_id || null;
 
   let project: ProjectContext | null = null;
@@ -619,6 +639,15 @@ export async function deleteGastoAction(
   }
 
   const admin = createAdminClient();
+
+  const subscription = await requireActiveSubscription();
+
+  if (!subscription.allowed) {
+    return {
+      error: subscription.error,
+      success: false,
+    };
+  }
 
   const { data: gasto, error: gastoError } = await admin
     .from("gastos")
