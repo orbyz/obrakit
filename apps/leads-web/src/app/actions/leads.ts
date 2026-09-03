@@ -176,12 +176,19 @@ export async function updateLeadEstadoAction(
   leadId: string,
   estado: EstadoLead,
 ): Promise<void> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return;
+  }
+
   const admin = createAdminClient();
 
   await admin
     .from("leads")
     .update({ estado, updated_at: new Date().toISOString() })
-    .eq("id", leadId);
+    .eq("id", leadId)
+    .eq("tenant_id", tenantId);
 
   revalidatePath("/leads");
 }
@@ -258,6 +265,12 @@ export async function updateLeadAction(
     return { error: parsed.error.issues[0].message, success: false };
   }
 
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return { error: "No se pudo identificar el tenant", success: false };
+  }
+
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -285,7 +298,8 @@ export async function updateLeadAction(
         : null,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
 
   if (error) {
     return { error: "Error al actualizar el lead", success: false };
@@ -302,12 +316,19 @@ export async function extenderPlazoAction(
   leadId: string,
   diasExtra: number,
 ): Promise<void> {
+  const tenantId = await getMyTenantId();
+
+  if (!tenantId) {
+    return;
+  }
+
   const admin = createAdminClient();
 
   const { data: lead } = await admin
     .from("leads")
     .select("dias_estimados")
     .eq("id", leadId)
+    .eq("tenant_id", tenantId)
     .single();
 
   if (!lead) return;
@@ -320,7 +341,8 @@ export async function extenderPlazoAction(
       dias_estimados: nuevosDias,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", leadId);
+    .eq("id", leadId)
+    .eq("tenant_id", tenantId);
 
   revalidatePath("/leads");
   revalidatePath(`/leads/${leadId}`);
