@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 import { requireActiveSubscription } from "@/lib/subscription/access";
+import { requireProjectCapacity } from "@/lib/subscription/limits";
 
 import {
   PROJECT_STATUS_TRANSITIONS,
@@ -387,6 +388,16 @@ export async function generateProjectFromLeadAction(
     };
   }
 
+  const projectCapacity = await requireProjectCapacity();
+
+  if (!projectCapacity.allowed) {
+    return {
+      success: false,
+      message:
+        projectCapacity.error ?? "Has alcanzado el límite de obras activas.",
+    };
+  }
+
   const { data: project, error: projectError } = await admin
     .from("projects")
     .insert({
@@ -494,6 +505,16 @@ export async function createProjectAction(
     return {
       success: false,
       message: subscription.error ?? "Suscripción no activa.",
+    };
+  }
+
+  const projectCapacity = await requireProjectCapacity();
+
+  if (!projectCapacity.allowed) {
+    return {
+      success: false,
+      message:
+        projectCapacity.error ?? "Has alcanzado el límite de obras activas.",
     };
   }
 

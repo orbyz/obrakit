@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 
 import {
   createProjectAction,
@@ -17,6 +17,7 @@ import {
   Label,
   Textarea,
 } from "@/components/ui/forms";
+import { toast } from "@/components/ui/toast/toast";
 
 interface ProjectFormProps {
   mode?: "create" | "edit";
@@ -37,6 +38,7 @@ export function ProjectForm({
   onCancel,
 }: ProjectFormProps) {
   const isEdit = mode === "edit";
+  const lastErrorRef = useRef<string | null>(null);
 
   const updateAction = project
     ? updateProjectAction.bind(null, project.id)
@@ -52,17 +54,20 @@ export function ProjectForm({
   useEffect(() => {
     if (state.success) {
       onSuccess?.();
+      return;
     }
-  }, [state.success, onSuccess]);
+
+    if (
+      state.message &&
+      state.message !== lastErrorRef.current
+    ) {
+      lastErrorRef.current = state.message;
+      toast.error(state.message);
+    }
+  }, [state.message, state.success, onSuccess]);
 
   return (
     <form className="space-y-10" action={formAction}>
-      {state.message && !state.success && (
-        <p className="text-sm text-destructive">
-          {state.message}
-        </p>
-      )}
-
       <FormSection title="Información general">
         <div className="grid gap-4 md:grid-cols-2">
           <div>

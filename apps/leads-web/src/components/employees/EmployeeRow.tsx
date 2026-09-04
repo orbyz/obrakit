@@ -13,6 +13,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from "@/components/ui/toast/toast";
 
 import type { Employee } from "@/types";
 
@@ -45,7 +46,7 @@ const STATUS_CONFIG = {
 
 export function EmployeeRow({ employee }: EmployeeRowProps) {
   const [pending, startTransition] = useTransition();
-  const { showError, showSuccess } = useEmployeeFeedback();
+  const { showSuccess } = useEmployeeFeedback();
 
   const status = STATUS_CONFIG[employee.estado];
 
@@ -58,7 +59,7 @@ export function EmployeeRow({ employee }: EmployeeRowProps) {
         return;
       }
 
-      showError(result.error ?? "Error al reactivar el empleado.");
+      toast.error(result.error ?? "Error al reactivar el empleado.");
     });
   }
 
