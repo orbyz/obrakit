@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import { Input, Label, Select } from "@/components/ui/forms";
 import { Button } from "@/components/ui/button";
 
+import { toast } from "@/components/ui/toast/toast";
 
 import {
   createEmployeeAction,
@@ -31,13 +32,14 @@ export function EmployeeForm({
   employee,
   onSuccess,
 }: EmployeeFormProps) {
-  const { showError, showSuccess } = useEmployeeFeedback();
+  const { showSuccess } = useEmployeeFeedback();
   const action =
     mode === "edit" && employee
       ? updateEmployeeAction.bind(null, employee.id)
       : createEmployeeAction;
 
   const [state, formAction, pending] = useActionState(action, initialState);
+  const lastErrorRef = useRef<string | null>(null);
   const [pricingModel, setPricingModel] = useState<EmployeePricingModel>(
     employee?.pricing_model ?? "hourly",
   );
@@ -76,8 +78,11 @@ export function EmployeeForm({
       return;
     }
 
-    if (state.error) showError(state.error);
-  }, [mode, onSuccess, showError, showSuccess, state.error, state.success]);
+    if (state.error && state.error !== lastErrorRef.current) {
+      lastErrorRef.current = state.error;
+      toast.error(state.error);
+    }
+  }, [mode, onSuccess, showSuccess, state.error, state.success]);
 
   return (
     <form action={formAction} className="space-y-4">

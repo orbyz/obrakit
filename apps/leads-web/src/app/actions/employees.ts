@@ -16,6 +16,7 @@ import type {
 } from "@/types";
 
 import { requireActiveSubscription } from "@/lib/subscription/access";
+import { requireEmployeeCapacity } from "@/lib/subscription/limits";
 
 // ─────────────────────────────────────────────────────────────
 // Tipos
@@ -185,6 +186,16 @@ export async function createEmployeeAction(
     };
   }
 
+  const employeeCapacity = await requireEmployeeCapacity();
+
+  if (!employeeCapacity.allowed) {
+    return {
+      error:
+        employeeCapacity.error ??
+        "Has alcanzado el límite de empleados activos.",
+      success: false,
+    };
+  }
 
   const supabase = await createClient();
 
@@ -369,6 +380,16 @@ export async function reactivateEmployeeAction(
     };
   }
 
+  const employeeCapacity = await requireEmployeeCapacity();
+
+  if (!employeeCapacity.allowed) {
+    return {
+      error:
+        employeeCapacity.error ??
+        "Has alcanzado el límite de empleados activos.",
+      success: false,
+    };
+  }
 
   const admin = createAdminClient();
 
@@ -427,6 +448,19 @@ export async function updateEmployeeStatusAction(
       error: subscription.error,
       success: false,
     };
+  }
+
+  if (parsedStatus.data === "activo") {
+    const employeeCapacity = await requireEmployeeCapacity();
+
+    if (!employeeCapacity.allowed) {
+      return {
+        error:
+          employeeCapacity.error ??
+          "Has alcanzado el límite de empleados activos.",
+        success: false,
+      };
+    }
   }
 
   const admin = createAdminClient();
