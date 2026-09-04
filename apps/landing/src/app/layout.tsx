@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes'
 import ScrollToTop from '@/components/ScrollToTop'
 import Aoscompo from '@/utils/aos'
 const font = DM_Sans({ subsets: ['latin'] })
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
           </Aoscompo>
           <ScrollToTop />
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
