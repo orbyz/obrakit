@@ -41,7 +41,7 @@ function SubmitButton() {
 }
 
 const inputClassName =
-  "h-14 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10";
+  "h-12 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10";
 
 function Field({
   id,
@@ -98,19 +98,19 @@ export default function RegisterPage() {
   return (
     <>
       {/* Heading */}
-      <div className="mb-9 text-center">
-        <h1 className="text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
           Crea tu cuenta
         </h1>
 
-        <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-white/60 sm:text-lg">
+        <p className="mx-auto mt-2.5 max-w-lg text-sm leading-6 text-white/60 sm:text-base">
           Empieza a gestionar tus obras de forma más sencilla y
           organizada.
         </p>
       </div>
 
       {/* Trial */}
-      <div className="mb-7 rounded-xl border border-[#F19A06]/20 bg-[#F19A06]/[0.06] px-5 py-4 text-center">
+      <div className="mb-5 rounded-xl border border-[#F19A06]/20 bg-[#F19A06]/[0.06] px-4 py-3 text-center">
         <p className="text-sm font-semibold text-[#F19A06]">
           7 días de prueba gratis
         </p>
@@ -128,7 +128,7 @@ export default function RegisterPage() {
       )}
 
       {/* Form */}
-      <form action={formAction} className="space-y-5">
+      <form action={formAction} className="space-y-4">
         <Field
           id="full_name"
           label="Tu nombre"
@@ -184,7 +184,7 @@ export default function RegisterPage() {
       </form>
 
       {/* Login */}
-      <div className="my-9 flex items-center gap-5">
+      <div className="my-6 flex items-center gap-4">
         <div className="h-px flex-1 bg-white/10" />
 
         <span className="whitespace-nowrap text-xs font-medium uppercase tracking-[0.2em] text-white/50">
@@ -205,7 +205,7 @@ export default function RegisterPage() {
       </p>
 
       {/* Legal */}
-      <p className="mx-auto mt-9 max-w-lg text-center text-sm leading-6 text-white/35">
+      <p className="mx-auto mt-6 max-w-lg text-center text-sm leading-6 text-white/35">
         Al crear tu cuenta aceptas nuestros{" "}
         <Link
           href="/terms"

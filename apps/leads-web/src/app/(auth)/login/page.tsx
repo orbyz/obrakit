@@ -43,12 +43,12 @@ export default function LoginPage() {
   return (
     <>
       {/* Heading */}
-      <div className="mb-9 text-center">
-        <h1 className="text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
           Iniciar sesión
         </h1>
 
-        <p className="mx-auto mt-4 max-w-md text-base leading-7 text-white/60 sm:text-lg">
+        <p className="mx-auto mt-2.5 max-w-md text-sm leading-6 text-white/60 sm:text-base">
           Accede a tu espacio de trabajo y continúa gestionando tus obras.
         </p>
       </div>
@@ -61,7 +61,7 @@ export default function LoginPage() {
       )}
 
       {/* Form */}
-      <form action={formAction} className="space-y-6">
+      <form action={formAction} className="space-y-4">
         {/* Email */}
         <div>
           <label
@@ -84,7 +84,7 @@ export default function LoginPage() {
               placeholder="paco@reformasgarcia.com"
               autoComplete="email"
               required
-              className="h-14 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10"
+              className="h-12 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-4 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function LoginPage() {
               placeholder="Tu contraseña"
               autoComplete="current-password"
               required
-              className="h-14 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-12 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10"
+              className="h-12 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-12 pr-12 text-base text-white outline-none transition placeholder:text-white/35 focus:border-[#F19A06]/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-[#F19A06]/10"
             />
 
             <button
@@ -140,7 +140,7 @@ export default function LoginPage() {
       </form>
 
       {/* Register */}
-      <div className="my-9 flex items-center gap-5">
+      <div className="my-6 flex items-center gap-4">
         <div className="h-px flex-1 bg-white/10" />
 
         <span className="whitespace-nowrap text-xs font-medium uppercase tracking-[0.2em] text-white/50">
@@ -161,7 +161,7 @@ export default function LoginPage() {
       </p>
 
       {/* Legal */}
-      <p className="mx-auto mt-9 max-w-md text-center text-sm leading-6 text-white/35">
+      <p className="mx-auto mt-6 max-w-md text-center text-sm leading-6 text-white/35">
         Al acceder aceptas nuestros{" "}
         <Link
           href="/terms"
