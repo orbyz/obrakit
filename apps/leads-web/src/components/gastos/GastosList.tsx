@@ -179,6 +179,9 @@ export default function GastosList({
                         : gasto.id,
                     )
                   }
+                  aria-label="Editar gasto"
+                  title="Editar gasto"
+                  className="h-9 w-9 p-0"
                 >
                   <Pencil size={14} />
                 </Button>
@@ -197,6 +200,9 @@ export default function GastosList({
                       await onDeleted?.();
                     }
                   }}
+                  aria-label="Eliminar gasto"
+                  title="Eliminar gasto"
+                  className="h-9 w-9 p-0"
                 >
                   <Trash2 size={14} />
                 </Button>
