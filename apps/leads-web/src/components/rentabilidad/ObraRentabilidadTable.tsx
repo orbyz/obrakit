@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 
 interface ObraRentabilidadTableProps {
   data: RentabilidadPorObra[];
@@ -18,11 +19,7 @@ export default function ObraRentabilidadTable({
   data,
 }: ObraRentabilidadTableProps) {
   if (data.length === 0) {
-    return (
-      <div className="flex min-h-56 items-center justify-center rounded-xl border border-dashed border-border bg-surface px-6 py-10 text-center">
-        <p className="text-sm text-muted">Sin obras cerradas aún</p>
-      </div>
-    );
+    return <EmptyState title="Sin obras cerradas aún" />;
   }
 
   return (
