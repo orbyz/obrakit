@@ -14,9 +14,10 @@ const plans = [
     description: "Para empezar a gestionar tu empresa con todo bajo control.",
     monthlyPrice: 29.99,
     users: "2 usuarios",
-    employees: "5 empleados",
+    employees: "3 empleados",
     projects: "3 obras activas",
     recommended: false,
+    availableForPurchase: true,
   },
   {
     name: "Pro",
@@ -26,6 +27,7 @@ const plans = [
     employees: "15 empleados",
     projects: "10 obras activas",
     recommended: true,
+    availableForPurchase: true,
   },
   {
     name: "Business",
@@ -35,6 +37,7 @@ const plans = [
     employees: "30 empleados",
     projects: "25 obras activas",
     recommended: false,
+    availableForPurchase: false,
   },
 ];
 
@@ -250,16 +253,22 @@ const Pricing = () => {
                 </ul>
 
                 <div className="mt-8">
-                  <Link
-                    href={APP_ROUTES.register}
-                    className={`flex h-11 w-full items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-                      plan.recommended
-                        ? "bg-primary text-secondary hover:bg-primary/85"
-                        : "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
-                    }`}
-                  >
-                    Empezar con {plan.name}
-                  </Link>
+                  {plan.availableForPurchase ? (
+                    <Link
+                      href={APP_ROUTES.register}
+                      className={`flex h-11 w-full items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
+                        plan.recommended
+                          ? "bg-primary text-secondary hover:bg-primary/85"
+                          : "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+                      }`}
+                    >
+                      Empezar con {plan.name}
+                    </Link>
+                  ) : (
+                    <div className="flex h-11 w-full items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-400">
+                      Próximamente
+                    </div>
+                  )}
                 </div>
               </motion.div>
             );
