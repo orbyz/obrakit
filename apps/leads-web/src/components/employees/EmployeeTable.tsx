@@ -3,7 +3,6 @@ import type { Employee } from "@/types";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -28,24 +27,13 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
       </TableHeader>
 
       <TableBody>
-        {employees.length === 0 ? (
-          <TableRow>
-            <TableCell
-              colSpan={4}
-              className="py-8 text-center text-muted"
-            >
-              No hay empleados registrados.
-            </TableCell>
-          </TableRow>
-        ) : (
-          employees.map((employee) => (
-            <EmployeeRow
-              key={employee.id}
-              employee={employee}
-            />
-          ))
-        )}
-      </TableBody>
+         {employees.map((employee) => (
+           <EmployeeRow
+             key={employee.id}
+             employee={employee}
+           />
+         ))}
+       </TableBody>
     </Table>
   );
 }
