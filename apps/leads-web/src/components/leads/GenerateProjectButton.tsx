@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { generateProjectFromLeadAction } from "@/app/actions/projects";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast/toast";
 
 interface GenerateProjectButtonProps {
   leadId: string;
@@ -21,7 +22,7 @@ export function GenerateProjectButton({
       const result = await generateProjectFromLeadAction(leadId);
 
       if (!result.success || !result.projectId) {
-        window.alert(result.message);
+        toast.error(result.message);
         return;
       }
 
