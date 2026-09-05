@@ -34,7 +34,10 @@ export default async function EmpresaPage() {
         description="Gestiona la información de tu negocio."
       />
 
-      <EmpresaForm tenant={tenant} />
+      <EmpresaForm
+        key={`${tenant.id}-${tenant.updated_at ?? ""}`}
+        tenant={tenant}
+      />
     </div>
   );
 }
