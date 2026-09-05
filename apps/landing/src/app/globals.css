@@ -146,53 +146,6 @@
   ---break---
 */
 
-.dark {
-  --background: #1c2a43;
-  --foreground: #ffffff;
-
-  --card: #243451;
-  --card-foreground: #ffffff;
-
-  --popover: #243451;
-  --popover-foreground: #ffffff;
-
-  --primary: #f19a06;
-  --primary-foreground: #ffffff;
-
-  --secondary: #ffffff;
-  --secondary-foreground: #1c2a43;
-
-  --muted: #263650;
-  --muted-foreground: #aeb5c2;
-
-  --accent: #5e6475;
-  --accent-foreground: #ffffff;
-
-  --destructive: #ef4444;
-
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.12);
-  --ring: #f19a06;
-
-  --chart-1: #f19a06;
-  --chart-2: #ffffff;
-  --chart-3: #5e6475;
-  --chart-4: #d97706;
-  --chart-5: #94a3b8;
-
-  --sidebar: #162238;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #f19a06;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #263650;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.12);
-  --sidebar-ring: #f19a06;
-
-  /* ObraKit brand */
-  --tealGreen: #f19a06;
-  --charcoalGray: #5e6475;
-}
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
