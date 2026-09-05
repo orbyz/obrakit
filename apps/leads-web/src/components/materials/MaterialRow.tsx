@@ -14,7 +14,7 @@ import { RotateCcw } from "lucide-react";
 
 import type { Material } from "@/types";
 
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 import { DeactivateMaterialDialog } from "./DeactivateMaterialDialog";
 import { EditMaterialDialog } from "./EditMaterialDialog";
 import { MATERIAL_CATEGORY_LABELS } from "./material-categories";
@@ -25,18 +25,17 @@ interface MaterialRowProps {
 
 export function MaterialRow({ material }: MaterialRowProps) {
   const [pending, startTransition] = useTransition();
-  const { showError, showSuccess } = useEmployeeFeedback();
 
   function handleReactivate() {
     startTransition(async () => {
       const result = await reactivateMaterialAction(material.id);
 
       if (result.success) {
-        showSuccess("Material reactivado correctamente.");
+        toast.success("Material reactivado correctamente.");
         return;
       }
 
-      showError(
+      toast.error(
         result.error ?? "Error al reactivar el material.",
       );
     });

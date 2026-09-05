@@ -16,7 +16,7 @@ import type {
   MaterialUnit,
 } from "@/types";
 
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 import { MATERIAL_CATEGORY_OPTIONS } from "./material-categories";
 
 const initialState: MaterialActionState = {
@@ -51,7 +51,6 @@ export function MaterialForm({
   material,
   onSuccess,
 }: MaterialFormProps) {
-  const { showError, showSuccess } = useEmployeeFeedback();
 
   const action =
     mode === "edit" && material
@@ -65,7 +64,7 @@ export function MaterialForm({
 
   useEffect(() => {
     if (state.success) {
-      showSuccess(
+      toast.success(
         mode === "edit"
           ? "Material actualizado correctamente."
           : "Material creado correctamente.",
@@ -76,13 +75,11 @@ export function MaterialForm({
     }
 
     if (state.error) {
-      showError(state.error);
+      toast.error(state.error);
     }
   }, [
     mode,
     onSuccess,
-    showError,
-    showSuccess,
     state.error,
     state.success,
   ]);

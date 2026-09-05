@@ -11,7 +11,6 @@ import { getEmployeeLabourCost } from "@/app/actions/labour-costs";
 import { getEmployeeWorkLogs } from "@/app/actions/employee-worklogs";
 import {
   AssignmentStatusActions,
-  EmployeeFeedbackProvider,
   EmployeeLabourCost,
   EmployeeWorkLogDialog,
   EmployeeWorkLogsTable,
@@ -71,7 +70,6 @@ export default async function EmployeeDetailPage({
   ].join(" · ");
 
   return (
-    <EmployeeFeedbackProvider>
       <div className="max-w-6xl mx-auto">
         <PageHeader
           title={fullName}
@@ -214,6 +212,5 @@ export default async function EmployeeDetailPage({
           )}
         </Card>
       </div>
-    </EmployeeFeedbackProvider>
   );
 }

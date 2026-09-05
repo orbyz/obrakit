@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   createEmployeeWorkWeekAction,
@@ -18,9 +18,9 @@ import {
 import { Input } from "@/components/ui/forms/Input";
 import { Label } from "@/components/ui/forms/Label";
 import { Select } from "@/components/ui/forms/Select";
+import { toast } from "@/components/ui/toast/toast"
 import type { EmployeeAssignment } from "@/types";
 
-import { useEmployeeFeedback } from "./EmployeeFeedback";
 
 
 interface EmployeeWorkWeekDialogProps {
@@ -141,7 +141,7 @@ export function EmployeeWorkWeekDialog({
   const [breakMinutes, setBreakMinutes] = useState(
     () => selectedAssignment?.default_break_minutes ?? 60,
   );
-  const { showError, showSuccess } = useEmployeeFeedback();
+  const lastNotifiedState = useRef<string | null>(null);
   const [state, formAction, pending] = useActionState(
     createEmployeeWorkWeekAction,
     initialState,
@@ -162,14 +162,25 @@ export function EmployeeWorkWeekDialog({
 
 
   useEffect(() => {
+    const notificationKey = `${state.success}:${state.error ?? ""}`;
+
+    if (lastNotifiedState.current === notificationKey) {
+      return;
+    }
+
     if (state.success) {
-      showSuccess("Semana registrada correctamente.");
+      lastNotifiedState.current = notificationKey;
+
+      toast.success("Semana registrada correctamente.");
       queueMicrotask(() => setOpen(false));
       return;
     }
 
-    if (state.error) showError(state.error);
-  }, [showError, showSuccess, state.error, state.success]);
+    if (state.error) {
+      lastNotifiedState.current = notificationKey;
+      toast.error(state.error);
+    }
+  }, [state.error, state.success]);
 
   function toggleDate(date: string) {
     setSelectedDates((currentDates) =>

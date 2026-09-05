@@ -1,7 +1,6 @@
 
 import { getEmployees } from "@/app/actions/employees";
 import {
-  EmployeeFeedbackProvider,
   EmployeeTable,
   NewEmployeeDialog,
 } from "@/components/employees";
@@ -60,7 +59,6 @@ export default async function EmployeesPage({
   }
 
   return (
-    <EmployeeFeedbackProvider>
       <div className="max-w-6xl mx-auto">
         <PageHeader
           title="Empleados"
@@ -111,6 +109,5 @@ export default async function EmployeesPage({
           )}
         </Card>
       </div>
-    </EmployeeFeedbackProvider>
   );
 }

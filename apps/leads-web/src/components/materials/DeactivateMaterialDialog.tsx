@@ -18,7 +18,7 @@ import type { Material } from "@/types";
 
 import { Ban } from "lucide-react";
 
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 
 interface DeactivateMaterialDialogProps {
   material: Material;
@@ -30,19 +30,17 @@ export function DeactivateMaterialDialog({
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const { showError, showSuccess } = useEmployeeFeedback();
-
   function handleDeactivate() {
     startTransition(async () => {
       const result = await deactivateMaterialAction(material.id);
 
       if (result.success) {
-        showSuccess("Material desactivado correctamente.");
+        toast.success("Material desactivado correctamente.");
         setOpen(false);
         return;
       }
 
-      showError(result.error ?? "Error al desactivar el material.");
+      toast.error(result.error ?? "Error al desactivar el material.");
     });
   }
 

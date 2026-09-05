@@ -2,7 +2,6 @@
 
 import type { Material } from "@/types";
 
-import { EmployeeFeedbackProvider } from "../employees/EmployeeFeedback";
 import { PageHeader } from "../ui/page-header/PageHeader";
 import { MaterialTable } from "./MaterialTable";
 import { NewMaterialDialog } from "./NewMaterialDialog";
@@ -31,8 +30,6 @@ export function MaterialsClient({
   materials,
 }: MaterialsClientProps) {
   return (
-    <EmployeeFeedbackProvider>
-      <MaterialsContent materials={materials} />
-    </EmployeeFeedbackProvider>
+    <MaterialsContent materials={materials} />
   );
 }

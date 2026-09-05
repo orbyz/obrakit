@@ -21,8 +21,21 @@ export interface Profile {
 export interface Tenant {
   id: string;
   nombre: string;
+  nombre_legal: string | null;
+  nombre_comercial: string | null;
+  tipo_entidad: "autonomo" | "empresa" | null;
+  nif: string | null;
+  direccion: string | null;
+  codigo_postal: string | null;
+  ciudad: string | null;
+  provincia: string | null;
+  pais: string | null;
+  telefono: string | null;
+  email: string | null;
+  website: string | null;
   plan: Plan;
   created_at: string;
+  updated_at: string | null;
 }
 
 export interface TenantMember {

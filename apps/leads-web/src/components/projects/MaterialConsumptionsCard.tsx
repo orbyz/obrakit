@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
@@ -16,7 +15,6 @@ import type {
 
 import { MaterialConsumptionTable } from "../materials/MaterialConsumptionTable";
 import { NewMaterialConsumptionDialog } from "../materials/NewMaterialConsumptionDialog";
-import { EmployeeFeedbackProvider } from "../employees/EmployeeFeedback";
 
 interface MaterialConsumptionsCardProps {
   projectId: string;
@@ -46,7 +44,6 @@ export function MaterialConsumptionsCard({
   };
 
   return (
-    <EmployeeFeedbackProvider>
       <Card className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -115,6 +112,5 @@ export function MaterialConsumptionsCard({
         hideTrigger
       />
     </Card>
-  </EmployeeFeedbackProvider>
   );
 }

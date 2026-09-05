@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import {
   createEmployeeAssignmentAction,
@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/forms/Input";
 import { Select } from "@/components/ui/forms/Select";
 import { assignmentStatusConfig } from "@/lib/constants/assignment-status";
 
-import { useEmployeeFeedback } from "@/components/employees/EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 
 interface NewProjectAssignmentDialogProps {
   projectId: string;
@@ -58,7 +58,7 @@ export function NewProjectAssignmentDialog({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const dialogOpen = open ?? uncontrolledOpen;
   const setDialogOpen = onOpenChange ?? setUncontrolledOpen;
-  const { showError, showSuccess } = useEmployeeFeedback();
+  const lastNotifiedState = useRef<string | null>(null);
 
   const [state, formAction, pending] = useActionState(
     createEmployeeAssignmentAction,
@@ -66,8 +66,16 @@ export function NewProjectAssignmentDialog({
   );
 
   useEffect(() => {
+    const notificationKey = `${state.success}:${state.error ?? ""}`;
+
+    if (lastNotifiedState.current === notificationKey) {
+      return;
+    }
+
     if (state.success) {
-      showSuccess("Empleado asignado correctamente.");
+      lastNotifiedState.current = notificationKey;
+
+      toast.success("Empleado asignado correctamente.");
 
       queueMicrotask(() => {
         setDialogOpen(false);
@@ -77,9 +85,10 @@ export function NewProjectAssignmentDialog({
     }
 
     if (state.error) {
-      showError(state.error);
+      lastNotifiedState.current = notificationKey;
+      toast.error(state.error);
     }
-  }, [setDialogOpen, showError, showSuccess, state.error, state.success]);
+  }, [setDialogOpen, state.error, state.success]);
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

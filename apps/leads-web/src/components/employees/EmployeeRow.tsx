@@ -19,7 +19,6 @@ import type { Employee } from "@/types";
 
 import { DeactivateEmployeeDialog } from "./DeactivateEmployeeDialog";
 import { EditEmployeeDialog } from "./EditEmployeeDialog";
-import { useEmployeeFeedback } from "./EmployeeFeedback";
 
 interface EmployeeRowProps {
   employee: Employee;
@@ -46,7 +45,6 @@ const STATUS_CONFIG = {
 
 export function EmployeeRow({ employee }: EmployeeRowProps) {
   const [pending, startTransition] = useTransition();
-  const { showSuccess } = useEmployeeFeedback();
 
   const status = STATUS_CONFIG[employee.estado];
 
@@ -55,7 +53,7 @@ export function EmployeeRow({ employee }: EmployeeRowProps) {
       const result = await reactivateEmployeeAction(employee.id);
 
       if (result.success) {
-        showSuccess("Empleado reactivado correctamente.");
+        toast.success("Empleado reactivado correctamente.");
         return;
       }
 

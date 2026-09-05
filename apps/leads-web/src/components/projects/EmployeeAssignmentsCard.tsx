@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { getProjectAssignments } from "@/app/actions/employees";
-import { EmployeeFeedbackProvider } from "@/components/employees/EmployeeFeedback";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
 
@@ -26,7 +25,6 @@ export async function EmployeeAssignmentsCard({
   const assignments = await getProjectAssignments(projectId);
 
   return (
-    <EmployeeFeedbackProvider>
       <Card className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">
@@ -91,6 +89,5 @@ export async function EmployeeAssignmentsCard({
           </div>
         )}
       </Card>
-    </EmployeeFeedbackProvider>
   );
 }

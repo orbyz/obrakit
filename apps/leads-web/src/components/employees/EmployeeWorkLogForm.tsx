@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 
 import {
   createEmployeeWorkLogAction,
@@ -12,9 +12,10 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/forms/Input";
 import { Select } from "@/components/ui/forms/Select";
 import { Textarea } from "@/components/ui/forms/Textarea";
+import { toast } from "@/components/ui/toast/toast";
 import type { EmployeeAssignment, EmployeeWorkLog } from "@/types";
 
-import { useEmployeeFeedback } from "./EmployeeFeedback";
+
 
 interface EmployeeWorkLogFormProps {
   assignments?: EmployeeAssignment[];
@@ -38,7 +39,6 @@ export function EmployeeWorkLogForm({
   onSuccess,
   workLog,
 }: EmployeeWorkLogFormProps) {
-  const { showError, showSuccess } = useEmployeeFeedback();
   const action =
     mode === "edit" && workLog
       ? updateEmployeeWorkLogAction.bind(null, workLog.id)
@@ -47,27 +47,33 @@ export function EmployeeWorkLogForm({
   const activeAssignments = assignments.filter(
     (assignment) => assignment.status === "active",
   );
+
+  const lastNotifiedState = useRef<string | null>(null);
   useEffect(() => {
+    const notificationKey = `${state.success}:${state.error ?? ""}`;
+
+    if (lastNotifiedState.current === notificationKey) {
+      return;
+    }
+
     if (state.success) {
-      showSuccess(
+      lastNotifiedState.current = notificationKey;
+
+      toast.success(
         mode === "edit"
           ? "Jornada actualizada correctamente."
           : "Jornada registrada correctamente.",
       );
+
       onSuccess();
       return;
     }
 
-    if (state.error) showError(state.error);
-  }, [mode, onSuccess, showError, showSuccess, state.error, state.success]);
-
-  if (mode === "create" && activeAssignments.length === 0) {
-    return (
-      <p className="text-sm text-muted">
-        No existen asignaciones activas para registrar una jornada.
-      </p>
-    );
-  }
+    if (state.error) {
+      lastNotifiedState.current = notificationKey;
+      toast.error(state.error);
+    }
+  }, [mode, onSuccess, state.error, state.success]);
 
   return (
     <form action={formAction} className="space-y-4">
