@@ -6,7 +6,7 @@ import { updateEmployeeAssignmentStatusAction } from "@/app/actions/employee-ass
 import { Button } from "@/components/ui/button";
 import type { EmployeeAssignmentStatus } from "@/types";
 
-import { useEmployeeFeedback } from "./EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 
 interface AssignmentStatusActionsProps {
   assignmentId: string;
@@ -58,7 +58,6 @@ export function AssignmentStatusActions({
   status,
 }: AssignmentStatusActionsProps) {
   const [pending, startTransition] = useTransition();
-  const { showError, showSuccess } = useEmployeeFeedback();
   const actions = statusActions[status];
 
   if (actions.length === 0) return null;
@@ -71,11 +70,11 @@ export function AssignmentStatusActions({
       );
 
       if (result.success) {
-        showSuccess(action.successMessage);
+        toast.success(action.successMessage);
         return;
       }
 
-      showError(result.error ?? "Error al actualizar la asignación.");
+      toast.error(result.error ?? "Error al actualizar la asignación.");
     });
   }
 

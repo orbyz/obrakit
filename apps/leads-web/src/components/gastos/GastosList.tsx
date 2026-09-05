@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card/Card";
 import { Button } from "@/components/ui/button/Button";
 import { Badge } from "@/components/ui/badge/Badge";
 import { EmptyState } from "@/components/ui/empty-state/EmptyState";
+import { toast } from "@/components/ui/toast/toast";
 
 import {
   Building2,
@@ -197,8 +198,14 @@ export default function GastosList({
                     const result = await deleteGastoAction(gasto.id);
 
                     if (result.success) {
+                      toast.success("Gasto eliminado correctamente.");
                       await onDeleted?.();
+                      return;
                     }
+
+                    toast.error(
+                      result.error ?? "No se pudo eliminar el gasto.",
+                    );
                   }}
                   aria-label="Eliminar gasto"
                   title="Eliminar gasto"

@@ -4,7 +4,6 @@ export * from "./EmployeeForm";
 export * from "./NewEmployeeDialog";
 export * from "./EditEmployeeDialog";
 export * from "./DeactivateEmployeeDialog";
-export * from "./EmployeeFeedback";
 export * from "./NewEmployeeAssignmentDialog";
 export * from "./AssignmentStatusActions";
 export * from "./EmployeeWorkLogsTable";

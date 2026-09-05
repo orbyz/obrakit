@@ -14,8 +14,6 @@ import {
 } from "@/app/actions/employees";
 import type { Employee, EmployeePricingModel } from "@/types";
 
-import { useEmployeeFeedback } from "./EmployeeFeedback";
-
 const initialState: EmployeeActionState = {
   error: null,
   success: false,
@@ -32,14 +30,12 @@ export function EmployeeForm({
   employee,
   onSuccess,
 }: EmployeeFormProps) {
-  const { showSuccess } = useEmployeeFeedback();
   const action =
     mode === "edit" && employee
       ? updateEmployeeAction.bind(null, employee.id)
       : createEmployeeAction;
 
   const [state, formAction, pending] = useActionState(action, initialState);
-  const lastErrorRef = useRef<string | null>(null);
   const [pricingModel, setPricingModel] = useState<EmployeePricingModel>(
     employee?.pricing_model ?? "hourly",
   );
@@ -67,22 +63,33 @@ export function EmployeeForm({
     },
   }[pricingModel];
 
+  const lastNotifiedState = useRef<string | null>(null);
+
   useEffect(() => {
+    const notificationKey = `${state.success}:${state.error ?? ""}`;
+
+    if (lastNotifiedState.current === notificationKey) {
+      return;
+    }
+
     if (state.success) {
-      showSuccess(
+      lastNotifiedState.current = notificationKey;
+
+      toast.success(
         mode === "edit"
           ? "Empleado actualizado correctamente."
           : "Empleado creado correctamente.",
       );
+
       onSuccess?.();
       return;
     }
 
-    if (state.error && state.error !== lastErrorRef.current) {
-      lastErrorRef.current = state.error;
+    if (state.error) {
+      lastNotifiedState.current = notificationKey;
       toast.error(state.error);
     }
-  }, [mode, onSuccess, showSuccess, state.error, state.success]);
+  }, [mode, onSuccess, state.error, state.success]);
 
   return (
     <form action={formAction} className="space-y-4">

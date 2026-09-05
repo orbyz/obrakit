@@ -174,7 +174,7 @@ export function Sidebar({ email }: SidebarProps) {
             href="/empresa"
             label="Empresa"
             icon={<Building2 size={18} />}
-            disabled
+            onNavigate={closeSidebar}
           />
 
           <SidebarLink

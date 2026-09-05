@@ -18,7 +18,7 @@ import type { Employee } from "@/types";
 
 import { Ban } from "lucide-react";
 
-import { useEmployeeFeedback } from "./EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 
 interface DeactivateEmployeeDialogProps {
   employee: Employee;
@@ -29,19 +29,18 @@ export function DeactivateEmployeeDialog({
 }: DeactivateEmployeeDialogProps) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const { showError, showSuccess } = useEmployeeFeedback();
 
   function handleDeactivate() {
     startTransition(async () => {
       const result = await deactivateEmployeeAction(employee.id);
 
       if (result.success) {
-        showSuccess("Empleado desactivado correctamente.");
+        toast.success("Empleado desactivado correctamente.");
         setOpen(false);
         return;
       }
 
-      showError(result.error ?? "Error al desactivar el empleado.");
+      toast.error(result.error ?? "Error al desactivar el empleado.");
     });
   }
 

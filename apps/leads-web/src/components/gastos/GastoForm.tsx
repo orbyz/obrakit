@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button/Button";
 import { Input } from "@/components/ui/forms/Input";
 import { Select } from "@/components/ui/forms/Select";
 import { Textarea } from "@/components/ui/forms/Textarea";
-import { Alert } from "@/components/ui/forms/Alert";
+import { toast } from "@/components/ui/toast/toast";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 
@@ -86,15 +86,41 @@ export default function GastoForm({
   );
 
   const formRef = useRef<HTMLFormElement>(null);
+  const lastNotifiedState = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!state.success) {
+    const notificationKey = `${state.success}:${state.error ?? ""}`;
+
+    if (lastNotifiedState.current === notificationKey) {
       return;
     }
 
-    formRef.current?.reset();
-    onSuccess?.();
-  }, [onSuccess, state.success]);
+    if (state.success) {
+      lastNotifiedState.current = notificationKey;
+
+      toast.success(
+        editing
+          ? "Gasto actualizado correctamente."
+          : "Gasto registrado correctamente.",
+      );
+
+      formRef.current?.reset();
+      onSuccess?.();
+
+      return;
+    }
+
+    if (state.error) {
+      lastNotifiedState.current = notificationKey;
+
+      toast.error(state.error);
+    }
+  }, [
+    editing,
+    onSuccess,
+    state.error,
+    state.success,
+  ]);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -104,19 +130,6 @@ export default function GastoForm({
       action={formAction}
       className="space-y-6"
     >
-      {state.error && (
-        <Alert variant="error">
-          {state.error}
-        </Alert>
-      )}
-
-      {state.success && (
-        <Alert variant="success">
-          {editing
-            ? "Gasto actualizado correctamente."
-            : "Gasto registrado correctamente."}
-        </Alert>
-      )}
 
       {/* Información principal */}
       <div className="space-y-5">

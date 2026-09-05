@@ -16,7 +16,8 @@ import type { MaterialConsumption } from "@/types";
 
 import { Trash2 } from "lucide-react";
 
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
+
 
 interface DeleteMaterialConsumptionDialogProps {
   consumption: MaterialConsumption;
@@ -28,8 +29,6 @@ export function DeleteMaterialConsumptionDialog({
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const { showError, showSuccess } = useEmployeeFeedback();
-
   function handleDelete() {
     startTransition(async () => {
       const result = await deleteMaterialConsumptionAction(
@@ -37,7 +36,7 @@ export function DeleteMaterialConsumptionDialog({
       );
 
       if (result.success) {
-        showSuccess(
+        toast.success(
           "Consumo eliminado correctamente.",
         );
 
@@ -45,7 +44,7 @@ export function DeleteMaterialConsumptionDialog({
         return;
       }
 
-      showError(
+      toast.error(
         result.error ??
           "No se pudo eliminar el consumo.",
       );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 
 import {
   createMaterialConsumptionAction,
@@ -19,7 +19,7 @@ import type {
   MaterialConsumption,
 } from "@/types";
 
-import { useEmployeeFeedback } from "../employees/EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 
 interface MaterialConsumptionFormProps {
   projectId: string;
@@ -41,7 +41,6 @@ export function MaterialConsumptionForm({
   onSuccess,
   consumption,
 }: MaterialConsumptionFormProps) {
-  const { showError, showSuccess } = useEmployeeFeedback();
 
   const action =
     mode === "edit" && consumption
@@ -57,25 +56,35 @@ export function MaterialConsumptionForm({
     (material) => material.activo,
   );
 
+  const lastNotifiedState = useRef<string | null>(null);
+
   useEffect(() => {
+    const notificationKey = `${state.success}:${state.error ?? ""}`;
+
+    if (lastNotifiedState.current === notificationKey) {
+      return;
+    }
+
     if (state.success) {
-      showSuccess(
+      lastNotifiedState.current = notificationKey;
+
+      toast.success(
         mode === "edit"
           ? "Consumo actualizado correctamente."
-          : "Consumo registrado correctamente.",
+          : "Material agregado correctamente.",
       );
 
       onSuccess();
       return;
     }
+
     if (state.error) {
-      showError(state.error);
+      lastNotifiedState.current = notificationKey;
+      toast.error(state.error);
     }
   }, [
     mode,
     onSuccess,
-    showError,
-    showSuccess,
     state.error,
     state.success,
   ]);

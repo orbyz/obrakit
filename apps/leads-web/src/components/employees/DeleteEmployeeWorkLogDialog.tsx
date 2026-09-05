@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { useEmployeeFeedback } from "./EmployeeFeedback";
+import { toast } from "@/components/ui/toast/toast";
 
 interface DeleteEmployeeWorkLogDialogProps {
   workLogId: string;
@@ -26,19 +26,18 @@ export function DeleteEmployeeWorkLogDialog({
 }: DeleteEmployeeWorkLogDialogProps) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const { showError, showSuccess } = useEmployeeFeedback();
 
   function handleDelete() {
     startTransition(async () => {
       const result = await deleteEmployeeWorkLogAction(workLogId);
 
       if (result.success) {
-        showSuccess("Jornada eliminada correctamente.");
+        toast.success("Jornada eliminada correctamente.");
         setOpen(false);
         return;
       }
 
-      showError(result.error ?? "Error al eliminar la jornada.");
+      toast.error(result.error ?? "Error al eliminar la jornada.");
     });
   }
 
