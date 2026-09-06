@@ -178,10 +178,10 @@ export function Sidebar({ email }: SidebarProps) {
           />
 
           <SidebarLink
-            href="/usuarios"
-            label="Usuarios"
+            href="/usuario"
+            label="Usuario"
             icon={<ContactRound size={18} />}
-            disabled
+            onNavigate={closeSidebar}
           />
         </div>
       </section>
