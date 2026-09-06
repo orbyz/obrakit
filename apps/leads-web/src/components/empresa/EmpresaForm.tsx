@@ -107,7 +107,10 @@ export default function EmpresaForm({ tenant }: EmpresaFormProps) {
         title="Información del negocio"
         description="Define cómo se identifica tu negocio dentro de ObraKit."
       >
-        <form action={businessAction} className="space-y-6">
+        <form
+          key={`business-${tenant.updated_at ?? ""}`}
+          action={businessAction}
+        >
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <label htmlFor="nombre_legal" className={labelClassName}>
@@ -170,7 +173,10 @@ export default function EmpresaForm({ tenant }: EmpresaFormProps) {
         title="Datos fiscales"
         description="Información que podrá utilizar ObraKit en documentos y reportes."
       >
-        <form action={fiscalAction} className="space-y-6">
+        <form
+          key={`fiscal-${tenant.updated_at ?? ""}`}
+          action={fiscalAction}
+        >
           <div>
             <label htmlFor="nif" className={labelClassName}>
               NIF
@@ -282,7 +288,10 @@ export default function EmpresaForm({ tenant }: EmpresaFormProps) {
         title="Datos de contacto"
         description="Información de contacto de tu negocio."
       >
-        <form action={contactAction} className="space-y-6">
+        <form
+          key={`contact-${tenant.updated_at ?? ""}`}
+          action={contactAction}
+        >
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <label htmlFor="telefono" className={labelClassName}>

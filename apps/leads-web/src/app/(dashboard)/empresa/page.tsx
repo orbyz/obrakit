@@ -35,7 +35,6 @@ export default async function EmpresaPage() {
       />
 
       <EmpresaForm
-        key={`${tenant.id}-${tenant.updated_at ?? ""}`}
         tenant={tenant}
       />
     </div>
